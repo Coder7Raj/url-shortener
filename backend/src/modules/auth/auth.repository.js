@@ -22,8 +22,15 @@ const createUser = async (data) => {
   });
 };
 
+const createRefreshToken = async (data) => {
+  return prisma.refresh_tokens.create({
+    data,
+  });
+};
+
 module.exports = {
   findUserByEmail,
   findUserByUsername,
   createUser,
+  createRefreshToken,
 };
