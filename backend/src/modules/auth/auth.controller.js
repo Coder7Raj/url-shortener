@@ -15,7 +15,11 @@ const register = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-  const result = await service.loginUser(req.body);
+  const result = await service.loginUser(req.body, {
+    ipAddress: req.ip,
+    userAgent: req.get("user-agent"),
+    deviceName: null,
+  });
 
   res.status(200).json(new ApiResponse(200, "Login successful", result));
 });
@@ -29,6 +33,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     }),
   );
 });
+
 const refreshToken = asyncHandler(async (req, res) => {
   const { refreshToken } = req.body;
 

@@ -3,12 +3,13 @@ const { toUserResponse } = require("./auth.dto.js");
 const ApiError = require("../../utils/apiError.js");
 const repository = require("./auth.repository.js");
 const { comparePassword, hashToken, compareToken } = require("./auth.utils.js");
-
+const { calculateRefreshTokenExpiry } = require("../../utils/date.js");
 const {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
 } = require("../../services/jwt.services.js");
+const sessionRepository = require("./session.repository.js");
 
 const registerUser = async (userData) => {
   const emailExists = await repository.findUserByEmail(userData.email);
@@ -35,7 +36,7 @@ const registerUser = async (userData) => {
   return toUserResponse(user);
 };
 
-const loginUser = async ({ email, password }) => {
+const loginUser = async ({ email, password }, deviceInfo) => {
   const user = await repository.findUserByEmail(email);
 
   if (!user) {
@@ -50,14 +51,18 @@ const loginUser = async ({ email, password }) => {
 
   const accessToken = generateAccessToken(user);
 
-  const refreshToken = generateRefreshToken(user);
+  const { refreshToken, tokenId } = generateRefreshToken(user);
 
-  const hashedRefresh = await hashToken(refreshToken);
+  const hashedToken = await hashToken(refreshToken);
 
-  await repository.createRefreshToken({
+  await sessionRepository.createSession({
     user_id: user.user_id,
-    token_hash: hashedRefresh,
-    expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    token_id: tokenId,
+    token_hash: hashedToken,
+    ip_address: deviceInfo.ipAddress,
+    user_agent: deviceInfo.userAgent,
+    device_name: deviceInfo.deviceName,
+    expires_at: calculateRefreshTokenExpiry(),
   });
 
   return {
@@ -79,51 +84,62 @@ const getCurrentUser = async (userId) => {
 
 const refreshAccessToken = async (refreshToken) => {
   const payload = verifyRefreshToken(refreshToken);
+  if (payload.type !== "refresh") {
+    throw new ApiError(401, "Invalid token type");
+  }
+  const session = await sessionRepository.findSessionByTokenId(payload.jti);
 
-  const user = await repository.findUserById(payload.userId);
+  if (!session) {
+    throw new ApiError(401, "Session not found");
+  }
 
-  if (!user) {
+  if (session.revoked_at) {
+    throw new ApiError(401, "Session has been revoked");
+  }
+  if (session.expires_at < new Date()) {
+    await sessionRepository.deleteSession(session.session_id);
+
+    throw new ApiError(401, "Session expired");
+  }
+
+  const isValid = await compareToken(refreshToken, session.token_hash);
+
+  if (!isValid) {
     throw new ApiError(401, "Invalid refresh token");
   }
 
-  const tokens = await repository.findRefreshTokensByUserId(user.user_id);
+  const user = await repository.findUserById(payload.sub);
 
-  let matchedToken = null;
-
-  for (const token of tokens) {
-    const isMatch = await compareToken(refreshToken, token.token_hash);
-
-    if (isMatch) {
-      matchedToken = token;
-      break;
-    }
+  if (!user) {
+    throw new ApiError(401, "User not found");
   }
 
-  if (!matchedToken) {
-    throw new ApiError(401, "Refresh token not recognized");
-  }
+  const accessToken = generateAccessToken(user);
 
-  if (matchedToken.expires_at < new Date()) {
-    await repository.deleteRefreshToken(matchedToken.token_id);
+  const { refreshToken: newRefreshToken, tokenId: newTokenId } =
+    generateRefreshToken(user);
 
-    throw new ApiError(401, "Refresh token expired");
-  }
+  await sessionRepository.deleteSession(session.session_id);
 
-  const newAccessToken = generateAccessToken(user);
-
-  const newRefreshToken = generateRefreshToken(user);
-
-  const hashedToken = await hashToken(newRefreshToken);
-  await repository.deleteRefreshToken(matchedToken.token_id);
-
-  await repository.createRefreshToken({
+  await sessionRepository.createSession({
     user_id: user.user_id,
-    token_hash: hashedToken,
-    expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+
+    token_id: newTokenId,
+
+    token_hash: await hashToken(newRefreshToken),
+
+    expires_at: calculateRefreshTokenExpiry(),
+
+    device_name: session.device_name,
+
+    ip_address: session.ip_address,
+
+    user_agent: session.user_agent,
   });
 
   return {
-    accessToken: newAccessToken,
+    accessToken,
+
     refreshToken: newRefreshToken,
   };
 };
