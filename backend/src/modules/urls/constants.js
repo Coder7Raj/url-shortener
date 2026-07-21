@@ -1,0 +1,13 @@
+const SHORT_CODE_LENGTH = 7;
+
+const SHORT_URL_STATUS = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+  EXPIRED: "EXPIRED",
+  DELETED: "DELETED",
+};
+
+module.exports = {
+  SHORT_CODE_LENGTH,
+  SHORT_URL_STATUS,
+};

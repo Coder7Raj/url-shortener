@@ -1,1 +1,20 @@
-module.exports = {};
+const z = require("zod");
+
+const createUrlSchema = z.object({
+  body: z.object({
+    originalUrl: z.string().url("Please provide a valid URL"),
+
+    customAlias: z
+      .string()
+      .min(3)
+      .max(20)
+      .regex(/^[a-zA-Z0-9_-]+$/, "Only letters, numbers, _ and - are allowed")
+      .optional(),
+
+    expiresAt: z.string().datetime().optional(),
+  }),
+});
+
+module.exports = {
+  createUrlSchema,
+};

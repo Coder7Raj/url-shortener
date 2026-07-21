@@ -128,23 +128,34 @@ model url_tags {
 }
 
 model urls {
-  url_id        BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
-  user_id       BigInt       @db.UnsignedBigInt
-  original_url  String       @db.Text
-  short_code    String       @unique(map: "short_code") @db.VarChar(20)
-  title         String?      @db.VarChar(255)
-  description   String?      @db.Text
-  password_hash String?      @db.VarChar(255)
-  expires_at    DateTime?    @db.DateTime(0)
-  status        urls_status? @default(ACTIVE)
-  total_clicks  BigInt?      @default(0) @db.UnsignedBigInt
-  created_at    DateTime?    @default(now()) @db.Timestamp(0)
-  updated_at    DateTime?    @default(now()) @db.Timestamp(0)
-  deleted_at    DateTime?    @db.DateTime(0)
-  clicks        clicks[]
-  qr_codes      qr_codes[]
-  url_tags      url_tags[]
-  users         users        @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "urls_ibfk_1")
+  url_id  BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id BigInt @db.UnsignedBigInt
+
+  original_url String @db.Text
+  short_code   String @unique(map: "short_code") @db.VarChar(20)
+
+  title       String? @db.VarChar(255)
+  description String? @db.Text
+
+  password_hash String? @db.VarChar(255)
+
+  expires_at DateTime? @db.DateTime(0)
+
+  status urls_status @default(ACTIVE)
+
+  total_clicks    BigInt    @default(0) @db.UnsignedBigInt
+  max_clicks      BigInt?   @db.UnsignedBigInt
+  last_clicked_at DateTime? @db.DateTime(0)
+
+  created_at DateTime  @default(now()) @db.Timestamp(0)
+  updated_at DateTime  @updatedAt @db.Timestamp(0)
+  deleted_at DateTime? @db.DateTime(0)
+
+  clicks   clicks[]
+  qr_codes qr_codes[]
+  url_tags url_tags[]
+
+  users users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "urls_ibfk_1")
 
   @@index([short_code], map: "idx_urls_short_code")
   @@index([status], map: "idx_urls_status")
@@ -162,8 +173,8 @@ model users {
   email_verified            Boolean?                    @default(false)
   is_active                 Boolean?                    @default(true)
   last_login_at             DateTime?                   @db.DateTime(0)
-  created_at                DateTime?                   @default(now()) @db.Timestamp(0)
-  updated_at                DateTime?                   @default(now()) @db.Timestamp(0)
+  created_at                DateTime                    @default(now()) @db.Timestamp(0)
+  updated_at                DateTime                    @updatedAt @db.Timestamp(0)
   deleted_at                DateTime?                   @db.DateTime(0)
   api_keys                  api_keys[]
   audit_logs                audit_logs[]
@@ -189,8 +200,8 @@ model sessions {
   last_used_at DateTime? @db.DateTime(0)
   expires_at   DateTime  @db.DateTime(0)
   revoked_at   DateTime? @db.DateTime(0)
-  created_at   DateTime? @default(now()) @db.DateTime(0)
-  updated_at   DateTime? @default(now()) @db.DateTime(0)
+  created_at   DateTime  @default(now()) @db.DateTime(0)
+  updated_at   DateTime  @updatedAt @db.DateTime(0)
   users        users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_sessions_user")
 
   @@index([expires_at], map: "idx_sessions_expires")
