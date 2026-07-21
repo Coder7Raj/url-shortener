@@ -29,9 +29,19 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     }),
   );
 });
+const refreshToken = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.body;
+
+  const tokens = await service.refreshAccessToken(refreshToken);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Token refreshed successfully", tokens));
+});
 
 module.exports = {
   register,
   login,
   getCurrentUser,
+  refreshToken,
 };

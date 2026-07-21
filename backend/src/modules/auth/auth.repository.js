@@ -36,10 +36,37 @@ const createRefreshToken = async (data) => {
   });
 };
 
+const findRefreshTokensByUserId = async (userId) => {
+  return prisma.refresh_tokens.findMany({
+    where: {
+      user_id: BigInt(userId),
+    },
+  });
+};
+
+const deleteRefreshToken = async (id) => {
+  return prisma.refresh_tokens.delete({
+    where: {
+      token_id: BigInt(id),
+    },
+  });
+};
+
+const deleteAllRefreshTokens = async (userId) => {
+  return prisma.refresh_tokens.deleteMany({
+    where: {
+      user_id: BigInt(userId),
+    },
+  });
+};
+
 module.exports = {
   findUserById,
   findUserByEmail,
   findUserByUsername,
   createUser,
   createRefreshToken,
+  findRefreshTokensByUserId,
+  deleteRefreshToken,
+  deleteAllRefreshTokens,
 };

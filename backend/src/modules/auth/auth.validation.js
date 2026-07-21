@@ -23,7 +23,12 @@ const loginSchema = z.object({
   password: z.string().min(8, "Password is required"),
 });
 
+const refreshTokenSchema = z.object({
+  refreshToken: z.string().min(1, "Refresh token is required"),
+});
+
 module.exports = {
   registerSchema,
   loginSchema,
+  refreshTokenSchema,
 };

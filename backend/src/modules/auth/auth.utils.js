@@ -8,7 +8,12 @@ const hashToken = async (token) => {
   return bcrypt.hash(token, 12);
 };
 
+const compareToken = async (plainToken, hashedToken) => {
+  return bcrypt.compare(plainToken, hashedToken);
+};
+
 module.exports = {
   comparePassword,
   hashToken,
+  compareToken,
 };
