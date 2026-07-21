@@ -1,5 +1,13 @@
 const prisma = require("../../config/prisma.js");
 
+const findUserById = async (id) => {
+  return prisma.users.findUnique({
+    where: {
+      user_id: BigInt(id),
+    },
+  });
+};
+
 const findUserByEmail = async (email) => {
   return prisma.users.findUnique({
     where: {
@@ -29,6 +37,7 @@ const createRefreshToken = async (data) => {
 };
 
 module.exports = {
+  findUserById,
   findUserByEmail,
   findUserByUsername,
   createUser,

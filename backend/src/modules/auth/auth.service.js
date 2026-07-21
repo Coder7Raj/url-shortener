@@ -66,7 +66,18 @@ const loginUser = async ({ email, password }) => {
   };
 };
 
+const getCurrentUser = async (userId) => {
+  const user = await repository.findUserById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return toUserResponse(user);
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  getCurrentUser,
 };
