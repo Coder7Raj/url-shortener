@@ -30,6 +30,17 @@ const createUser = async (data) => {
   });
 };
 
+const updateLastLogin = async (userId) => {
+  return prisma.users.update({
+    where: {
+      user_id: BigInt(userId),
+    },
+    data: {
+      last_login_at: new Date(),
+    },
+  });
+};
+
 const createRefreshToken = async (data) => {
   return prisma.refresh_tokens.create({
     data,
@@ -65,6 +76,7 @@ module.exports = {
   findUserByEmail,
   findUserByUsername,
   createUser,
+  updateLastLogin,
   createRefreshToken,
   findRefreshTokensByUserId,
   deleteRefreshToken,

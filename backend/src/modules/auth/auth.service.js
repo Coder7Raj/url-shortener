@@ -65,6 +65,7 @@ const loginUser = async ({ email, password }, deviceInfo) => {
     expires_at: calculateRefreshTokenExpiry(),
   });
 
+  await repository.updateLastLogin(user.user_id);
   return {
     user: toUserResponse(user),
     accessToken,
