@@ -10,6 +10,7 @@ const {
   verifyRefreshToken,
 } = require("../../services/jwt.services.js");
 const sessionRepository = require("./session.repository.js");
+const { toSessionListResponse } = require("./session.dto.js");
 
 const registerUser = async (userData) => {
   const emailExists = await repository.findUserByEmail(userData.email);
@@ -167,11 +168,18 @@ const refreshAccessToken = async (refreshToken) => {
   };
 };
 
+const getUserSessions = async (userId) => {
+  const sessions = await sessionRepository.findUserSessions(userId);
+
+  return toSessionListResponse(sessions);
+};
+
 module.exports = {
   registerUser,
   loginUser,
   logout,
   logoutAll,
+  getUserSessions,
   getCurrentUser,
   refreshAccessToken,
 };

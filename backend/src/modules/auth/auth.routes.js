@@ -22,4 +22,5 @@ router.post(
 );
 router.post("/logout", controller.logout);
 router.post("/logout-all", authMiddleware, controller.logoutAll);
+router.get("/sessions", authMiddleware, controller.getSessions);
 module.exports = router;

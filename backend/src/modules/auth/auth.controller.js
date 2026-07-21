@@ -66,11 +66,22 @@ const refreshToken = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "Token refreshed successfully", tokens));
 });
 
+const getSessions = asyncHandler(async (req, res) => {
+  const sessions = await service.getUserSessions(req.user.id);
+
+  res.status(200).json(
+    new ApiResponse(200, "Sessions fetched successfully", {
+      sessions,
+    }),
+  );
+});
+
 module.exports = {
   register,
   login,
   logout,
   logoutAll,
+  getSessions,
   getCurrentUser,
   refreshToken,
 };
