@@ -1,4 +1,5 @@
 require("dotenv").config();
+const prisma = require("./config/prisma.js");
 
 const express = require("express");
 
@@ -17,6 +18,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(compression());
 app.use(morgan("dev"));
+
+app.get("/", async (req, res) => {
+  const users = await prisma.users.findMany();
+
+  res.json(users);
+});
 
 app.get("/", (req, res) => {
   res.json({
