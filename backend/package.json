@@ -29,6 +29,7 @@
     "mysql2": "^3.23.1",
     "prisma": "^6.19.3",
     "uuid": "^14.0.1",
+    "winston": "^3.19.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
