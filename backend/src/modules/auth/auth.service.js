@@ -73,6 +73,28 @@ const loginUser = async ({ email, password }, deviceInfo) => {
   };
 };
 
+const logout = async (refreshToken) => {
+  const payload = verifyRefreshToken(refreshToken);
+
+  if (payload.type !== "refresh") {
+    throw new ApiError(401, "Invalid token type");
+  }
+
+  const session = await sessionRepository.findSessionByTokenId(payload.jti);
+
+  if (!session) {
+    throw new ApiError(401, "Session not found");
+  }
+
+  await sessionRepository.deleteSession(session.session_id);
+
+  return;
+};
+
+const logoutAll = async (userId) => {
+  await sessionRepository.deleteUserSessions(userId);
+};
+
 const getCurrentUser = async (userId) => {
   const user = await repository.findUserById(userId);
 
@@ -148,6 +170,8 @@ const refreshAccessToken = async (refreshToken) => {
 module.exports = {
   registerUser,
   loginUser,
+  logout,
+  logoutAll,
   getCurrentUser,
   refreshAccessToken,
 };

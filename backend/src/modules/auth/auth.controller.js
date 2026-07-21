@@ -24,6 +24,28 @@ const login = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, "Login successful", result));
 });
 
+const logout = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.body;
+
+  await service.logout(refreshToken);
+
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: "Logged out successfully",
+  });
+});
+
+const logoutAll = asyncHandler(async (req, res) => {
+  await service.logoutAll(req.user.id);
+
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: "Logged out from all devices",
+  });
+});
+
 const getCurrentUser = asyncHandler(async (req, res) => {
   const user = await service.getCurrentUser(req.user.id);
 
@@ -47,6 +69,8 @@ const refreshToken = asyncHandler(async (req, res) => {
 module.exports = {
   register,
   login,
+  logout,
+  logoutAll,
   getCurrentUser,
   refreshToken,
 };

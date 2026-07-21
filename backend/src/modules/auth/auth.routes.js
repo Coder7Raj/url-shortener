@@ -20,5 +20,6 @@ router.post(
   validate(refreshTokenSchema),
   controller.refreshToken,
 );
-
+router.post("/logout", controller.logout);
+router.post("/logout-all", authMiddleware, controller.logoutAll);
 module.exports = router;
