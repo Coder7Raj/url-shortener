@@ -8,6 +8,9 @@ const cors = require("cors");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
+const routes = require("./routes/routes.js");
+const errorMiddleware = require("./middlewares/error.middleware.js");
+const notFound = require("./middlewares/notFound.middleware.js");
 
 const app = express();
 
@@ -19,11 +22,11 @@ app.use(cookieParser());
 app.use(compression());
 app.use(morgan("dev"));
 
-app.get("/", async (req, res) => {
-  const users = await prisma.users.findMany();
+app.use("/api/v1", routes);
 
-  res.json(users);
-});
+app.use(notFound);
+
+app.use(errorMiddleware);
 
 app.get("/", (req, res) => {
   res.json({
