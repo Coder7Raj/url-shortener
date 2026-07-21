@@ -39,7 +39,8 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    return next(new ApiError(401, "Invalid or expired access token"));
+    console.error("AUTH ERROR:", error);
+    return next(error);
   }
 };
 

@@ -111,19 +111,6 @@ model qr_codes {
   @@index([url_id], map: "url_id")
 }
 
-model refresh_tokens {
-  token_id   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  user_id    BigInt    @db.UnsignedBigInt
-  token_hash String    @db.VarChar(255)
-  expires_at DateTime  @db.DateTime(0)
-  revoked    Boolean?  @default(false)
-  created_at DateTime? @default(now()) @db.Timestamp(0)
-  users      users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "refresh_tokens_ibfk_1")
-
-  @@index([token_hash], map: "idx_refresh_hash")
-  @@index([user_id], map: "idx_refresh_user")
-}
-
 model tags {
   tag_id   BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
   tag_name String?    @unique(map: "tag_name") @db.VarChar(50)
@@ -184,11 +171,31 @@ model users {
   email_verification_tokens email_verification_tokens[]
   login_history             login_history[]
   password_reset_tokens     password_reset_tokens[]
-  refresh_tokens            refresh_tokens[]
+  sessions                  sessions[]
   urls                      urls[]
 
   @@index([email], map: "idx_users_email")
   @@index([username], map: "idx_users_username")
+}
+
+model sessions {
+  session_id   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id      BigInt    @db.UnsignedBigInt
+  token_id     String    @unique(map: "token_id") @db.Char(36)
+  token_hash   String    @db.VarChar(255)
+  device_name  String?   @db.VarChar(100)
+  ip_address   String?   @db.VarChar(45)
+  user_agent   String?   @db.Text
+  last_used_at DateTime? @db.DateTime(0)
+  expires_at   DateTime  @db.DateTime(0)
+  revoked_at   DateTime? @db.DateTime(0)
+  created_at   DateTime? @default(now()) @db.DateTime(0)
+  updated_at   DateTime? @default(now()) @db.DateTime(0)
+  users        users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_sessions_user")
+
+  @@index([expires_at], map: "idx_sessions_expires")
+  @@index([revoked_at], map: "idx_sessions_revoked")
+  @@index([user_id], map: "idx_sessions_user")
 }
 
 enum api_keys_status {

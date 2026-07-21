@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 
 const generateAccessToken = (user) => {
@@ -15,15 +16,24 @@ const generateAccessToken = (user) => {
 };
 
 const generateRefreshToken = (user) => {
-  return jwt.sign(
+  const tokenId = uuidv4();
+
+  const refreshToken = jwt.sign(
     {
-      userId: Number(user.user_id),
+      sub: Number(user.user_id),
+      jti: tokenId,
+      type: "refresh",
     },
     process.env.JWT_REFRESH_SECRET,
     {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRES,
     },
   );
+
+  return {
+    refreshToken,
+    tokenId,
+  };
 };
 
 const verifyAccessToken = (token) => {
