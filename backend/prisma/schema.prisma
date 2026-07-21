@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model api_keys {
+  key_id       BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id      BigInt           @db.UnsignedBigInt
+  api_key_hash String           @db.VarChar(255)
+  name         String?          @db.VarChar(100)
+  status       api_keys_status? @default(ACTIVE)
+  created_at   DateTime?        @default(now()) @db.Timestamp(0)
+  users        users            @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "api_keys_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model audit_logs {
+  log_id     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt?   @db.UnsignedBigInt
+  action     String    @db.VarChar(100)
+  entity     String?   @db.VarChar(50)
+  entity_id  BigInt?
+  ip_address String?   @db.VarChar(45)
+  details    Json?
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  users      users?    @relation(fields: [user_id], references: [user_id], onUpdate: NoAction, map: "audit_logs_ibfk_1")
+
+  @@index([user_id], map: "idx_audit_user")
+}
+
+model clicks {
+  click_id   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  url_id     BigInt    @db.UnsignedBigInt
+  ip_address String?   @db.VarChar(45)
+  country    String?   @db.VarChar(100)
+  city       String?   @db.VarChar(100)
+  browser    String?   @db.VarChar(100)
+  device     String?   @db.VarChar(100)
+  os         String?   @db.VarChar(100)
+  referrer   String?   @db.Text
+  user_agent String?   @db.Text
+  clicked_at DateTime? @default(now()) @db.Timestamp(0)
+  urls       urls      @relation(fields: [url_id], references: [url_id], onDelete: Cascade, onUpdate: NoAction, map: "clicks_ibfk_1")
+
+  @@index([clicked_at], map: "idx_clicks_time")
+  @@index([url_id], map: "idx_clicks_url")
+}
+
+model custom_domains {
+  domain_id   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id     BigInt    @db.UnsignedBigInt
+  domain_name String?   @unique(map: "domain_name") @db.VarChar(255)
+  verified    Boolean?  @default(false)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  users       users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "custom_domains_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model email_verification_tokens {
+  verification_id BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id         BigInt    @db.UnsignedBigInt
+  token_hash      String    @db.VarChar(255)
+  expires_at      DateTime  @db.DateTime(0)
+  used            Boolean?  @default(false)
+  created_at      DateTime? @default(now()) @db.Timestamp(0)
+  users           users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "email_verification_tokens_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model login_history {
+  login_id   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  ip_address String?   @db.VarChar(45)
+  browser    String?   @db.VarChar(100)
+  device     String?   @db.VarChar(100)
+  os         String?   @db.VarChar(100)
+  country    String?   @db.VarChar(100)
+  success    Boolean?
+  login_time DateTime? @default(now()) @db.Timestamp(0)
+  users      users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "login_history_ibfk_1")
+
+  @@index([user_id], map: "idx_login_user")
+}
+
+model password_reset_tokens {
+  reset_id   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  token_hash String    @db.VarChar(255)
+  expires_at DateTime  @db.DateTime(0)
+  used       Boolean?  @default(false)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  users      users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "password_reset_tokens_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model qr_codes {
+  qr_id      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  url_id     BigInt    @db.UnsignedBigInt
+  image_path String?   @db.VarChar(500)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  urls       urls      @relation(fields: [url_id], references: [url_id], onDelete: Cascade, onUpdate: NoAction, map: "qr_codes_ibfk_1")
+
+  @@index([url_id], map: "url_id")
+}
+
+model refresh_tokens {
+  token_id   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  token_hash String    @db.VarChar(255)
+  expires_at DateTime  @db.DateTime(0)
+  revoked    Boolean?  @default(false)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  users      users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "refresh_tokens_ibfk_1")
+
+  @@index([token_hash], map: "idx_refresh_hash")
+  @@index([user_id], map: "idx_refresh_user")
+}
+
+model tags {
+  tag_id   BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  tag_name String?    @unique(map: "tag_name") @db.VarChar(50)
+  url_tags url_tags[]
+}
+
+model url_tags {
+  url_id BigInt @db.UnsignedBigInt
+  tag_id BigInt @db.UnsignedBigInt
+  urls   urls   @relation(fields: [url_id], references: [url_id], onDelete: Cascade, onUpdate: NoAction, map: "url_tags_ibfk_1")
+  tags   tags   @relation(fields: [tag_id], references: [tag_id], onDelete: Cascade, onUpdate: NoAction, map: "url_tags_ibfk_2")
+
+  @@id([url_id, tag_id])
+  @@index([tag_id], map: "tag_id")
+}
+
+model urls {
+  url_id        BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id       BigInt       @db.UnsignedBigInt
+  original_url  String       @db.Text
+  short_code    String       @unique(map: "short_code") @db.VarChar(20)
+  title         String?      @db.VarChar(255)
+  description   String?      @db.Text
+  password_hash String?      @db.VarChar(255)
+  expires_at    DateTime?    @db.DateTime(0)
+  status        urls_status? @default(ACTIVE)
+  total_clicks  BigInt?      @default(0) @db.UnsignedBigInt
+  created_at    DateTime?    @default(now()) @db.Timestamp(0)
+  updated_at    DateTime?    @default(now()) @db.Timestamp(0)
+  deleted_at    DateTime?    @db.DateTime(0)
+  clicks        clicks[]
+  qr_codes      qr_codes[]
+  url_tags      url_tags[]
+  users         users        @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "urls_ibfk_1")
+
+  @@index([short_code], map: "idx_urls_short_code")
+  @@index([status], map: "idx_urls_status")
+  @@index([user_id], map: "idx_urls_user")
+}
+
+model users {
+  user_id                   BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  username                  String                      @unique(map: "username") @db.VarChar(50)
+  name                      String                      @db.VarChar(100)
+  email                     String                      @unique(map: "email") @db.VarChar(255)
+  password_hash             String                      @db.VarChar(255)
+  profile_picture           String?                     @db.VarChar(500)
+  role                      users_role?                 @default(USER)
+  email_verified            Boolean?                    @default(false)
+  is_active                 Boolean?                    @default(true)
+  last_login_at             DateTime?                   @db.DateTime(0)
+  created_at                DateTime?                   @default(now()) @db.Timestamp(0)
+  updated_at                DateTime?                   @default(now()) @db.Timestamp(0)
+  deleted_at                DateTime?                   @db.DateTime(0)
+  api_keys                  api_keys[]
+  audit_logs                audit_logs[]
+  custom_domains            custom_domains[]
+  email_verification_tokens email_verification_tokens[]
+  login_history             login_history[]
+  password_reset_tokens     password_reset_tokens[]
+  refresh_tokens            refresh_tokens[]
+  urls                      urls[]
+
+  @@index([email], map: "idx_users_email")
+  @@index([username], map: "idx_users_username")
+}
+
+enum api_keys_status {
+  ACTIVE
+  REVOKED
+}
+
+enum users_role {
+  USER
+  ADMIN
+}
+
+enum urls_status {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+  DELETED
+}
