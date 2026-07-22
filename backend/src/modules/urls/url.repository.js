@@ -1,4 +1,4 @@
-const prisma = require("../../config/prisma.js");
+const prisma = require("../../config/prisma");
 
 const createUrl = async (data) => {
   return prisma.urls.create({
@@ -6,7 +6,7 @@ const createUrl = async (data) => {
   });
 };
 
-const findByShortCode = async (shortCode) => {
+const findUrlByShortCode = async (shortCode) => {
   return prisma.urls.findUnique({
     where: {
       short_code: shortCode,
@@ -14,7 +14,15 @@ const findByShortCode = async (shortCode) => {
   });
 };
 
-const findByUserId = async (userId) => {
+const findUrlById = async (urlId) => {
+  return prisma.urls.findUnique({
+    where: {
+      url_id: BigInt(urlId),
+    },
+  });
+};
+
+const findUrlsByUserId = async (userId) => {
   return prisma.urls.findMany({
     where: {
       user_id: BigInt(userId),
@@ -26,8 +34,58 @@ const findByUserId = async (userId) => {
   });
 };
 
+const updateUrlById = async (urlId, data) => {
+  return prisma.urls.update({
+    where: {
+      url_id: BigInt(urlId),
+    },
+    data,
+  });
+};
+
+const incrementClicks = async (urlId) => {
+  return prisma.urls.update({
+    where: {
+      url_id: BigInt(urlId),
+    },
+    data: {
+      total_clicks: {
+        increment: 1,
+      },
+    },
+  });
+};
+
+const markExpired = async (urlId) => {
+  return prisma.urls.update({
+    where: {
+      url_id: BigInt(urlId),
+    },
+    data: {
+      status: "EXPIRED",
+    },
+  });
+};
+
+const softDeleteUrl = async (urlId) => {
+  return prisma.urls.update({
+    where: {
+      url_id: BigInt(urlId),
+    },
+    data: {
+      status: "DELETED",
+      deleted_at: new Date(),
+    },
+  });
+};
+
 module.exports = {
   createUrl,
-  findByShortCode,
-  findByUserId,
+  findUrlByShortCode,
+  findUrlById,
+  findUrlsByUserId,
+  updateUrlById,
+  incrementClicks,
+  markExpired,
+  softDeleteUrl,
 };

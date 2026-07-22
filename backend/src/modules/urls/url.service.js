@@ -9,7 +9,7 @@ const generateUniqueShortCode = async () => {
   while (true) {
     const code = generateShortCode();
 
-    const exists = await repository.findByShortCode(code);
+    const exists = await repository.findUrlByShortCode(code);
 
     if (!exists) {
       return code;
@@ -21,7 +21,7 @@ const createShortUrl = async (userId, payload) => {
   let shortCode;
 
   if (payload.customAlias) {
-    const exists = await repository.findByShortCode(payload.customAlias);
+    const exists = await repository.findUrlByShortCode(payload.customAlias);
 
     if (exists) {
       throw new ApiError(409, "Custom alias already exists");
