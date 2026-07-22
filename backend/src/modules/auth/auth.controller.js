@@ -5,7 +5,7 @@ const ApiResponse = require("../../utils/apiResponse.js");
 const service = require("./auth.service.js");
 
 const register = asyncHandler(async (req, res) => {
-  const user = await service.registerUser(req.body);
+  const user = await service.registerUser(req.validated.body);
 
   res.status(201).json(
     new ApiResponse(201, "User registered successfully", {
@@ -15,7 +15,7 @@ const register = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-  const result = await service.loginUser(req.body, {
+  const result = await service.loginUser(req.validated.body, {
     ipAddress: req.ip,
     userAgent: req.get("user-agent"),
     deviceName: null,
@@ -57,7 +57,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const refreshToken = asyncHandler(async (req, res) => {
-  const { refreshToken } = req.body;
+  const { refreshToken } = req.validated.body;
 
   const tokens = await service.refreshAccessToken(refreshToken);
 

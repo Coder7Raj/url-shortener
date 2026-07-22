@@ -4,7 +4,7 @@ const ApiResponse = require("../../utils/apiResponse.js");
 const service = require("./url.service.js");
 
 const createShortUrl = asyncHandler(async (req, res) => {
-  const url = await service.createShortUrl(req.user.id, req.body);
+  const url = await service.createShortUrl(req.user.id, req.validated.body);
 
   res.status(201).json(
     new ApiResponse(201, "Short URL created successfully", {
@@ -23,7 +23,16 @@ const redirect = asyncHandler(async (req, res) => {
   return res.redirect(302, originalUrl);
 });
 
+const getMyUrls = asyncHandler(async (req, res) => {
+  const result = await service.getMyUrls(req.user.id, req.validated.query);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "URLs fetched successfully", result));
+});
+
 module.exports = {
   createShortUrl,
   redirect,
+  getMyUrls,
 };

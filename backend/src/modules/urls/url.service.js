@@ -5,6 +5,7 @@ const clickRepository = require("../click/click.repository.js");
 const ApiError = require("../../utils/apiError.js");
 const { SHORT_URL_STATUS } = require("./constants.js");
 const prisma = require("../../config/prisma.js");
+const { getPagination } = require("../../utils/pagination.js");
 
 const generateUniqueShortCode = async () => {
   while (true) {
@@ -82,7 +83,43 @@ const redirectUrl = async (shortCode, requestInfo) => {
   return url.original_url;
 };
 
+const getMyUrls = async (userId, query) => {
+  const page = query.page;
+  const limit = query.limit;
+
+  const skip = (page - 1) * limit;
+
+  const where = {
+    user_id: BigInt(userId),
+    deleted_at: null,
+  };
+
+  const [urls, totalItems] = await Promise.all([
+    repository.findUrls({
+      where,
+      skip,
+      take: limit,
+      orderBy: {
+        created_at: "desc",
+      },
+    }),
+
+    repository.countUrls(where),
+  ]);
+
+  return {
+    urls: urls.map(toUrlResponse),
+
+    pagination: getPagination({
+      page,
+      limit,
+      totalItems,
+    }),
+  };
+};
+
 module.exports = {
   createShortUrl,
   redirectUrl,
+  getMyUrls,
 };

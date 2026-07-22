@@ -93,6 +93,16 @@ const registerClick = async (urlId, db = prisma) => {
   });
 };
 
+const findUrls = async (options) => {
+  return prisma.urls.findMany(options);
+};
+
+const countUrls = async (where) => {
+  return prisma.urls.count({
+    where,
+  });
+};
+
 module.exports = {
   createUrl,
   findUrlByShortCode,
@@ -103,4 +113,6 @@ module.exports = {
   incrementClicks,
   markExpired,
   softDeleteUrl,
+  findUrls,
+  countUrls,
 };
