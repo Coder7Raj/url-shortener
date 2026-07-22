@@ -79,11 +79,26 @@ const softDeleteUrl = async (urlId) => {
   });
 };
 
+const registerClick = async (urlId) => {
+  return prisma.urls.update({
+    where: {
+      url_id: BigInt(urlId),
+    },
+    data: {
+      total_clicks: {
+        increment: 1,
+      },
+      last_clicked_at: new Date(),
+    },
+  });
+};
+
 module.exports = {
   createUrl,
   findUrlByShortCode,
   findUrlById,
   findUrlsByUserId,
+  registerClick,
   updateUrlById,
   incrementClicks,
   markExpired,

@@ -43,7 +43,14 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error("AUTH ERROR:", error);
+    if (error.name === "TokenExpiredError") {
+      return next(new ApiError(401, "Access token expired"));
+    }
+
+    if (error.name === "JsonWebTokenError") {
+      return next(new ApiError(401, "Invalid access token"));
+    }
+
     return next(error);
   }
 };

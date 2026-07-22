@@ -1,7 +1,7 @@
 const repository = require("./url.repository.js");
 const { generateShortCode } = require("./shortCode.generator.js");
 const { toUrlResponse } = require("./url.dto.js");
-
+const clickRepository = require("../click/click.repository.js");
 const ApiError = require("../../utils/apiError.js");
 const { SHORT_URL_STATUS } = require("./constants.js");
 
@@ -43,6 +43,40 @@ const createShortUrl = async (userId, payload) => {
   return toUrlResponse(url);
 };
 
+const redirectUrl = async (shortCode, requestInfo) => {
+  const url = await repository.findUrlByShortCode(shortCode);
+
+  if (!url) {
+    throw new ApiError(404, "Short URL not found");
+  }
+
+  if (url.deleted_at) {
+    throw new ApiError(410, "This link has been deleted");
+  }
+
+  if (url.status !== "ACTIVE") {
+    throw new ApiError(410, "This link is no longer active");
+  }
+
+  if (url.expires_at && url.expires_at < new Date()) {
+    await repository.markExpired(url.url_id);
+
+    throw new ApiError(410, "This link has expired");
+  }
+
+  await repository.registerClick(url.url_id);
+
+  await clickRepository.createClick({
+    url_id: url.url_id,
+    ip_address: requestInfo.ip,
+    user_agent: requestInfo.userAgent,
+    referrer: requestInfo.referrer || null,
+  });
+
+  return url.original_url;
+};
+
 module.exports = {
   createShortUrl,
+  redirectUrl,
 };

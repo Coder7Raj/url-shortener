@@ -1,4 +1,4 @@
-const z = require("zod");
+const { z } = require("zod");
 
 const createUrlSchema = z.object({
   body: z.object({
@@ -15,6 +15,13 @@ const createUrlSchema = z.object({
   }),
 });
 
+const redirectSchema = z.object({
+  params: z.object({
+    shortCode: z.string().min(1),
+  }),
+});
+
 module.exports = {
   createUrlSchema,
+  redirectSchema,
 };
