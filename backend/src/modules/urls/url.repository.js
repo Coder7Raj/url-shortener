@@ -79,8 +79,8 @@ const softDeleteUrl = async (urlId) => {
   });
 };
 
-const registerClick = async (urlId) => {
-  return prisma.urls.update({
+const registerClick = async (urlId, db = prisma) => {
+  return db.urls.update({
     where: {
       url_id: BigInt(urlId),
     },

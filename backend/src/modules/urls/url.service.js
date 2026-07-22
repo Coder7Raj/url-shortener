@@ -4,6 +4,7 @@ const { toUrlResponse } = require("./url.dto.js");
 const clickRepository = require("../click/click.repository.js");
 const ApiError = require("../../utils/apiError.js");
 const { SHORT_URL_STATUS } = require("./constants.js");
+const prisma = require("../../config/prisma.js");
 
 const generateUniqueShortCode = async () => {
   while (true) {
@@ -64,13 +65,18 @@ const redirectUrl = async (shortCode, requestInfo) => {
     throw new ApiError(410, "This link has expired");
   }
 
-  await repository.registerClick(url.url_id);
+  await prisma.$transaction(async (tx) => {
+    await repository.registerClick(url.url_id, tx);
 
-  await clickRepository.createClick({
-    url_id: url.url_id,
-    ip_address: requestInfo.ip,
-    user_agent: requestInfo.userAgent,
-    referrer: requestInfo.referrer || null,
+    await clickRepository.createClick(
+      {
+        url_id: url.url_id,
+        ip_address: requestInfo.ip,
+        user_agent: requestInfo.userAgent,
+        referrer: requestInfo.referrer || null,
+      },
+      tx,
+    );
   });
 
   return url.original_url;
