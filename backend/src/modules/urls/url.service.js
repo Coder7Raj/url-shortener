@@ -84,7 +84,6 @@ const redirectUrl = async (shortCode, requestInfo) => {
 };
 
 const getMyUrls = async (userId, query) => {
-  console.log("Authenticated User ID:", userId);
   const page = query.page;
   const limit = query.limit;
 
@@ -154,8 +153,27 @@ const getMyUrls = async (userId, query) => {
   };
 };
 
+const getUrlById = async (userId, urlId) => {
+  const url = await repository.findUrlById(urlId);
+
+  if (!url) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  if (Number(url.user_id) !== Number(userId)) {
+    throw new ApiError(403, "You don't have permission to access this URL");
+  }
+
+  if (url.deleted_at) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  return toUrlResponse(url);
+};
+
 module.exports = {
   createShortUrl,
   redirectUrl,
   getMyUrls,
+  getUrlById,
 };

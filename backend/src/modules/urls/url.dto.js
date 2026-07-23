@@ -6,9 +6,10 @@ const toUrlResponse = (url) => ({
   title: url.title,
   description: url.description,
   totalClicks: Number(url.total_clicks),
-  expiresAt: url.expires_at,
   status: url.status,
+  expiresAt: url.expires_at,
   createdAt: url.created_at,
+  updatedAt: url.updated_at,
 });
 
 module.exports = {

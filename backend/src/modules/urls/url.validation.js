@@ -37,8 +37,15 @@ const listUrlsSchema = z.object({
   }),
 });
 
+const getUrlSchema = z.object({
+  params: z.object({
+    id: z.coerce.number().int().positive(),
+  }),
+});
+
 module.exports = {
   createUrlSchema,
   redirectSchema,
   listUrlsSchema,
+  getUrlSchema,
 };

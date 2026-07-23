@@ -31,8 +31,19 @@ const getMyUrls = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "URLs fetched successfully", result));
 });
 
+const getUrlById = asyncHandler(async (req, res) => {
+  const url = await service.getUrlById(req.user.id, req.params.id);
+
+  res.status(200).json(
+    new ApiResponse(200, "URL fetched successfully", {
+      url,
+    }),
+  );
+});
+
 module.exports = {
   createShortUrl,
   redirect,
   getMyUrls,
+  getUrlById,
 };
