@@ -84,6 +84,7 @@ const redirectUrl = async (shortCode, requestInfo) => {
 };
 
 const getMyUrls = async (userId, query) => {
+  console.log("Authenticated User ID:", userId);
   const page = query.page;
   const limit = query.limit;
 
@@ -94,14 +95,49 @@ const getMyUrls = async (userId, query) => {
     deleted_at: null,
   };
 
+  // Search
+  if (query.search) {
+    where.OR = [
+      {
+        original_url: {
+          contains: query.search,
+        },
+      },
+      {
+        short_code: {
+          contains: query.search,
+        },
+      },
+      {
+        title: {
+          contains: query.search,
+        },
+      },
+    ];
+  }
+
+  // Filter
+  if (query.status) {
+    where.status = query.status;
+  }
+
+  // Sorting
+  const sortFields = {
+    createdAt: "created_at",
+    clicks: "total_clicks",
+    expiresAt: "expires_at",
+  };
+
+  const orderBy = {
+    [sortFields[query.sort]]: query.order,
+  };
+
   const [urls, totalItems] = await Promise.all([
     repository.findUrls({
       where,
       skip,
       take: limit,
-      orderBy: {
-        created_at: "desc",
-      },
+      orderBy,
     }),
 
     repository.countUrls(where),

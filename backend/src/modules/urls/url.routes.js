@@ -20,4 +20,6 @@ router.get("/", authMiddleware, validate(listUrlsSchema), controller.getMyUrls);
 
 router.get("/:shortCode", validate(redirectSchema), controller.redirect);
 
+router.get("/", authMiddleware, validate(listUrlsSchema), controller.getMyUrls);
+
 module.exports = router;
