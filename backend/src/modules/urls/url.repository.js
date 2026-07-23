@@ -103,6 +103,15 @@ const countUrls = async (where) => {
   });
 };
 
+const updateUrl = async (urlId, data) => {
+  return prisma.urls.update({
+    where: {
+      url_id: BigInt(urlId),
+    },
+    data,
+  });
+};
+
 module.exports = {
   createUrl,
   findUrlByShortCode,
@@ -115,4 +124,5 @@ module.exports = {
   softDeleteUrl,
   findUrls,
   countUrls,
+  updateUrl,
 };

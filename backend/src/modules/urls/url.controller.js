@@ -41,9 +41,20 @@ const getUrlById = asyncHandler(async (req, res) => {
   );
 });
 
+const updateUrl = asyncHandler(async (req, res) => {
+  const url = await service.updateUrl(req.user.id, req.params.id, req.body);
+
+  res.status(200).json(
+    new ApiResponse(200, "URL updated successfully", {
+      url,
+    }),
+  );
+});
+
 module.exports = {
   createShortUrl,
   redirect,
   getMyUrls,
   getUrlById,
+  updateUrl,
 };

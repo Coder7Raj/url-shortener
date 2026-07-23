@@ -43,9 +43,35 @@ const getUrlSchema = z.object({
   }),
 });
 
+const updateUrlSchema = z.object({
+  params: z.object({
+    id: z.coerce.number().int().positive(),
+  }),
+
+  body: z.object({
+    originalUrl: z.string().url().optional(),
+
+    customAlias: z
+      .string()
+      .min(3)
+      .max(20)
+      .regex(/^[a-zA-Z0-9_-]+$/)
+      .optional(),
+
+    title: z.string().max(255).optional(),
+
+    description: z.string().optional(),
+
+    expiresAt: z.string().datetime().optional(),
+
+    status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+  }),
+});
+
 module.exports = {
   createUrlSchema,
   redirectSchema,
   listUrlsSchema,
   getUrlSchema,
+  updateUrlSchema,
 };

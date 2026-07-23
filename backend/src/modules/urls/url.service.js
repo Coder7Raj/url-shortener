@@ -171,9 +171,79 @@ const getUrlById = async (userId, urlId) => {
   return toUrlResponse(url);
 };
 
+const updateUrl = async (userId, urlId, payload) => {
+  // Find the URL
+  const url = await repository.findUrlById(urlId);
+
+  if (!url) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  // Check ownership
+  if (Number(url.user_id) !== Number(userId)) {
+    throw new ApiError(403, "You don't have permission to update this URL");
+  }
+
+  // Check if already deleted
+  if (url.deleted_at) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  // Check custom alias uniqueness
+  if (payload.customAlias && payload.customAlias !== url.short_code) {
+    const existingUrl = await repository.findUrlByShortCode(
+      payload.customAlias,
+    );
+
+    if (existingUrl) {
+      throw new ApiError(409, "Custom alias already exists");
+    }
+  }
+
+  // Validate expiration date
+  if (payload.expiresAt && new Date(payload.expiresAt) <= new Date()) {
+    throw new ApiError(400, "Expiration date must be in the future");
+  }
+
+  // Build update object
+  const data = {};
+
+  if (payload.originalUrl) {
+    data.original_url = payload.originalUrl;
+  }
+
+  if (payload.customAlias) {
+    data.short_code = payload.customAlias;
+  }
+
+  if (payload.title !== undefined) {
+    data.title = payload.title;
+  }
+
+  if (payload.description !== undefined) {
+    data.description = payload.description;
+  }
+
+  if (payload.expiresAt) {
+    data.expires_at = new Date(payload.expiresAt);
+  }
+
+  if (payload.status) {
+    data.status = payload.status;
+  }
+
+  data.updated_at = new Date();
+
+  // Update URL
+  const updatedUrl = await repository.updateUrl(urlId, data);
+
+  return toUrlResponse(updatedUrl);
+};
+
 module.exports = {
   createShortUrl,
   redirectUrl,
   getMyUrls,
   getUrlById,
+  updateUrl,
 };
