@@ -1,53 +1,54 @@
 const ApiError = require("../../utils/apiError.js");
 const repository = require("./analytics.repository.js");
+const { getOwnedUrl, calculateStartDate } = require("./analytics.helpers.js");
 
-const getOwnedUrl = async (userId, urlId) => {
-  const url = await repository.findUrl(urlId);
+// const getOwnedUrl = async (userId, urlId) => {
+//   const url = await repository.findUrl(urlId);
 
-  if (!url) {
-    throw new ApiError(404, "URL not found");
-  }
+//   if (!url) {
+//     throw new ApiError(404, "URL not found");
+//   }
 
-  if (url.deleted_at) {
-    throw new ApiError(404, "URL not found");
-  }
+//   if (url.deleted_at) {
+//     throw new ApiError(404, "URL not found");
+//   }
 
-  if (Number(url.user_id) !== Number(userId)) {
-    throw new ApiError(403, "You don't have permission to access this URL");
-  }
+//   if (Number(url.user_id) !== Number(userId)) {
+//     throw new ApiError(403, "You don't have permission to access this URL");
+//   }
 
-  return url;
-};
+//   return url;
+// };
 
-const calculateStartDate = (range) => {
-  const date = new Date();
+// const calculateStartDate = (range) => {
+//   const date = new Date();
 
-  switch (range) {
-    case "7d":
-      date.setDate(date.getDate() - 7);
-      break;
+//   switch (range) {
+//     case "7d":
+//       date.setDate(date.getDate() - 7);
+//       break;
 
-    case "30d":
-      date.setDate(date.getDate() - 30);
-      break;
+//     case "30d":
+//       date.setDate(date.getDate() - 30);
+//       break;
 
-    case "90d":
-      date.setDate(date.getDate() - 90);
-      break;
+//     case "90d":
+//       date.setDate(date.getDate() - 90);
+//       break;
 
-    case "365d":
-      date.setDate(date.getDate() - 365);
-      break;
+//     case "365d":
+//       date.setDate(date.getDate() - 365);
+//       break;
 
-    default:
-      date.setDate(date.getDate() - 30);
-  }
+//     default:
+//       date.setDate(date.getDate() - 30);
+//   }
 
-  return date;
-};
+//   return date;
+// };
 
 const getAnalytics = async (userId, urlId) => {
-  const url = await getOwnedUrl(userId, urlId);
+  const url = await getOwnedUrl(repository, userId, urlId);
 
   const now = new Date();
 
