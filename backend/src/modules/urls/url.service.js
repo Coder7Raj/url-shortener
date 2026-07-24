@@ -260,10 +260,87 @@ const deleteUrl = async (userId, urlId) => {
   await repository.softDeleteUrl(urlId);
 };
 
+const getAnalytics = async (userId, urlId) => {
+  const url = await repository.findUrlById(urlId);
+
+  if (!url) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  if (Number(url.user_id) !== Number(userId)) {
+    throw new ApiError(403, "You don't have permission to view analytics");
+  }
+
+  if (url.deleted_at) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  const now = new Date();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const week = new Date();
+  week.setDate(now.getDate() - 7);
+
+  const month = new Date();
+  month.setMonth(now.getMonth() - 1);
+
+  const [totalClicks, todayClicks, weekClicks, monthClicks] = await Promise.all(
+    [
+      clickRepository.countClicks({
+        url_id: BigInt(urlId),
+      }),
+
+      clickRepository.countClicks({
+        url_id: BigInt(urlId),
+        clicked_at: {
+          gte: today,
+        },
+      }),
+
+      clickRepository.countClicks({
+        url_id: BigInt(urlId),
+        clicked_at: {
+          gte: week,
+        },
+      }),
+
+      clickRepository.countClicks({
+        url_id: BigInt(urlId),
+        clicked_at: {
+          gte: month,
+        },
+      }),
+    ],
+  );
+
+  return {
+    url: {
+      id: Number(url.url_id),
+      shortCode: url.short_code,
+      originalUrl: url.original_url,
+    },
+
+    analytics: {
+      totalClicks,
+
+      todayClicks,
+
+      weekClicks,
+
+      monthClicks,
+
+      lastClickedAt: url.last_clicked_at,
+    },
+  };
+};
+
 module.exports = {
   createShortUrl,
   redirectUrl,
   getMyUrls,
+  getAnalytics,
   getUrlById,
   updateUrl,
   deleteUrl,

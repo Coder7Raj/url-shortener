@@ -125,6 +125,12 @@ const softDeleteUrl = async (urlId) => {
   });
 };
 
+const countClicks = async (where) => {
+  return prisma.clicks.count({
+    where,
+  });
+};
+
 module.exports = {
   createUrl,
   findUrlByShortCode,
@@ -138,4 +144,5 @@ module.exports = {
   countUrls,
   updateUrl,
   softDeleteUrl,
+  countClicks,
 };

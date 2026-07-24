@@ -9,6 +9,7 @@ const {
   getUrlSchema,
   updateUrlSchema,
   deleteUrlSchema,
+  analyticsSchema,
 } = require("./url.validation.js");
 
 const router = express.Router();
@@ -40,6 +41,13 @@ router.delete(
   authMiddleware,
   validate(deleteUrlSchema),
   controller.deleteUrl,
+);
+
+router.get(
+  "/:id/analytics",
+  authMiddleware,
+  validate(analyticsSchema),
+  controller.getAnalytics,
 );
 
 router.get("/:shortCode", validate(redirectSchema), controller.redirect);

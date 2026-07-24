@@ -57,10 +57,19 @@ const deleteUrl = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, "URL deleted successfully"));
 });
 
+const getAnalytics = asyncHandler(async (req, res) => {
+  const analytics = await service.getAnalytics(req.user.id, req.params.id);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Analytics fetched successfully", analytics));
+});
+
 module.exports = {
   createShortUrl,
   redirect,
   getMyUrls,
+  getAnalytics,
   getUrlById,
   updateUrl,
   deleteUrl,
