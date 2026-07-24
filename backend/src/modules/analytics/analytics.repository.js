@@ -14,6 +14,16 @@ const countClicks = async (where) => {
   });
 };
 
+const countUniqueVisitors = async (urlId) => {
+  const result = await prisma.$queryRaw`
+        SELECT COUNT(DISTINCT ip_address) AS total
+        FROM clicks
+        WHERE url_id = ${BigInt(urlId)}
+    `;
+
+  return Number(result[0].total || 0);
+};
+
 const findClicks = async (where, orderBy = {}) => {
   return prisma.clicks.findMany({
     where,
@@ -36,6 +46,144 @@ const groupClicksBy = async (by, where) => {
   });
 };
 
+const getCountries = async (urlId) => {
+  return prisma.clicks.groupBy({
+    by: ["country"],
+
+    where: {
+      url_id: BigInt(urlId),
+      country: {
+        not: null,
+      },
+    },
+
+    _count: {
+      country: true,
+    },
+
+    orderBy: {
+      _count: {
+        country: "desc",
+      },
+    },
+  });
+};
+
+const getCities = async (urlId) => {
+  return prisma.clicks.groupBy({
+    by: ["city"],
+
+    where: {
+      url_id: BigInt(urlId),
+      city: {
+        not: null,
+      },
+    },
+
+    _count: {
+      city: true,
+    },
+
+    orderBy: {
+      _count: {
+        city: "desc",
+      },
+    },
+  });
+};
+
+const getBrowsers = async (urlId) => {
+  return prisma.clicks.groupBy({
+    by: ["browser"],
+
+    where: {
+      url_id: BigInt(urlId),
+      browser: {
+        not: null,
+      },
+    },
+
+    _count: {
+      browser: true,
+    },
+
+    orderBy: {
+      _count: {
+        browser: "desc",
+      },
+    },
+  });
+};
+
+const getDevices = async (urlId) => {
+  return prisma.clicks.groupBy({
+    by: ["device"],
+
+    where: {
+      url_id: BigInt(urlId),
+      device: {
+        not: null,
+      },
+    },
+
+    _count: {
+      device: true,
+    },
+
+    orderBy: {
+      _count: {
+        device: "desc",
+      },
+    },
+  });
+};
+
+const getOperatingSystems = async (urlId) => {
+  return prisma.clicks.groupBy({
+    by: ["os"],
+
+    where: {
+      url_id: BigInt(urlId),
+      os: {
+        not: null,
+      },
+    },
+
+    _count: {
+      os: true,
+    },
+
+    orderBy: {
+      _count: {
+        os: "desc",
+      },
+    },
+  });
+};
+
+const getReferrers = async (urlId) => {
+  return prisma.clicks.groupBy({
+    by: ["referrer"],
+
+    where: {
+      url_id: BigInt(urlId),
+      referrer: {
+        not: null,
+      },
+    },
+
+    _count: {
+      referrer: true,
+    },
+
+    orderBy: {
+      _count: {
+        referrer: "desc",
+      },
+    },
+  });
+};
+
 const getTimeline = async (urlId, startDate) => {
   return prisma.$queryRaw`
     SELECT
@@ -53,7 +201,12 @@ const getTimeline = async (urlId, startDate) => {
 module.exports = {
   findUrl,
   countClicks,
-  findClicks,
-  groupClicksBy,
+  countUniqueVisitors,
   getTimeline,
+  getCountries,
+  getCities,
+  getBrowsers,
+  getDevices,
+  getOperatingSystems,
+  getReferrers,
 };
