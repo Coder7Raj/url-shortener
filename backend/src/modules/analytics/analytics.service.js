@@ -1,20 +1,53 @@
 const ApiError = require("../../utils/apiError.js");
 const repository = require("./analytics.repository.js");
 
-const getAnalytics = async (userId, urlId) => {
+const getOwnedUrl = async (userId, urlId) => {
   const url = await repository.findUrl(urlId);
 
   if (!url) {
     throw new ApiError(404, "URL not found");
   }
 
-  if (Number(url.user_id) !== Number(userId)) {
-    throw new ApiError(403, "You don't have permission to view analytics");
-  }
-
   if (url.deleted_at) {
     throw new ApiError(404, "URL not found");
   }
+
+  if (Number(url.user_id) !== Number(userId)) {
+    throw new ApiError(403, "You don't have permission to access this URL");
+  }
+
+  return url;
+};
+
+const calculateStartDate = (range) => {
+  const date = new Date();
+
+  switch (range) {
+    case "7d":
+      date.setDate(date.getDate() - 7);
+      break;
+
+    case "30d":
+      date.setDate(date.getDate() - 30);
+      break;
+
+    case "90d":
+      date.setDate(date.getDate() - 90);
+      break;
+
+    case "365d":
+      date.setDate(date.getDate() - 365);
+      break;
+
+    default:
+      date.setDate(date.getDate() - 30);
+  }
+
+  return date;
+};
+
+const getAnalytics = async (userId, urlId) => {
+  const url = await getOwnedUrl(userId, urlId);
 
   const now = new Date();
 
@@ -62,9 +95,10 @@ const getAnalytics = async (userId, urlId) => {
       shortCode: url.short_code,
       originalUrl: url.original_url,
       title: url.title,
+      status: url.status,
+      totalClicks: Number(url.total_clicks),
       createdAt: url.created_at,
       expiresAt: url.expires_at,
-      status: url.status,
     },
 
     analytics: {
@@ -77,6 +111,24 @@ const getAnalytics = async (userId, urlId) => {
   };
 };
 
+const getTimeline = async (userId, urlId, range = "30d") => {
+  await getOwnedUrl(userId, urlId);
+
+  const startDate = calculateStartDate(range);
+
+  const timeline = await repository.getTimeline(urlId, startDate);
+
+  return {
+    range,
+
+    timeline: timeline.map((row) => ({
+      date: row.date,
+      clicks: Number(row.clicks),
+    })),
+  };
+};
+
 module.exports = {
   getAnalytics,
+  getTimeline,
 };
