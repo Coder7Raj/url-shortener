@@ -51,10 +51,17 @@ const updateUrl = asyncHandler(async (req, res) => {
   );
 });
 
+const deleteUrl = asyncHandler(async (req, res) => {
+  await service.deleteUrl(req.user.id, req.params.id);
+
+  res.status(200).json(new ApiResponse(200, "URL deleted successfully"));
+});
+
 module.exports = {
   createShortUrl,
   redirect,
   getMyUrls,
   getUrlById,
   updateUrl,
+  deleteUrl,
 };

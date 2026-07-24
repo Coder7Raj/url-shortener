@@ -68,10 +68,17 @@ const updateUrlSchema = z.object({
   }),
 });
 
+const deleteUrlSchema = z.object({
+  params: z.object({
+    id: z.coerce.number().int().positive(),
+  }),
+});
+
 module.exports = {
   createUrlSchema,
   redirectSchema,
   listUrlsSchema,
   getUrlSchema,
   updateUrlSchema,
+  deleteUrlSchema,
 };

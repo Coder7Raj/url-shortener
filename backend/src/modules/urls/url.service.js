@@ -46,7 +46,9 @@ const createShortUrl = async (userId, payload) => {
 };
 
 const redirectUrl = async (shortCode, requestInfo) => {
-  const url = await repository.findUrlByShortCode(shortCode);
+  if (url.deleted_at || url.status === "DELETED") {
+    throw new ApiError(404, "Short URL not found");
+  }
 
   if (!url) {
     throw new ApiError(404, "Short URL not found");
@@ -240,10 +242,29 @@ const updateUrl = async (userId, urlId, payload) => {
   return toUrlResponse(updatedUrl);
 };
 
+const deleteUrl = async (userId, urlId) => {
+  const url = await repository.findUrlById(urlId);
+
+  if (!url) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  if (Number(url.user_id) !== Number(userId)) {
+    throw new ApiError(403, "You don't have permission to delete this URL");
+  }
+
+  if (url.deleted_at) {
+    throw new ApiError(400, "URL has already been deleted");
+  }
+
+  await repository.softDeleteUrl(urlId);
+};
+
 module.exports = {
   createShortUrl,
   redirectUrl,
   getMyUrls,
   getUrlById,
   updateUrl,
+  deleteUrl,
 };

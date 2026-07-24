@@ -8,6 +8,7 @@ const {
   listUrlsSchema,
   getUrlSchema,
   updateUrlSchema,
+  deleteUrlSchema,
 } = require("./url.validation.js");
 
 const router = express.Router();
@@ -32,6 +33,13 @@ router.patch(
   authMiddleware,
   validate(updateUrlSchema),
   controller.updateUrl,
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  validate(deleteUrlSchema),
+  controller.deleteUrl,
 );
 
 router.get("/:shortCode", validate(redirectSchema), controller.redirect);
