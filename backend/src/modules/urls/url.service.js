@@ -45,42 +45,52 @@ const createShortUrl = async (userId, payload) => {
   return toUrlResponse(url);
 };
 
-const redirectUrl = async (shortCode, requestInfo) => {
-  if (url.deleted_at || url.status === "DELETED") {
-    throw new ApiError(404, "Short URL not found");
-  }
+const redirectUrl = async (shortCode, clickData) => {
+  const url = await repository.findUrlByShortCode(shortCode);
 
   if (!url) {
     throw new ApiError(404, "Short URL not found");
   }
 
-  if (url.deleted_at) {
-    throw new ApiError(410, "This link has been deleted");
+  if (url.deleted_at || url.status === "DELETED") {
+    throw new ApiError(404, "Short URL not found");
   }
 
   if (url.status !== "ACTIVE") {
-    throw new ApiError(410, "This link is no longer active");
+    throw new ApiError(403, "This URL is inactive");
   }
 
-  if (url.expires_at && url.expires_at < new Date()) {
-    await repository.markExpired(url.url_id);
-
-    throw new ApiError(410, "This link has expired");
+  if (url.expires_at && new Date(url.expires_at) < new Date()) {
+    throw new ApiError(410, "This URL has expired");
   }
 
-  await prisma.$transaction(async (tx) => {
-    await repository.registerClick(url.url_id, tx);
-
-    await clickRepository.createClick(
-      {
+  await prisma.$transaction([
+    prisma.clicks.create({
+      data: {
         url_id: url.url_id,
-        ip_address: requestInfo.ip,
-        user_agent: requestInfo.userAgent,
-        referrer: requestInfo.referrer || null,
+        ip_address: clickData.ip_address,
+        country: clickData.country,
+        city: clickData.city,
+        browser: clickData.browser,
+        device: clickData.device,
+        os: clickData.os,
+        referrer: clickData.referrer,
+        user_agent: clickData.user_agent,
       },
-      tx,
-    );
-  });
+    }),
+
+    prisma.urls.update({
+      where: {
+        url_id: url.url_id,
+      },
+      data: {
+        total_clicks: {
+          increment: 1,
+        },
+        last_clicked_at: new Date(),
+      },
+    }),
+  ]);
 
   return url.original_url;
 };
