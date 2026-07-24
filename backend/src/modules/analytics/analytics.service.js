@@ -112,19 +112,55 @@ const getAnalytics = async (userId, urlId) => {
 };
 
 const getTimeline = async (userId, urlId, range = "30d") => {
-  await getOwnedUrl(userId, urlId);
+  const url = await repository.findUrl(urlId);
+
+  if (!url) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  if (Number(url.user_id) !== Number(userId)) {
+    throw new ApiError(403, "You don't have permission to view analytics");
+  }
+
+  if (url.deleted_at) {
+    throw new ApiError(404, "URL not found");
+  }
 
   const startDate = calculateStartDate(range);
 
   const timeline = await repository.getTimeline(urlId, startDate);
 
+  const clickMap = new Map();
+
+  timeline.forEach((row) => {
+    const key =
+      typeof row.date === "string"
+        ? row.date.slice(0, 10)
+        : row.date.toISOString().split("T")[0];
+
+    clickMap.set(key, Number(row.clicks));
+  });
+
+  const result = [];
+
+  const current = new Date(startDate);
+
+  const end = new Date();
+
+  while (current <= end) {
+    const date = current.toISOString().split("T")[0];
+
+    result.push({
+      date,
+      clicks: clickMap.get(date) || 0,
+    });
+
+    current.setDate(current.getDate() + 1);
+  }
+
   return {
     range,
-
-    timeline: timeline.map((row) => ({
-      date: row.date,
-      clicks: Number(row.clicks),
-    })),
+    timeline: result,
   };
 };
 

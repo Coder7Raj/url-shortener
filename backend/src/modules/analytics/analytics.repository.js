@@ -46,7 +46,7 @@ const getTimeline = async (urlId, startDate) => {
       url_id = ${BigInt(urlId)}
       AND clicked_at >= ${startDate}
     GROUP BY DATE(clicked_at)
-    ORDER BY DATE(clicked_at) ASC;
+    ORDER BY DATE(clicked_at);
   `;
 };
 
