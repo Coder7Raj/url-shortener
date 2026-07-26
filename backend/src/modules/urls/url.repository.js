@@ -67,18 +67,6 @@ const markExpired = async (urlId) => {
   });
 };
 
-// const softDeleteUrl = async (urlId) => {
-//   return prisma.urls.update({
-//     where: {
-//       url_id: BigInt(urlId),
-//     },
-//     data: {
-//       status: "DELETED",
-//       deleted_at: new Date(),
-//     },
-//   });
-// };
-
 const registerClick = async (urlId, db = prisma) => {
   return db.urls.update({
     where: {

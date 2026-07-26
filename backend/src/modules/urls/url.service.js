@@ -106,7 +106,6 @@ const getMyUrls = async (userId, query) => {
     deleted_at: null,
   };
 
-  // Search
   if (query.search) {
     where.OR = [
       {
@@ -127,12 +126,10 @@ const getMyUrls = async (userId, query) => {
     ];
   }
 
-  // Filter
   if (query.status) {
     where.status = query.status;
   }
 
-  // Sorting
   const sortFields = {
     createdAt: "created_at",
     clicks: "total_clicks",
@@ -184,24 +181,20 @@ const getUrlById = async (userId, urlId) => {
 };
 
 const updateUrl = async (userId, urlId, payload) => {
-  // Find the URL
   const url = await repository.findUrlById(urlId);
 
   if (!url) {
     throw new ApiError(404, "URL not found");
   }
 
-  // Check ownership
   if (Number(url.user_id) !== Number(userId)) {
     throw new ApiError(403, "You don't have permission to update this URL");
   }
 
-  // Check if already deleted
   if (url.deleted_at) {
     throw new ApiError(404, "URL not found");
   }
 
-  // Check custom alias uniqueness
   if (payload.customAlias && payload.customAlias !== url.short_code) {
     const existingUrl = await repository.findUrlByShortCode(
       payload.customAlias,
@@ -212,12 +205,10 @@ const updateUrl = async (userId, urlId, payload) => {
     }
   }
 
-  // Validate expiration date
   if (payload.expiresAt && new Date(payload.expiresAt) <= new Date()) {
     throw new ApiError(400, "Expiration date must be in the future");
   }
 
-  // Build update object
   const data = {};
 
   if (payload.originalUrl) {
@@ -246,7 +237,6 @@ const updateUrl = async (userId, urlId, payload) => {
 
   data.updated_at = new Date();
 
-  // Update URL
   const updatedUrl = await repository.updateUrl(urlId, data);
 
   return toUrlResponse(updatedUrl);

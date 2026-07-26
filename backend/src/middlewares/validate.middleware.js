@@ -2,7 +2,6 @@ const ApiError = require("../utils/apiError.js");
 
 const validate = (schema) => {
   return (req, res, next) => {
-    // 1) Try old-style schemas: z.object({ username, email, ... })
     const directResult = schema.safeParse(req.body);
 
     if (directResult.success) {
@@ -16,7 +15,6 @@ const validate = (schema) => {
       return next();
     }
 
-    // 2) Try wrapped schemas: z.object({ body: ..., params: ..., query: ... })
     const wrappedResult = schema.safeParse({
       body: req.body,
       params: req.params,

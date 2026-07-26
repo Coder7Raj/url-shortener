@@ -12,6 +12,7 @@ const routes = require("./routes/routes.js");
 const errorMiddleware = require("./middlewares/error.middleware.js");
 const notFound = require("./middlewares/notFound.middleware.js");
 const analyticsRoutes = require("./modules/analytics/analytics.routes.js");
+const urlController = require("./modules/urls/url.controller.js");
 
 const app = express();
 
@@ -25,7 +26,7 @@ app.use(morgan("dev"));
 
 app.use("/api/v1", routes);
 app.use("/api/v1/analytics", analyticsRoutes);
-
+app.get("/:shortCode", urlController.redirect);
 app.use(notFound);
 
 app.use(errorMiddleware);
