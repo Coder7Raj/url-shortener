@@ -11,6 +11,7 @@ const {
   deleteUrlSchema,
   analyticsSchema,
 } = require("./url.validation.js");
+const qrRoutes = require("../qr/qr.routes.js");
 
 const router = express.Router();
 
@@ -49,6 +50,8 @@ router.get(
   validate(analyticsSchema),
   controller.getAnalytics,
 );
+
+router.use("/:id/qr", qrRoutes);
 
 router.get("/:shortCode", validate(redirectSchema), controller.redirect);
 

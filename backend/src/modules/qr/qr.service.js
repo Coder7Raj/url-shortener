@@ -3,7 +3,7 @@ const path = require("path");
 const QRCode = require("qrcode");
 
 const ApiError = require("../../utils/apiError.js");
-const urlRepository = require("../url/url.repository.js");
+const urlRepository = require("../urls/url.repository.js");
 const qrRepository = require("./qr.repository.js");
 const { toQrDto } = require("./qr.dto.js");
 
