@@ -1,171 +1,163 @@
-const ApiError = require("../../utils/apiError.js");
 const repository = require("./analytics.repository.js");
-const { getOwnedUrl, calculateStartDate } = require("./analytics.helpers.js");
 
-// const getOwnedUrl = async (userId, urlId) => {
-//   const url = await repository.findUrl(urlId);
+const {
+  validateOwnership,
+  getDateRanges,
+  getTimelineStartDate,
+  fillMissingTimelineDays,
+} = require("./analytics.helpers.js");
 
-//   if (!url) {
-//     throw new ApiError(404, "URL not found");
-//   }
+const {
+  toSummaryDto,
+  toTimelineDto,
+  toGroupedDto,
+  toDashboardDto,
+} = require("./analytics.dto.js");
 
-//   if (url.deleted_at) {
-//     throw new ApiError(404, "URL not found");
-//   }
+/**
+ * Summary analytics for one URL
+ */
+const getSummary = async (userId, urlId) => {
+  const url = await validateOwnership(urlId, userId);
+  const { today, week, month } = getDateRanges();
 
-//   if (Number(url.user_id) !== Number(userId)) {
-//     throw new ApiError(403, "You don't have permission to access this URL");
-//   }
-
-//   return url;
-// };
-
-// const calculateStartDate = (range) => {
-//   const date = new Date();
-
-//   switch (range) {
-//     case "7d":
-//       date.setDate(date.getDate() - 7);
-//       break;
-
-//     case "30d":
-//       date.setDate(date.getDate() - 30);
-//       break;
-
-//     case "90d":
-//       date.setDate(date.getDate() - 90);
-//       break;
-
-//     case "365d":
-//       date.setDate(date.getDate() - 365);
-//       break;
-
-//     default:
-//       date.setDate(date.getDate() - 30);
-//   }
-
-//   return date;
-// };
-
-const getAnalytics = async (userId, urlId) => {
-  const url = await getOwnedUrl(repository, userId, urlId);
-
-  const now = new Date();
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const week = new Date(now);
-  week.setDate(now.getDate() - 7);
-
-  const month = new Date(now);
-  month.setMonth(now.getMonth() - 1);
-
-  const [totalClicks, todayClicks, weekClicks, monthClicks] = await Promise.all(
-    [
+  const [totalClicks, todayClicks, weekClicks, monthClicks, uniqueVisitors] =
+    await Promise.all([
       repository.countClicks({
         url_id: BigInt(urlId),
       }),
-
       repository.countClicks({
         url_id: BigInt(urlId),
-        clicked_at: {
-          gte: today,
-        },
+        clicked_at: { gte: today },
       }),
-
       repository.countClicks({
         url_id: BigInt(urlId),
-        clicked_at: {
-          gte: week,
-        },
+        clicked_at: { gte: week },
       }),
-
       repository.countClicks({
         url_id: BigInt(urlId),
-        clicked_at: {
-          gte: month,
-        },
+        clicked_at: { gte: month },
       }),
-    ],
-  );
+      repository.countUniqueVisitors(urlId),
+    ]);
 
-  return {
-    url: {
-      id: Number(url.url_id),
-      shortCode: url.short_code,
-      originalUrl: url.original_url,
-      title: url.title,
-      status: url.status,
-      totalClicks: Number(url.total_clicks),
-      createdAt: url.created_at,
-      expiresAt: url.expires_at,
-    },
-
-    analytics: {
-      totalClicks,
-      todayClicks,
-      weekClicks,
-      monthClicks,
-      lastClickedAt: url.last_clicked_at,
-    },
-  };
+  return toSummaryDto({
+    url,
+    totalClicks,
+    todayClicks,
+    weekClicks,
+    monthClicks,
+    uniqueVisitors,
+  });
 };
 
+/**
+ * Timeline analytics for one URL
+ */
 const getTimeline = async (userId, urlId, range = "30d") => {
-  const url = await repository.findUrl(urlId);
+  await validateOwnership(urlId, userId);
 
-  if (!url) {
-    throw new ApiError(404, "URL not found");
-  }
+  const startDate = getTimelineStartDate(range);
+  const rows = await repository.getTimeline(urlId, startDate);
 
-  if (Number(url.user_id) !== Number(userId)) {
-    throw new ApiError(403, "You don't have permission to view analytics");
-  }
+  const filledTimeline = fillMissingTimelineDays(rows, startDate);
 
-  if (url.deleted_at) {
-    throw new ApiError(404, "URL not found");
-  }
+  return toTimelineDto(range, filledTimeline);
+};
 
-  const startDate = calculateStartDate(range);
+/**
+ * Countries analytics
+ */
+const getCountries = async (userId, urlId) => {
+  await validateOwnership(urlId, userId);
 
-  const timeline = await repository.getTimeline(urlId, startDate);
+  const rows = await repository.getCountries(urlId);
+  return toGroupedDto(rows, "country");
+};
 
-  const clickMap = new Map();
+/**
+ * Cities analytics
+ */
+const getCities = async (userId, urlId) => {
+  await validateOwnership(urlId, userId);
 
-  timeline.forEach((row) => {
-    const key =
-      typeof row.date === "string"
-        ? row.date.slice(0, 10)
-        : row.date.toISOString().split("T")[0];
+  const rows = await repository.getCities(urlId);
+  return toGroupedDto(rows, "city");
+};
 
-    clickMap.set(key, Number(row.clicks));
+/**
+ * Browsers analytics
+ */
+const getBrowsers = async (userId, urlId) => {
+  await validateOwnership(urlId, userId);
+
+  const rows = await repository.getBrowsers(urlId);
+  return toGroupedDto(rows, "browser");
+};
+
+/**
+ * Devices analytics
+ */
+const getDevices = async (userId, urlId) => {
+  await validateOwnership(urlId, userId);
+
+  const rows = await repository.getDevices(urlId);
+  return toGroupedDto(rows, "device");
+};
+
+/**
+ * Operating systems analytics
+ */
+const getOperatingSystems = async (userId, urlId) => {
+  await validateOwnership(urlId, userId);
+
+  const rows = await repository.getOperatingSystems(urlId);
+  return toGroupedDto(rows, "os");
+};
+
+/**
+ * Referrers analytics
+ */
+const getReferrers = async (userId, urlId) => {
+  await validateOwnership(urlId, userId);
+
+  const rows = await repository.getReferrers(urlId);
+  return toGroupedDto(rows, "referrer");
+};
+
+/**
+ * Unified dashboard analytics
+ */
+const getDashboard = async (userId, urlId) => {
+  const summary = await getSummary(userId, urlId);
+  const timeline = await getTimeline(userId, urlId, "30d");
+  const countries = await getCountries(userId, urlId);
+  const cities = await getCities(userId, urlId);
+  const browsers = await getBrowsers(userId, urlId);
+  const devices = await getDevices(userId, urlId);
+  const operatingSystems = await getOperatingSystems(userId, urlId);
+  const referrers = await getReferrers(userId, urlId);
+
+  return toDashboardDto({
+    summary,
+    timeline,
+    countries,
+    cities,
+    browsers,
+    devices,
+    operatingSystems,
+    referrers,
   });
-
-  const result = [];
-
-  const current = new Date(startDate);
-
-  const end = new Date();
-
-  while (current <= end) {
-    const date = current.toISOString().split("T")[0];
-
-    result.push({
-      date,
-      clicks: clickMap.get(date) || 0,
-    });
-
-    current.setDate(current.getDate() + 1);
-  }
-
-  return {
-    range,
-    timeline: result,
-  };
 };
 
 module.exports = {
-  getAnalytics,
+  getSummary,
   getTimeline,
+  getCountries,
+  getCities,
+  getBrowsers,
+  getDevices,
+  getOperatingSystems,
+  getReferrers,
+  getDashboard,
 };

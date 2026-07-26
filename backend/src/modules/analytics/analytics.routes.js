@@ -8,11 +8,12 @@ const {
 } = require("./analytics.validation.js");
 
 const router = express.Router();
+
 router.get(
   "/url/:id",
   authMiddleware,
   validate(getAnalyticsSchema),
-  controller.getAnalytics,
+  controller.getDashboard,
 );
 
 router.get(
