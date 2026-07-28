@@ -1,7 +1,3 @@
-const getBaseUrl = () => {
-  return process.env.BASE_URL || "http://localhost:5000";
-};
-
 const toQrDto = (url, qr) => ({
   url: {
     id: Number(url.url_id),

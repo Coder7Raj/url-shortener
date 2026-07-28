@@ -1,12 +1,8 @@
 const QRCode = require("qrcode");
-
 const ApiError = require("../../utils/apiError.js");
-const asyncHandler = require("../../utils/asyncHandler.js");
 const urlRepository = require("../urls/url.repository.js");
-const createQrCode = require("./qr.repository.js");
-
+const qrRepository = require("./qr.repository.js");
 const uploadService = require("../../services/upload.service.js");
-
 const { toQrDto } = require("./qr.dto.js");
 
 const getBaseUrl = () => {
@@ -52,12 +48,12 @@ const generateQrCode = async (userId, urlId) => {
     publicId: getPublicId(url),
   });
 
-  const existingQr = await createQrCode.findQrByUrlId(urlId);
+  const existingQr = await qrRepository.findQrByUrlId(urlId);
 
   let qr;
 
   if (existingQr) {
-    qr = await createQrCode.updateQrCode(existingQr.qr_id, {
+    qr = await qrRepository.updateQrCode(existingQr.qr_id, {
       image_path: uploaded.url,
 
       secure_url: uploaded.url,
@@ -73,7 +69,7 @@ const generateQrCode = async (userId, urlId) => {
       format: uploaded.format,
     });
   } else {
-    qr = await qrRepository.createQr({
+    qr = await qrRepository.createQrCode({
       url_id: BigInt(urlId),
 
       image_path: uploaded.url,
@@ -108,20 +104,24 @@ const deleteQrCode = async (userId, urlId) => {
     await uploadService.removeImage(qr.public_id);
   }
 
-  await qrRepository.deleteQr(qr.qr_id);
+  await qrRepository.deleteQrCodesByUrlId(urlId);
 
   return {
     message: "QR code deleted successfully",
   };
 };
 
-const getQrCode = asyncHandler(async (req, res) => {
-  const data = await service.getQrCode(req.user.id, req.params.id);
+const getQrCode = async (userId, urlId) => {
+  const url = await validateOwnership(userId, urlId);
 
-  res
-    .status(200)
-    .json(new ApiResponse(200, "QR Code fetched successfully", data));
-});
+  const qr = await qrRepository.findQrByUrlId(urlId);
+
+  if (!qr) {
+    throw new ApiError(404, "QR code not found");
+  }
+
+  return toQrDto(url, qr);
+};
 
 module.exports = {
   generateQrCode,
