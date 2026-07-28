@@ -34,59 +34,25 @@ const validateOwnership = async (userId, urlId) => {
 const generateQrCode = async (userId, urlId) => {
   const url = await validateOwnership(userId, urlId);
 
-  const shortUrl = getShortUrl(url.short_code);
+  let qr = await qrRepository.findQrByUrlId(urlId);
 
-  const buffer = await QRCode.toBuffer(shortUrl, {
-    width: 600,
-    margin: 2,
-    errorCorrectionLevel: "H",
-  });
+  if (!qr) {
+    qr = await createOrUpdateQrCode(url);
+  }
 
-  const uploaded = await uploadService.uploadImage({
-    buffer,
-    folder: "url-shortener/qrcodes",
-    publicId: getPublicId(url),
-  });
+  return toQrDto(url, qr);
+};
+
+const regenerateQrCode = async (userId, urlId) => {
+  const url = await validateOwnership(userId, urlId);
 
   const existingQr = await qrRepository.findQrByUrlId(urlId);
 
-  let qr;
-
-  if (existingQr) {
-    qr = await qrRepository.updateQrCode(existingQr.qr_id, {
-      image_path: uploaded.url,
-
-      secure_url: uploaded.url,
-
-      public_id: uploaded.publicId,
-
-      width: uploaded.width,
-
-      height: uploaded.height,
-
-      bytes: uploaded.bytes,
-
-      format: uploaded.format,
-    });
-  } else {
-    qr = await qrRepository.createQrCode({
-      url_id: BigInt(urlId),
-
-      image_path: uploaded.url,
-
-      secure_url: uploaded.url,
-
-      public_id: uploaded.publicId,
-
-      width: uploaded.width,
-
-      height: uploaded.height,
-
-      bytes: uploaded.bytes,
-
-      format: uploaded.format,
-    });
+  if (existingQr?.public_id) {
+    await uploadService.removeImage(existingQr.public_id);
   }
+
+  const qr = await createOrUpdateQrCode(url, existingQr);
 
   return toQrDto(url, qr);
 };
@@ -142,9 +108,50 @@ const downloadQrCode = async (userId, urlId) => {
   };
 };
 
+const createOrUpdateQrCode = async (url, existingQr = null) => {
+  const shortUrl = getShortUrl(url.short_code);
+
+  const buffer = await QRCode.toBuffer(shortUrl, {
+    width: 600,
+    margin: 2,
+    errorCorrectionLevel: "H",
+  });
+
+  const uploaded = await uploadService.uploadImage({
+    buffer,
+    folder: "url-shortener/qrcodes",
+    publicId: getPublicId(url),
+  });
+
+  if (existingQr) {
+    return qrRepository.updateQrCode(existingQr.qr_id, {
+      image_path: uploaded.url,
+      secure_url: uploaded.url,
+      public_id: uploaded.publicId,
+      width: uploaded.width,
+      height: uploaded.height,
+      bytes: uploaded.bytes,
+      format: uploaded.format,
+    });
+  }
+
+  return qrRepository.createQrCode({
+    url_id: BigInt(url.url_id),
+    image_path: uploaded.url,
+    secure_url: uploaded.url,
+    public_id: uploaded.publicId,
+    width: uploaded.width,
+    height: uploaded.height,
+    bytes: uploaded.bytes,
+    format: uploaded.format,
+  });
+};
+
 module.exports = {
   generateQrCode,
   deleteQrCode,
   getQrCode,
   downloadQrCode,
+  createOrUpdateQrCode,
+  regenerateQrCode,
 };

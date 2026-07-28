@@ -30,6 +30,13 @@ router.delete(
   controller.deleteQrCode,
 );
 
+router.post(
+  "/urls/:id/qr/regenerate",
+  authMiddleware,
+  validate(qrParamsSchema),
+  controller.regenerateQrCode,
+);
+
 router.get(
   "/urls/:id/qr/download",
   authMiddleware,

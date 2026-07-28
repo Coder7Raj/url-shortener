@@ -10,6 +10,14 @@ const generateQrCode = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, "QR code generated successfully", data));
 });
 
+const regenerateQrCode = asyncHandler(async (req, res) => {
+  const data = await service.regenerateQrCode(req.user.id, req.params.id);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "QR Code regenerated successfully", data));
+});
+
 const getQrCode = asyncHandler(async (req, res) => {
   const data = await service.getQrCode(req.user.id, req.params.id);
 
@@ -35,4 +43,5 @@ module.exports = {
   getQrCode,
   deleteQrCode,
   downloadQrCode,
+  regenerateQrCode,
 };
