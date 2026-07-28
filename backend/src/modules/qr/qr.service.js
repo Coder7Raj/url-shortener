@@ -123,8 +123,28 @@ const getQrCode = async (userId, urlId) => {
   return toQrDto(url, qr);
 };
 
+const downloadQrCode = async (userId, urlId) => {
+  const url = await validateOwnership(userId, urlId);
+
+  const qr = await qrRepository.findQrByUrlId(urlId);
+
+  if (!qr) {
+    throw new ApiError(404, "QR Code not found");
+  }
+
+  const downloadUrl = uploadService.getDownloadUrl(
+    qr.public_id,
+    `${url.short_code}-qr`,
+  );
+
+  return {
+    downloadUrl,
+  };
+};
+
 module.exports = {
   generateQrCode,
   deleteQrCode,
   getQrCode,
+  downloadQrCode,
 };

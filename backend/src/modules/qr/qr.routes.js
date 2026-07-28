@@ -30,4 +30,11 @@ router.delete(
   controller.deleteQrCode,
 );
 
+router.get(
+  "/urls/:id/qr/download",
+  authMiddleware,
+  validate(qrParamsSchema),
+  controller.downloadQrCode,
+);
+
 module.exports = router;

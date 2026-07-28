@@ -24,8 +24,15 @@ const deleteQrCode = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, data.message));
 });
 
+const downloadQrCode = asyncHandler(async (req, res) => {
+  const data = await service.downloadQrCode(req.user.id, req.params.id);
+
+  return res.redirect(data.downloadUrl);
+});
+
 module.exports = {
   generateQrCode,
   getQrCode,
   deleteQrCode,
+  downloadQrCode,
 };
