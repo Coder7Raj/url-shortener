@@ -1,14 +1,33 @@
 const express = require("express");
 
-const validate = require("../../middlewares/validate.middleware.js");
+const router = express.Router();
+
 const authMiddleware = require("../../middlewares/auth.middleware.js");
+const validate = require("../../middlewares/validate.middleware.js");
+
 const controller = require("./qr.controller.js");
-const { qrSchema } = require("./qr.validation.js");
 
-const router = express.Router({ mergeParams: true });
+const { qrParamsSchema } = require("./qr.validation.js");
 
-router.post("/", authMiddleware, validate(qrSchema), controller.generateQrCode);
+router.post(
+  "/urls/:id/qr",
+  authMiddleware,
+  validate(qrParamsSchema),
+  controller.generateQrCode,
+);
 
-router.get("/", authMiddleware, validate(qrSchema), controller.getQrImage);
+router.get(
+  "/urls/:id/qr",
+  authMiddleware,
+  validate(qrParamsSchema),
+  controller.getQrCode,
+);
+
+router.delete(
+  "/urls/:id/qr",
+  authMiddleware,
+  validate(qrParamsSchema),
+  controller.deleteQrCode,
+);
 
 module.exports = router;

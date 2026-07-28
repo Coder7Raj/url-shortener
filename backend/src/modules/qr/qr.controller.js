@@ -10,19 +10,22 @@ const generateQrCode = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, "QR code generated successfully", data));
 });
 
-const getQrImage = asyncHandler(async (req, res) => {
-  const { filePath, fileName } = await service.getQrImagePath(
-    req.user.id,
-    req.params.id,
-  );
+const getQrCode = asyncHandler(async (req, res) => {
+  const data = await service.getQrCode(req.user.id, req.params.id);
 
-  res.setHeader("Content-Type", "image/png");
-  res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
+  res
+    .status(200)
+    .json(new ApiResponse(200, "QR Code fetched successfully", data));
+});
 
-  return res.sendFile(filePath);
+const deleteQrCode = asyncHandler(async (req, res) => {
+  const data = await service.deleteQrCode(req.user.id, req.params.id);
+
+  res.status(200).json(new ApiResponse(200, data.message));
 });
 
 module.exports = {
   generateQrCode,
-  getQrImage,
+  getQrCode,
+  deleteQrCode,
 };

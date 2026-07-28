@@ -1,33 +1,27 @@
-const fs = require("fs/promises");
-const path = require("path");
 const QRCode = require("qrcode");
 
 const ApiError = require("../../utils/apiError.js");
+const asyncHandler = require("../../utils/asyncHandler.js");
 const urlRepository = require("../urls/url.repository.js");
-const qrRepository = require("./qr.repository.js");
+const createQrCode = require("./qr.repository.js");
+
+const uploadService = require("../../services/upload.service.js");
+
 const { toQrDto } = require("./qr.dto.js");
 
-const QR_DIR = path.join(process.cwd(), "uploads", "qrcodes");
-
 const getBaseUrl = () => {
-  return process.env.APP_URL || process.env.BASE_URL || "http://localhost:5000";
+  return process.env.BASE_URL || "http://localhost:5000";
 };
 
-const getQrFileName = (urlId) => `qr-url-${urlId}.png`;
-
-const getAbsoluteQrPath = (urlId) => {
-  return path.join(QR_DIR, getQrFileName(urlId));
+const getShortUrl = (shortCode) => {
+  return `${getBaseUrl()}/${shortCode}`;
 };
 
-const getRelativeQrPath = (urlId) => {
-  return `uploads/qrcodes/${getQrFileName(urlId)}`;
+const getPublicId = (url) => {
+  return `url-shortener/qr/url-${url.url_id}`;
 };
 
-const ensureQrDirectory = async () => {
-  await fs.mkdir(QR_DIR, { recursive: true });
-};
-
-const assertOwnedUrl = async (userId, urlId) => {
+const validateOwnership = async (userId, urlId) => {
   const url = await urlRepository.findUrlById(urlId);
 
   if (!url || url.deleted_at) {
@@ -35,79 +29,102 @@ const assertOwnedUrl = async (userId, urlId) => {
   }
 
   if (Number(url.user_id) !== Number(userId)) {
-    throw new ApiError(403, "You don't have permission to manage this QR code");
+    throw new ApiError(403, "You don't have permission to access this URL");
   }
 
   return url;
 };
 
-const persistQrRecord = async (urlId, relativePath) => {
-  const existingQr = await qrRepository.findQrByUrlId(urlId);
+const generateQrCode = async (userId, urlId) => {
+  const url = await validateOwnership(userId, urlId);
 
-  if (existingQr) {
-    return qrRepository.updateQrCode(existingQr.qr_id, {
-      image_path: relativePath,
-    });
-  }
+  const shortUrl = getShortUrl(url.short_code);
 
-  return qrRepository.createQrCode({
-    url_id: BigInt(urlId),
-    image_path: relativePath,
-  });
-};
-
-const writeQrFile = async (filePath, shortUrl) => {
-  await QRCode.toFile(filePath, shortUrl, {
+  const buffer = await QRCode.toBuffer(shortUrl, {
     width: 600,
     margin: 2,
     errorCorrectionLevel: "H",
   });
-};
 
-const generateQrCode = async (userId, urlId) => {
-  const url = await assertOwnedUrl(userId, urlId);
-
-  await ensureQrDirectory();
-
-  const absolutePath = getAbsoluteQrPath(urlId);
-  const relativePath = getRelativeQrPath(urlId);
-  const shortUrl = `${getBaseUrl()}/${url.short_code}`;
-
-  await writeQrFile(absolutePath, shortUrl);
-
-  const qrRecord = await persistQrRecord(urlId, relativePath);
-
-  return toQrDto({
-    url,
-    qrRecord,
-    shortUrl,
-    imagePath: relativePath,
+  const uploaded = await uploadService.uploadImage({
+    buffer,
+    folder: "url-shortener/qrcodes",
+    publicId: getPublicId(url),
   });
-};
 
-const getQrImagePath = async (userId, urlId) => {
-  const url = await assertOwnedUrl(userId, urlId);
+  const existingQr = await createQrCode.findQrByUrlId(urlId);
 
-  await ensureQrDirectory();
+  let qr;
 
-  const absolutePath = getAbsoluteQrPath(urlId);
-  const relativePath = getRelativeQrPath(urlId);
-  const shortUrl = `${getBaseUrl()}/${url.short_code}`;
+  if (existingQr) {
+    qr = await createQrCode.updateQrCode(existingQr.qr_id, {
+      image_path: uploaded.url,
 
-  try {
-    await fs.access(absolutePath);
-  } catch {
-    await writeQrFile(absolutePath, shortUrl);
-    await persistQrRecord(urlId, relativePath);
+      secure_url: uploaded.url,
+
+      public_id: uploaded.publicId,
+
+      width: uploaded.width,
+
+      height: uploaded.height,
+
+      bytes: uploaded.bytes,
+
+      format: uploaded.format,
+    });
+  } else {
+    qr = await qrRepository.createQr({
+      url_id: BigInt(urlId),
+
+      image_path: uploaded.url,
+
+      secure_url: uploaded.url,
+
+      public_id: uploaded.publicId,
+
+      width: uploaded.width,
+
+      height: uploaded.height,
+
+      bytes: uploaded.bytes,
+
+      format: uploaded.format,
+    });
   }
 
+  return toQrDto(url, qr);
+};
+
+const deleteQrCode = async (userId, urlId) => {
+  const url = await validateOwnership(userId, urlId);
+
+  const qr = await qrRepository.findQrByUrlId(urlId);
+
+  if (!qr) {
+    throw new ApiError(404, "QR code not found");
+  }
+
+  if (qr.public_id) {
+    await uploadService.removeImage(qr.public_id);
+  }
+
+  await qrRepository.deleteQr(qr.qr_id);
+
   return {
-    filePath: absolutePath,
-    fileName: getQrFileName(urlId),
+    message: "QR code deleted successfully",
   };
 };
 
+const getQrCode = asyncHandler(async (req, res) => {
+  const data = await service.getQrCode(req.user.id, req.params.id);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "QR Code fetched successfully", data));
+});
+
 module.exports = {
   generateQrCode,
-  getQrImagePath,
+  deleteQrCode,
+  getQrCode,
 };

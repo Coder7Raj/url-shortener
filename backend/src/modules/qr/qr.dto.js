@@ -1,28 +1,36 @@
 const getBaseUrl = () => {
-  return process.env.APP_URL || process.env.BASE_URL || "http://localhost:5000";
+  return process.env.BASE_URL || "http://localhost:5000";
 };
 
-const toQrDto = ({ url, qrRecord, shortUrl, imagePath }) => {
-  const urlId = Number(url.url_id);
+const toQrDto = (url, qr) => ({
+  url: {
+    id: Number(url.url_id),
+    shortCode: url.short_code,
+    originalUrl: url.original_url,
+    title: url.title,
+    status: url.status,
+  },
 
-  return {
-    url: {
-      id: urlId,
-      shortCode: url.short_code,
-      originalUrl: url.original_url,
-      title: url.title,
-      status: url.status,
-    },
-    qrCode: {
-      id: Number(qrRecord.qr_id),
-      imagePath,
-      shortUrl,
-      qrCodeUrl: `${getBaseUrl()}/api/v1/urls/${urlId}/qr`,
-      createdAt: qrRecord.created_at,
-      updatedAt: qrRecord.updated_at,
-    },
-  };
-};
+  qrCode: {
+    id: Number(qr.qr_id),
+
+    imageUrl: qr.secure_url,
+
+    publicId: qr.public_id,
+
+    width: qr.width,
+
+    height: qr.height,
+
+    bytes: qr.bytes,
+
+    format: qr.format,
+
+    createdAt: qr.created_at,
+
+    updatedAt: qr.updated_at,
+  },
+});
 
 module.exports = {
   toQrDto,
