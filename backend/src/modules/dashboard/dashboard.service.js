@@ -1,6 +1,10 @@
 const repository = require("./dashboard.repository.js");
 const { getDateRanges } = require("./dashboard.helpers.js");
-const { toOverviewDto, toRecentUrlsDto } = require("./dashboard.dto.js");
+const {
+  toOverviewDto,
+  toRecentUrlsDto,
+  toTopUrlsDto,
+} = require("./dashboard.dto.js");
 
 const getOverview = async (userId) => {
   const { today, week, month } = getDateRanges();
@@ -43,7 +47,14 @@ const getRecentUrls = async (userId, limit = 10) => {
   return toRecentUrlsDto(urls);
 };
 
+const getTopUrls = async (userId, limit = 10) => {
+  const urls = await repository.getTopUrls(userId, Number(limit));
+
+  return toTopUrlsDto(urls);
+};
+
 module.exports = {
   getOverview,
   getRecentUrls,
+  getTopUrls,
 };

@@ -8,7 +8,14 @@ const recentUrlsSchema = z.object({
   }),
 });
 
+const topUrlsSchema = z.object({
+  query: z.object({
+    limit: z.coerce.number().min(1).max(50).default(10),
+  }),
+});
+
 module.exports = {
   overviewSchema,
   recentUrlsSchema,
+  topUrlsSchema,
 };

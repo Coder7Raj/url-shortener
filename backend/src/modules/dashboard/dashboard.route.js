@@ -6,6 +6,7 @@ const controller = require("./dashboard.controller.js");
 const {
   overviewSchema,
   recentUrlsSchema,
+  topUrlsSchema,
 } = require("./dashboard.validation.js");
 
 const router = express.Router();
@@ -22,6 +23,13 @@ router.get(
   authMiddleware,
   validate(recentUrlsSchema),
   controller.getRecentUrls,
+);
+
+router.get(
+  "/top-urls",
+  authMiddleware,
+  validate(topUrlsSchema),
+  controller.getTopUrls,
 );
 
 module.exports = router;

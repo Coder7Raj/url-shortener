@@ -106,10 +106,31 @@ const getRecentUrls = async (userId, limit = 10) => {
   });
 };
 
+const getTopUrls = async (userId, limit = 10) => {
+  return prisma.urls.findMany({
+    where: {
+      user_id: BigInt(userId),
+      deleted_at: null,
+    },
+
+    orderBy: [
+      {
+        total_clicks: "desc",
+      },
+      {
+        created_at: "desc",
+      },
+    ],
+
+    take: limit,
+  });
+};
+
 module.exports = {
   countUserUrls,
   countActiveUrls,
   countExpiredUrls,
+  getTopUrls,
   getRecentUrls,
   countDeletedUrls,
   countClicks,
