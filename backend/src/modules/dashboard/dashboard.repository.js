@@ -91,10 +91,26 @@ const countMonthClicks = async (userId, month) => {
   });
 };
 
+const getRecentUrls = async (userId, limit = 10) => {
+  return prisma.urls.findMany({
+    where: {
+      user_id: BigInt(userId),
+      deleted_at: null,
+    },
+
+    orderBy: {
+      created_at: "desc",
+    },
+
+    take: limit,
+  });
+};
+
 module.exports = {
   countUserUrls,
   countActiveUrls,
   countExpiredUrls,
+  getRecentUrls,
   countDeletedUrls,
   countClicks,
   countTodayClicks,

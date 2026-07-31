@@ -13,6 +13,15 @@ const getOverview = asyncHandler(async (req, res) => {
     );
 });
 
+const getRecentUrls = asyncHandler(async (req, res) => {
+  const data = await service.getRecentUrls(req.user.id, req.query.limit);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Recent URLs fetched successfully", data));
+});
+
 module.exports = {
   getOverview,
+  getRecentUrls,
 };
