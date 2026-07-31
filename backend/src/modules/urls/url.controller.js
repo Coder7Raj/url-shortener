@@ -1,14 +1,16 @@
 const asyncHandler = require("../../utils/asyncHandler.js");
 const ApiResponse = require("../../utils/apiResponse.js");
-
 const service = require("./url.service.js");
 
 const createShortUrl = asyncHandler(async (req, res) => {
-  const url = await service.createShortUrl(req.user.id, req.validated.body);
+  const data = await service.createShortUrl(req.user.id, req.validated.body, {
+    ipAddress: req.ip,
+    userAgent: req.get("user-agent"),
+  });
 
   res.status(201).json(
     new ApiResponse(201, "Short URL created successfully", {
-      url,
+      url: data,
     }),
   );
 });
