@@ -6,8 +6,7 @@ const log = async ({
   entityType,
   entityId = null,
   metadata = null,
-  ipAddress = null,
-  userAgent = null,
+  requestContext = {},
 }) => {
   return repository.createLog({
     user_id: BigInt(userId),
@@ -20,9 +19,9 @@ const log = async ({
 
     metadata,
 
-    ip_address: ipAddress,
+    ip_address: requestContext.ipAddress ?? null,
 
-    user_agent: userAgent,
+    user_agent: requestContext.userAgent ?? null,
   });
 };
 

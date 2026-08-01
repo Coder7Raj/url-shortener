@@ -9,7 +9,6 @@ const { getPagination } = require("../../utils/pagination.js");
 
 // temporary added audit service:
 const auditService = require("../audit");
-
 const {
   AUDIT_ACTIONS,
   AUDIT_ENTITIES,
@@ -27,7 +26,7 @@ const generateUniqueShortCode = async () => {
   }
 };
 
-const createShortUrl = async (userId, payload, requestInfo) => {
+const createShortUrl = async (userId, payload, requestContext) => {
   let shortCode;
 
   if (payload.customAlias) {
@@ -50,24 +49,19 @@ const createShortUrl = async (userId, payload, requestInfo) => {
     status: SHORT_URL_STATUS.ACTIVE,
   });
 
+  // Log the creation of the short URL in the audit service
   await auditService.log({
     userId,
-
     action: AUDIT_ACTIONS.CREATED,
-
     entityType: AUDIT_ENTITIES.URL,
-
     entityId: url.url_id,
-
     metadata: {
       shortCode: url.short_code,
       originalUrl: url.original_url,
     },
-
-    ipAddress: requestInfo.ipAddress,
-
-    userAgent: requestInfo.userAgent,
+    requestContext,
   });
+
   return toUrlResponse(url);
 };
 
