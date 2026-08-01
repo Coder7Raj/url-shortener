@@ -65,7 +65,7 @@ const createShortUrl = async (userId, payload, requestContext) => {
   return toUrlResponse(url);
 };
 
-const redirectUrl = async (shortCode, clickData) => {
+const redirectUrl = async (shortCode, clickData, requestContext) => {
   const url = await repository.findUrlByShortCode(shortCode);
 
   if (!url) {
@@ -115,7 +115,7 @@ const redirectUrl = async (shortCode, clickData) => {
   return url.original_url;
 };
 
-const getMyUrls = async (userId, query) => {
+const getMyUrls = async (userId, query, requestContext) => {
   const page = query.page;
   const limit = query.limit;
 
@@ -182,7 +182,7 @@ const getMyUrls = async (userId, query) => {
   };
 };
 
-const getUrlById = async (userId, urlId) => {
+const getUrlById = async (userId, urlId, requestContext) => {
   const url = await repository.findUrlById(urlId);
 
   if (!url) {
@@ -200,7 +200,7 @@ const getUrlById = async (userId, urlId) => {
   return toUrlResponse(url);
 };
 
-const updateUrl = async (userId, urlId, payload) => {
+const updateUrl = async (userId, urlId, payload, requestContext) => {
   const url = await repository.findUrlById(urlId);
 
   if (!url) {
@@ -262,7 +262,7 @@ const updateUrl = async (userId, urlId, payload) => {
   return toUrlResponse(updatedUrl);
 };
 
-const deleteUrl = async (userId, urlId) => {
+const deleteUrl = async (userId, urlId, requestContext) => {
   const url = await repository.findUrlById(urlId);
 
   if (!url) {
@@ -280,7 +280,7 @@ const deleteUrl = async (userId, urlId) => {
   await repository.softDeleteUrl(urlId);
 };
 
-const getAnalytics = async (userId, urlId) => {
+const getAnalytics = async (userId, urlId, requestContext) => {
   const url = await repository.findUrlById(urlId);
 
   if (!url) {

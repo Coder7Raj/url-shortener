@@ -1,13 +1,12 @@
 const asyncHandler = require("../../utils/asyncHandler.js");
 const ApiResponse = require("../../utils/apiResponse.js");
 const service = require("./url.service.js");
+const {
+  buildRequestContext,
+} = require("../../common/request/requestContext.js");
 
 const createShortUrl = asyncHandler(async (req, res) => {
-  const requestContext = {
-    ipAddress: req.ip,
-    userAgent: req.get("user-agent"),
-    deviceName: req.get("x-device-name") || null,
-  };
+  const requestContext = buildRequestContext(req);
 
   const data = await service.createShortUrl(
     req.user.id,
