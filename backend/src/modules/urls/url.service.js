@@ -8,11 +8,11 @@ const prisma = require("../../config/prisma.js");
 const { getPagination } = require("../../utils/pagination.js");
 
 // temporary added audit service:
-const auditService = require("../audit");
+const auditService = require("../../common/audit/index.js");
 const {
   AUDIT_ACTIONS,
   AUDIT_ENTITIES,
-} = require("../audit/audit.constants.js");
+} = require("../../common/audit/audit.constants.js");
 
 const generateUniqueShortCode = async () => {
   while (true) {
