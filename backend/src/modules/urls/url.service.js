@@ -7,8 +7,9 @@ const { SHORT_URL_STATUS } = require("./constants.js");
 const prisma = require("../../config/prisma.js");
 const { getPagination } = require("../../utils/pagination.js");
 
-// temporary added audit service:
+// audit service:
 const auditService = require("../../common/audit/index.js");
+const audit = require("../../common/audit");
 const {
   AUDIT_ACTIONS,
   AUDIT_ENTITIES,
@@ -50,15 +51,9 @@ const createShortUrl = async (userId, payload, requestContext) => {
   });
 
   // Log the creation of the short URL in the audit service
-  await auditService.log({
+  await audit.urlCreated({
     userId,
-    action: AUDIT_ACTIONS.CREATED,
-    entityType: AUDIT_ENTITIES.URL,
-    entityId: url.url_id,
-    metadata: {
-      shortCode: url.short_code,
-      originalUrl: url.original_url,
-    },
+    url,
     requestContext,
   });
 
@@ -259,6 +254,13 @@ const updateUrl = async (userId, urlId, payload, requestContext) => {
 
   const updatedUrl = await repository.updateUrl(urlId, data);
 
+  await audit.urlUpdated({
+    userId,
+    url: updatedUrl,
+    changes: payload,
+    requestContext,
+  });
+
   return toUrlResponse(updatedUrl);
 };
 
@@ -278,6 +280,12 @@ const deleteUrl = async (userId, urlId, requestContext) => {
   }
 
   await repository.softDeleteUrl(urlId);
+
+  await audit.urlDeleted({
+    userId,
+    url,
+    requestContext,
+  });
 };
 
 const getAnalytics = async (userId, urlId, requestContext) => {
