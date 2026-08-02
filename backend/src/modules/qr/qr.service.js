@@ -50,7 +50,7 @@ const generateQrCode = async (userId, urlId, requestContext) => {
   return toQrDto(url, qr);
 };
 
-const regenerateQrCode = async (userId, urlId, changes, requestContext) => {
+const regenerateQrCode = async (userId, urlId, requestContext) => {
   const url = await validateOwnership(userId, urlId);
 
   const existingQr = await qrRepository.findQrByUrlId(urlId);
@@ -61,10 +61,9 @@ const regenerateQrCode = async (userId, urlId, changes, requestContext) => {
 
   const qr = await createOrUpdateQrCode(url, existingQr);
 
-  await audit.qr.updated({
+  await audit.qr.regenerated({
     userId,
     qr,
-    changes,
     requestContext,
   });
 

@@ -72,31 +72,33 @@ const qr = {
       entityId: qr.qr_id,
       metadata: {
         urlId: Number(qr.url_id),
-        imageUrl: qr.image_url,
+        imageUrl: qr.image_path,
       },
       requestContext,
     }),
 
-  updated: async ({ userId, qr, changes, requestContext }) =>
+  regenerated: async ({ userId, qr, requestContext }) =>
     service.log({
       userId,
-      action: AUDIT_ACTIONS.UPDATED,
+      action: AUDIT_ACTIONS.REGENERATED,
       entityType: AUDIT_ENTITIES.QR_CODE,
       entityId: qr.qr_id,
       metadata: {
-        changes,
+        imageUrl: qr.image_path,
+        publicId: qr.public_id,
       },
+
       requestContext,
     }),
 
   downloaded: async ({ userId, qr, requestContext }) =>
     service.log({
       userId,
-      action: AUDIT_ACTIONS.DOWNLOADED,
+      action: AUDIT_ACTIONS.QR_DOWNLOADED,
       entityType: AUDIT_ENTITIES.QR_CODE,
       entityId: qr.qr_id,
       metadata: {
-        imageUrl: qr.image_url,
+        imageUrl: qr.image_path,
       },
       requestContext,
     }),
