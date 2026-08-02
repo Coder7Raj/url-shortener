@@ -4,6 +4,7 @@ const urlRepository = require("../urls/url.repository.js");
 const qrRepository = require("./qr.repository.js");
 const uploadService = require("../../services/upload.service.js");
 const { toQrDto } = require("./qr.dto.js");
+const audit = require("../../common/audit");
 
 const getBaseUrl = () => {
   return process.env.BASE_URL || "http://localhost:5000";
@@ -31,7 +32,7 @@ const validateOwnership = async (userId, urlId) => {
   return url;
 };
 
-const generateQrCode = async (userId, urlId) => {
+const generateQrCode = async (userId, urlId, requestContext) => {
   const url = await validateOwnership(userId, urlId);
 
   let qr = await qrRepository.findQrByUrlId(urlId);
@@ -40,10 +41,16 @@ const generateQrCode = async (userId, urlId) => {
     qr = await createOrUpdateQrCode(url);
   }
 
+  await audit.qr.generated({
+    userId,
+    qr,
+    requestContext,
+  });
+
   return toQrDto(url, qr);
 };
 
-const regenerateQrCode = async (userId, urlId) => {
+const regenerateQrCode = async (userId, urlId, changes, requestContext) => {
   const url = await validateOwnership(userId, urlId);
 
   const existingQr = await qrRepository.findQrByUrlId(urlId);
@@ -54,10 +61,17 @@ const regenerateQrCode = async (userId, urlId) => {
 
   const qr = await createOrUpdateQrCode(url, existingQr);
 
+  await audit.qr.updated({
+    userId,
+    qr,
+    changes,
+    requestContext,
+  });
+
   return toQrDto(url, qr);
 };
 
-const deleteQrCode = async (userId, urlId) => {
+const deleteQrCode = async (userId, urlId, requestContext) => {
   const url = await validateOwnership(userId, urlId);
 
   const qr = await qrRepository.findQrByUrlId(urlId);
@@ -69,6 +83,12 @@ const deleteQrCode = async (userId, urlId) => {
   if (qr.public_id) {
     await uploadService.removeImage(qr.public_id);
   }
+
+  await audit.qr.deleted({
+    userId,
+    qr,
+    requestContext,
+  });
 
   await qrRepository.deleteQrCodesByUrlId(urlId);
 
@@ -89,7 +109,7 @@ const getQrCode = async (userId, urlId) => {
   return toQrDto(url, qr);
 };
 
-const downloadQrCode = async (userId, urlId) => {
+const downloadQrCode = async (userId, urlId, requestContext) => {
   const url = await validateOwnership(userId, urlId);
 
   const qr = await qrRepository.findQrByUrlId(urlId);
@@ -102,6 +122,12 @@ const downloadQrCode = async (userId, urlId) => {
     qr.public_id,
     `${url.short_code}-qr`,
   );
+
+  await audit.qr.downloaded({
+    userId,
+    qr,
+    requestContext,
+  });
 
   return {
     downloadUrl,
