@@ -122,7 +122,12 @@ const auth = {
       action: AUDIT_ACTIONS.AUTH.LOGIN,
       entityType: AUDIT_ENTITIES.USER,
       entityId: userId,
-      metadata: null,
+      metadata: {
+        loginMethod: "password",
+        sessionType: "refresh",
+        device: requestContext.userAgent,
+        ip: requestContext.ip,
+      },
       requestContext,
     }),
 
@@ -132,7 +137,9 @@ const auth = {
       action: AUDIT_ACTIONS.AUTH.LOGOUT,
       entityType: AUDIT_ENTITIES.USER,
       entityId: userId,
-      metadata: null,
+      metadata: {
+        logoutType: "single_session",
+      },
       requestContext,
     }),
 
@@ -142,7 +149,9 @@ const auth = {
       action: AUDIT_ACTIONS.AUTH.LOGOUT_ALL,
       entityType: AUDIT_ENTITIES.USER,
       entityId: userId,
-      metadata: null,
+      metadata: {
+        logoutType: "all_sessions",
+      },
       requestContext,
     }),
 
@@ -152,7 +161,9 @@ const auth = {
       action: AUDIT_ACTIONS.AUTH.REFRESH_TOKEN,
       entityType: AUDIT_ENTITIES.SESSION,
       entityId: userId,
-      metadata: null,
+      metadata: {
+        action: "refresh_token",
+      },
       requestContext,
     }),
 };

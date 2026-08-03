@@ -11,6 +11,7 @@ const {
 } = require("../../services/jwt.services.js");
 const sessionRepository = require("./session.repository.js");
 const { toSessionListResponse } = require("./session.dto.js");
+const audit = require("../../common/audit");
 
 const registerUser = async (userData) => {
   const emailExists = await repository.findUserByEmail(userData.email);
@@ -37,7 +38,7 @@ const registerUser = async (userData) => {
   return toUserResponse(user);
 };
 
-const loginUser = async ({ email, password }, deviceInfo) => {
+const loginUser = async ({ email, password }, deviceInfo, requestContext) => {
   const user = await repository.findUserByEmail(email);
 
   if (!user) {
@@ -67,6 +68,12 @@ const loginUser = async ({ email, password }, deviceInfo) => {
   });
 
   await repository.updateLastLogin(user.user_id);
+
+  await audit.auth.login({
+    userId: user.user_id,
+    requestContext,
+  });
+
   return {
     user: toUserResponse(user),
     accessToken,
@@ -74,7 +81,7 @@ const loginUser = async ({ email, password }, deviceInfo) => {
   };
 };
 
-const logout = async (refreshToken) => {
+const logout = async (refreshToken, requestContext) => {
   const payload = verifyRefreshToken(refreshToken);
 
   if (payload.type !== "refresh") {
@@ -82,18 +89,26 @@ const logout = async (refreshToken) => {
   }
 
   const session = await sessionRepository.findSessionByTokenId(payload.jti);
-
   if (!session) {
     throw new ApiError(401, "Session not found");
   }
 
   await sessionRepository.deleteSession(session.session_id);
 
+  await audit.auth.logout({
+    userId: payload.sub,
+    requestContext,
+  });
+
   return;
 };
 
-const logoutAll = async (userId) => {
+const logoutAll = async (userId, requestContext) => {
   await sessionRepository.deleteUserSessions(userId);
+  await audit.auth.logoutAll({
+    userId,
+    requestContext,
+  });
 };
 
 const getCurrentUser = async (userId) => {
@@ -106,7 +121,7 @@ const getCurrentUser = async (userId) => {
   return toUserResponse(user);
 };
 
-const refreshAccessToken = async (refreshToken) => {
+const refreshAccessToken = async (refreshToken, requestContext) => {
   const payload = verifyRefreshToken(refreshToken);
   if (payload.type !== "refresh") {
     throw new ApiError(401, "Invalid token type");
@@ -159,6 +174,11 @@ const refreshAccessToken = async (refreshToken) => {
     ip_address: session.ip_address,
 
     user_agent: session.user_agent,
+  });
+
+  await audit.auth.refreshToken({
+    userId: user.user_id,
+    requestContext,
   });
 
   return {
