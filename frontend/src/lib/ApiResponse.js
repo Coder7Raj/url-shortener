@@ -1,7 +1,3 @@
-export const unwrapResponse = (response) => {
-  return response.data.data;
-};
+export const unwrapResponse = (response) => response.data.data;
 
-export const unwrapMessage = (response) => {
-  return response.data.message;
-};
+export const unwrapMessage = (response) => response.data.message;

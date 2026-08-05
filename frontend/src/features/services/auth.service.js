@@ -1,43 +1,54 @@
-import { loginApi, logoutApi, meApi, registerApi } from "../api/auth.api.js";
-
+import { storage } from "../../../lib/storage.js";
 import { unwrapResponse } from "../../lib/ApiResponse.js";
-import { token } from "../../lib/token.js";
+import { loginApi, logoutApi, meApi, registerApi } from "../api/auth.api.js";
+import useAuthStore from "../store/auth.store.js";
 
-class AuthService {
-  async login(credentials) {
-    const data = unwrapResponse(await loginApi(credentials));
+export const login = async (values) => {
+  const data = unwrapResponse(await loginApi(values));
 
-    token.save(data.accessToken, data.refreshToken);
+  storage.saveTokens(data.accessToken, data.refreshToken);
 
-    return data.user;
+  useAuthStore.getState().login(data.user);
+
+  return data.user;
+};
+
+export const register = async (values) => {
+  const data = unwrapResponse(await registerApi(values));
+
+  return data.user;
+};
+
+export const initializeAuth = async () => {
+  const token = storage.getAccessToken();
+
+  if (!token) {
+    useAuthStore.getState().logout();
+
+    return;
   }
 
-  async register(userData) {
-    const data = unwrapResponse(await registerApi(userData));
-
-    return data.user;
-  }
-
-  async getCurrentUser() {
+  try {
     const data = unwrapResponse(await meApi());
 
-    return data.user;
+    useAuthStore.getState().initialize(data.user);
+  } catch (error) {
+    storage.clearTokens();
+
+    useAuthStore.getState().logout();
   }
+};
 
-  async logout() {
-    const refreshToken = token.getRefreshToken();
+export const logout = async () => {
+  const refreshToken = storage.getRefreshToken();
 
-    if (!refreshToken) {
-      token.clear();
-      return;
-    }
-
-    try {
+  try {
+    if (refreshToken) {
       await logoutApi(refreshToken);
-    } finally {
-      token.clear();
     }
-  }
-}
+  } finally {
+    storage.clearTokens();
 
-export default new AuthService();
+    useAuthStore.getState().logout();
+  }
+};

@@ -1,12 +1,9 @@
 import axios from "axios";
-import { API } from "../constants/api";
-import { storage } from "../utils/storage";
+
+import { storage } from "../../lib/storage.js";
 
 const api = axios.create({
-  baseURL: API.BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 api.interceptors.request.use(
