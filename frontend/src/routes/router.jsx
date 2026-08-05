@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import LoginForm from "../components/LoginForm.jsx";
 import { ROUTES } from "../constants/routes.js";
 import AuthLayout from "../layouts/AuthLayout.jsx";
 import DashboardLayout from "../layouts/DashboardLayout.jsx";
@@ -15,7 +16,10 @@ const router = createBrowserRouter([
   {
     element: <AuthLayout />,
     children: [
-      // Login
+      {
+        path: ROUTES.LOGIN,
+        element: <LoginForm />, // Redirect to login page
+      },
       // Register
     ],
   },
