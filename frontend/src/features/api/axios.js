@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API } from "../constants/api.js";
+import { API } from "../../constants/api.js";
 
 const api = axios.create({
   baseURL: API.BASE_URL,

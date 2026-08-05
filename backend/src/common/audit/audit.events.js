@@ -125,8 +125,8 @@ const auth = {
       metadata: {
         loginMethod: "password",
         sessionType: "refresh",
-        device: requestContext.userAgent,
-        ip: requestContext.ip,
+        // device: requestContext.userAgent,
+        // ip: requestContext.ip,
       },
       requestContext,
     }),
