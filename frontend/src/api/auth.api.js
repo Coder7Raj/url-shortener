@@ -1,21 +1,43 @@
-import api from "./axios.js";
+import apiClient from "./client.js";
 
-export const registerApi = (body) => api.post("/auth/register", body);
+const authApi = {
+  register: async (data) => {
+    const response = await apiClient.post("/auth/register", data);
 
-export const loginApi = (body) => api.post("/auth/login", body);
+    return response.data;
+  },
 
-export const meApi = () => api.get("/auth/me");
+  login: async (data) => {
+    const response = await apiClient.post("/auth/login", data);
 
-export const refreshApi = (refreshToken) =>
-  api.post("/auth/refresh", {
-    refreshToken,
-  });
+    return response.data;
+  },
 
-export const logoutApi = (refreshToken) =>
-  api.post("/auth/logout", {
-    refreshToken,
-  });
+  logout: async () => {
+    const response = await apiClient.post("/auth/logout");
 
-export const logoutAllApi = () => api.post("/auth/logout-all");
+    return response.data;
+  },
 
-export const sessionsApi = () => api.get("/auth/sessions");
+  logoutAll: async () => {
+    const response = await apiClient.post("/auth/logout-all");
+
+    return response.data;
+  },
+
+  refreshToken: async (refreshToken) => {
+    const response = await apiClient.post("/auth/refresh-token", {
+      refreshToken,
+    });
+
+    return response.data;
+  },
+
+  getCurrentUser: async () => {
+    const response = await apiClient.get("/auth/me");
+
+    return response.data;
+  },
+};
+
+export default authApi;

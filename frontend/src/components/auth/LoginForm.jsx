@@ -1,70 +1,88 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { useLogin } from "../../hooks/useLogin.js";
-import { loginSchema } from "../../schemas/login.schema.js";
+import { ROUTES } from "../../constants/routes.js";
+import useAuth from "../../hooks/useAuth.js";
 
 const LoginForm = () => {
-  const { handleLogin, isLoading } = useLogin();
+  const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+  const { login, isLoading, error, clearError } = useAuth();
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
   });
 
-  const onSubmit = async (values) => {
-    await handleLogin(values);
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    clearError();
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const result = await login(formData);
+
+    if (result.success) {
+      navigate(ROUTES.DASHBOARD, {
+        replace: true,
+      });
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {/* Email */}
-
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
 
         <Input
           id="email"
+          name="email"
           type="email"
-          placeholder="john@example.com"
-          {...register("email")}
+          placeholder="you@example.com"
+          value={formData.email}
+          onChange={handleChange}
+          disabled={isLoading}
         />
-
-        {errors.email && (
-          <p className="text-sm text-red-500">{errors.email.message}</p>
-        )}
       </div>
 
       {/* Password */}
-
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
 
         <Input
           id="password"
+          name="password"
           type="password"
-          placeholder="••••••••"
-          {...register("password")}
+          placeholder="Enter your password"
+          value={formData.password}
+          onChange={handleChange}
+          disabled={isLoading}
         />
-
-        {errors.password && (
-          <p className="text-sm text-red-500">{errors.password.message}</p>
-        )}
       </div>
 
+      {/* Error */}
+      {error && (
+        <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+
+      {/* Submit */}
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Signing In..." : "Login"}
+        {isLoading ? "Logging in..." : "Login"}
       </Button>
     </form>
   );

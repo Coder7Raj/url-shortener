@@ -6,9 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { ROUTES } from "../../constants/routes.js";
+import useAuth from "../../hooks/useAuth.js";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
+
+  const { register, isLoading, error, clearError } = useAuth();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -18,11 +21,10 @@ const RegisterForm = () => {
     confirmPassword: "",
   });
 
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const handleChange = (event) => {
     const { name, value } = event.target;
+
+    clearError();
 
     setFormData((previous) => ({
       ...previous,
@@ -33,61 +35,23 @@ const RegisterForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    setError("");
-
-    const { username, name, email, password, confirmPassword } = formData;
-
-    if (!username || !name || !email || !password || !confirmPassword) {
-      setError("All fields are required.");
+    if (formData.password !== formData.confirmPassword) {
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+    const result = await register({
+      username: formData.username,
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+    });
 
-    try {
-      setLoading(true);
-
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/auth/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username,
-            name,
-            email,
-            password,
-          }),
-        },
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Registration failed.");
-      }
-
+    if (result.success) {
       /*
-       * If your backend automatically logs the user in
-       * after registration, store the tokens.
+       * If your backend automatically logs
+       * the user in after registration:
        */
-
       if (result.data?.accessToken) {
-        localStorage.setItem("accessToken", result.data.accessToken);
-      }
-
-      if (result.data?.refreshToken) {
-        localStorage.setItem("refreshToken", result.data.refreshToken);
-      }
-
-      if (result.data?.user) {
-        localStorage.setItem("user", JSON.stringify(result.data.user));
-
         navigate(ROUTES.DASHBOARD, {
           replace: true,
         });
@@ -96,17 +60,11 @@ const RegisterForm = () => {
       }
 
       /*
-       * If registration does NOT automatically log the user in,
-       * send them to login instead.
+       * Otherwise go to login.
        */
-
       navigate(ROUTES.LOGIN, {
         replace: true,
       });
-    } catch (error) {
-      setError(error.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -123,7 +81,7 @@ const RegisterForm = () => {
           placeholder="yourusername"
           value={formData.username}
           onChange={handleChange}
-          disabled={loading}
+          disabled={isLoading}
         />
       </div>
 
@@ -138,7 +96,7 @@ const RegisterForm = () => {
           placeholder="Your name"
           value={formData.name}
           onChange={handleChange}
-          disabled={loading}
+          disabled={isLoading}
         />
       </div>
 
@@ -153,7 +111,7 @@ const RegisterForm = () => {
           placeholder="you@example.com"
           value={formData.email}
           onChange={handleChange}
-          disabled={loading}
+          disabled={isLoading}
         />
       </div>
 
@@ -168,7 +126,7 @@ const RegisterForm = () => {
           placeholder="Create a password"
           value={formData.password}
           onChange={handleChange}
-          disabled={loading}
+          disabled={isLoading}
         />
       </div>
 
@@ -183,7 +141,7 @@ const RegisterForm = () => {
           placeholder="Confirm your password"
           value={formData.confirmPassword}
           onChange={handleChange}
-          disabled={loading}
+          disabled={isLoading}
         />
       </div>
 
@@ -195,8 +153,8 @@ const RegisterForm = () => {
       )}
 
       {/* Submit */}
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Creating account..." : "Create Account"}
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? "Creating account..." : "Create Account"}
       </Button>
     </form>
   );
