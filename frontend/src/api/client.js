@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { authStorage } from "../lib/auth-storage.js";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const apiClient = axios.create({
@@ -56,7 +56,7 @@ const processQueue = (error, accessToken = null) => {
  */
 apiClient.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = authStorage.getAccessToken();
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -117,18 +117,14 @@ apiClient.interceptors.response.use(
 
     isRefreshing = true;
 
-    const refreshToken = localStorage.getItem("refreshToken");
+    const refreshToken = authStorage.getRefreshToken();
 
-    /*
-     * No refresh token means the session
-     * cannot be recovered.
-     */
+    // No refresh token means the session cannot be recovered.
+
     if (!refreshToken) {
       isRefreshing = false;
 
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
+      authStorage.clear();
 
       return Promise.reject(error);
     }
@@ -143,9 +139,7 @@ apiClient.interceptors.response.use(
       });
 
       const data = response.data?.data;
-
       const newAccessToken = data?.accessToken;
-
       const newRefreshToken = data?.refreshToken;
 
       if (!newAccessToken) {
@@ -155,7 +149,7 @@ apiClient.interceptors.response.use(
       /*
        * Store new access token.
        */
-      localStorage.setItem("accessToken", newAccessToken);
+      authStorage.setAccessToken(newAccessToken);
 
       /*
        * Some backends rotate the refresh token.
@@ -164,7 +158,7 @@ apiClient.interceptors.response.use(
        * replace the old one.
        */
       if (newRefreshToken) {
-        localStorage.setItem("refreshToken", newRefreshToken);
+        authStorage.setRefreshToken(newRefreshToken);
       }
 
       /*
@@ -186,11 +180,7 @@ apiClient.interceptors.response.use(
        */
       processQueue(refreshError, null);
 
-      localStorage.removeItem("accessToken");
-
-      localStorage.removeItem("refreshToken");
-
-      localStorage.removeItem("user");
+      authStorage.clear();
 
       return Promise.reject(refreshError);
     } finally {

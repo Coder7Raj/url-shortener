@@ -1,6 +1,6 @@
 import { create } from "zustand";
-
 import authApi from "../api/auth.api.js";
+import { authStorage } from "../lib/auth-storage.js";
 
 const getStoredUser = () => {
   try {
@@ -12,11 +12,11 @@ const getStoredUser = () => {
   }
 };
 
-const useAuthStore = create((set, get) => ({
+const useAuthStore = create((set) => ({
   user: getStoredUser(),
-  accessToken: localStorage.getItem("accessToken"),
-  refreshToken: localStorage.getItem("refreshToken"),
-  isAuthenticated: Boolean(localStorage.getItem("accessToken")),
+  accessToken: authStorage.getAccessToken(),
+  refreshToken: authStorage.getRefreshToken(),
+  isAuthenticated: Boolean(authStorage.getAccessToken()),
   isLoading: false,
   error: null,
 
@@ -31,9 +31,9 @@ const useAuthStore = create((set, get) => ({
       const result = await authApi.login(credentials);
 
       const { user, accessToken, refreshToken } = result.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("user", JSON.stringify(user));
+      authStorage.setAccessToken(accessToken);
+      authStorage.setRefreshToken(refreshToken);
+      authStorage.setUser(user);
 
       set({
         user,
@@ -78,15 +78,15 @@ const useAuthStore = create((set, get) => ({
       const user = result.data?.user;
 
       if (accessToken) {
-        localStorage.setItem("accessToken", accessToken);
+        authStorage.setAccessToken(accessToken);
       }
 
       if (refreshToken) {
-        localStorage.setItem("refreshToken", refreshToken);
+        authStorage.setRefreshToken(refreshToken);
       }
 
       if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
+        authStorage.setUser(user);
       }
 
       set({
@@ -131,9 +131,7 @@ const useAuthStore = create((set, get) => ({
     } catch (error) {
       console.error("Logout API error:", error);
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
+      authStorage.clear();
 
       set({
         user: null,

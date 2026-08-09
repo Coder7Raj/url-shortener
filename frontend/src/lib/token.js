@@ -1,20 +1,20 @@
-import { storage } from "./storage.js";
+import { authStorage } from "./auth-storage.js";
 
 export const token = {
   getAccessToken() {
-    return storage.getAccessToken();
+    return authStorage.getAccessToken();
   },
 
   getRefreshToken() {
-    return storage.getRefreshToken();
+    return authStorage.getRefreshToken();
   },
 
   save(accessToken, refreshToken) {
-    storage.setAccessToken(accessToken);
-    storage.setRefreshToken(refreshToken);
+    authStorage.setAccessToken(accessToken);
+    authStorage.setRefreshToken(refreshToken);
   },
 
   clear() {
-    storage.clear();
+    authStorage.clear();
   },
 };
