@@ -76,23 +76,20 @@ const useUrlStore = create((set) => ({
     try {
       const response = await urlApi.getAll(params);
 
-      const urls = response?.data?.urls || response?.data || [];
+      const { urls, pagination } = response.data;
 
       set({
-        urls: Array.isArray(urls) ? urls : [],
-
+        urls,
+        pagination,
         isLoading: false,
       });
 
-      if (response?.data?.pagination) {
-        set({
-          pagination: response.data.pagination,
-        });
-      }
-
       return {
         success: true,
-        data: response,
+        data: {
+          urls,
+          pagination,
+        },
       };
     } catch (error) {
       const message = error.response?.data?.message || "Failed to fetch URLs";
