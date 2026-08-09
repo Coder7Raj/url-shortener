@@ -38,19 +38,17 @@ const useUrlStore = create((set) => ({
     try {
       const response = await urlApi.create(data);
 
-      if (response?.data?.url) {
-        set((state) => ({
-          urls: [response.data.url, ...state.urls],
-        }));
-      }
+      const createdUrl = response.data.url;
 
-      set({
+      set((state) => ({
+        urls: [createdUrl, ...state.urls],
+
         isCreating: false,
-      });
+      }));
 
       return {
         success: true,
-        data: response,
+        data: createdUrl,
       };
     } catch (error) {
       const message =
