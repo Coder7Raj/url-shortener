@@ -11,7 +11,7 @@ export const createUrlSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  expiresAt: z.string().datetime().optional().or(z.literal("")),
+  expiresAt: z.string().optional(),
 });
 
 export const updateUrlSchema = z.object({

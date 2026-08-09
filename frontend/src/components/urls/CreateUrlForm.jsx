@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 
 import useUrls from "../../hooks/useUrls.js";
 
-import { createUrlSchema } from "../../validations/url.schema.js";
+import { createUrlSchema } from "../../schemas/url.schema.js";
 
 import { cleanUrlPayload } from "../../utils/url.utils.js";
 
@@ -34,12 +34,6 @@ const CreateUrlForm = ({ onSuccess }) => {
 
     const payload = cleanUrlPayload(values);
 
-    /*
-     * HTML datetime-local produces:     *
-     *  1. 2026-08-10T19:30     *
-     *  2. Zod datetime requires a valid
-     *  3. datetime format.
-     */
     if (payload.expiresAt) {
       payload.expiresAt = new Date(payload.expiresAt).toISOString();
     }

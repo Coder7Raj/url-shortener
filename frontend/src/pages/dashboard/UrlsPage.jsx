@@ -1,21 +1,35 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import CreateUrlForm from "../../components/urls/CreateUrlForm.jsx";
+import UrlList from "../../components/urls/UrlList.jsx";
+import UrlPagination from "../../components/urls/UrlPagination.jsx";
 import useUrls from "../../hooks/useUrls.js";
 
 const UrlsPage = () => {
+  const [page, setPage] = useState(1);
+
   const { fetchUrls, isLoading, urls, pagination, error } = useUrls();
 
-  useEffect(() => {
+  const loadUrls = (pageNumber) => {
     fetchUrls({
-      page: 1,
+      page: pageNumber,
       limit: 10,
       sort: "createdAt",
       order: "desc",
     });
-  }, [fetchUrls]);
+  };
+
+  useEffect(() => {
+    loadUrls(page);
+  }, [page]);
+
+  const handleCreateSuccess = () => {
+    setPage(1);
+
+    loadUrls(1);
+  };
 
   return (
     <div className="space-y-6">
@@ -35,22 +49,13 @@ const UrlsPage = () => {
         </CardHeader>
 
         <CardContent>
-          <div className="max-w-2xl">
-            <CreateUrlForm
-              onSuccess={() => {
-                fetchUrls({
-                  page: 1,
-                  limit: 10,
-                  sort: "createdAt",
-                  order: "desc",
-                });
-              }}
-            />
+          <div className="w-full max-w-3xl">
+            <CreateUrlForm onSuccess={handleCreateSuccess} />
           </div>
         </CardContent>
       </Card>
 
-      {/* URL list */}
+      {/* URL List */}
       <Card>
         <CardHeader>
           <CardTitle>Your URLs</CardTitle>
@@ -69,31 +74,16 @@ const UrlsPage = () => {
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          {!isLoading && urls.length > 0 && (
-            <div className="space-y-3">
-              {urls.map((url) => (
-                <div key={url.id} className="rounded-lg border p-4">
-                  <p className="font-medium">{url.shortUrl}</p>
+          {!isLoading && !error && urls.length > 0 && <UrlList />}
 
-                  <p className="mt-1 truncate text-sm text-muted-foreground">
-                    {url.originalUrl}
-                  </p>
-
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {url.totalClicks} clicks
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Pagination info */}
-          {pagination.totalItems > 0 && (
-            <div className="mt-4 border-t pt-4 text-sm text-muted-foreground">
-              Page {pagination.page} of {pagination.totalPages}
-              {" · "}
-              {pagination.totalItems} total URLs
-            </div>
+          {/* Pagination */}
+          {!isLoading && !error && pagination.totalItems > 0 && (
+            <UrlPagination
+              page={page}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.totalItems}
+              onPageChange={setPage}
+            />
           )}
         </CardContent>
       </Card>

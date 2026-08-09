@@ -8,7 +8,6 @@ const prisma = require("../../config/prisma.js");
 const { getPagination } = require("../../utils/pagination.js");
 
 // audit service:
-const auditService = require("../../common/audit/index.js");
 const audit = require("../../common/audit");
 const {
   AUDIT_ACTIONS,
@@ -51,7 +50,7 @@ const createShortUrl = async (userId, payload, requestContext) => {
   });
 
   // Log the creation of the short URL in the audit service
-  await audit.urlCreated({
+  await audit.url.created({
     userId,
     url,
     requestContext,
@@ -254,7 +253,7 @@ const updateUrl = async (userId, urlId, payload, requestContext) => {
 
   const updatedUrl = await repository.updateUrl(urlId, data);
 
-  await audit.urlUpdated({
+  await audit.url.updated({
     userId,
     url: updatedUrl,
     changes: payload,
@@ -281,7 +280,7 @@ const deleteUrl = async (userId, urlId, requestContext) => {
 
   await repository.softDeleteUrl(urlId);
 
-  await audit.urlDeleted({
+  await audit.url.deleted({
     userId,
     url,
     requestContext,

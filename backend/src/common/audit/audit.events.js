@@ -8,7 +8,7 @@ const url = {
   created: async ({ userId, url, requestContext }) =>
     service.log({
       userId,
-      action: AUDIT_ACTIONS.URL.URL_CREATED,
+      action: AUDIT_ACTIONS.URL.CREATED,
       entityType: AUDIT_ENTITIES.URL,
       entityId: url.url_id,
       metadata: {
@@ -23,7 +23,7 @@ const url = {
   updated: async ({ userId, url, changes, requestContext }) =>
     service.log({
       userId,
-      action: AUDIT_ACTIONS.URL.URL_UPDATED,
+      action: AUDIT_ACTIONS.URL.UPDATED,
       entityType: AUDIT_ENTITIES.URL,
       entityId: url.url_id,
       metadata: {
@@ -36,7 +36,7 @@ const url = {
   deleted: async ({ userId, url, requestContext }) =>
     service.log({
       userId,
-      action: AUDIT_ACTIONS.URL.URL_DELETED,
+      action: AUDIT_ACTIONS.URL.DELETED,
       entityType: AUDIT_ENTITIES.URL,
       entityId: url.url_id,
       metadata: {
@@ -48,7 +48,7 @@ const url = {
   restored: async ({ userId, url, requestContext }) =>
     service.log({
       userId,
-      action: AUDIT_ACTIONS.URL.URL_RESTORED,
+      action: AUDIT_ACTIONS.URL.RESTORED,
       entityType: AUDIT_ENTITIES.URL,
       entityId: url.url_id,
       metadata: {
@@ -65,7 +65,7 @@ const qr = {
   generated: async ({ userId, qr, requestContext }) =>
     service.log({
       userId,
-      action: AUDIT_ACTIONS.QR.QR_CREATED,
+      action: AUDIT_ACTIONS.QR.CREATED,
       entityType: AUDIT_ENTITIES.QR_CODE,
       entityId: qr.qr_id,
       metadata: {
@@ -78,7 +78,7 @@ const qr = {
   regenerated: async ({ userId, qr, requestContext }) =>
     service.log({
       userId,
-      action: AUDIT_ACTIONS.QR.QR_REGENERATED,
+      action: AUDIT_ACTIONS.QR.REGENERATED,
       entityType: AUDIT_ENTITIES.QR_CODE,
       entityId: qr.qr_id,
       metadata: {
@@ -92,7 +92,7 @@ const qr = {
   downloaded: async ({ userId, qr, requestContext }) =>
     service.log({
       userId,
-      action: AUDIT_ACTIONS.QR.QR_DOWNLOADED,
+      action: AUDIT_ACTIONS.QR.DOWNLOADED,
       entityType: AUDIT_ENTITIES.QR_CODE,
       entityId: qr.qr_id,
       metadata: {
@@ -104,7 +104,7 @@ const qr = {
   deleted: async ({ userId, qr, requestContext }) =>
     service.log({
       userId,
-      action: AUDIT_ACTIONS.QR.QR_DELETED,
+      action: AUDIT_ACTIONS.QR.DELETED,
       entityType: AUDIT_ENTITIES.QR_CODE,
       entityId: qr.qr_id,
       metadata: null,

@@ -10,6 +10,7 @@ import NotFound from "../pages/NotFound.jsx";
 import LoginPage from "../pages/auth/LoginPage.jsx";
 import RegisterPage from "../pages/auth/RegisterPage.jsx";
 
+import UrlsPage from "../pages/dashboard/UrlsPage";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 
@@ -50,7 +51,7 @@ const router = createBrowserRouter([
 
           {
             path: ROUTES.URLS,
-            element: <div>URLs</div>,
+            element: <UrlsPage />,
           },
 
           {
