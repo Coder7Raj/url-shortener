@@ -151,17 +151,15 @@ const useUrlStore = create((set) => ({
     try {
       const response = await urlApi.update(id, data);
 
-      const updatedUrl = response?.data?.url || response?.data;
+      const updatedUrl = response.data.url;
 
       set((state) => ({
         urls: state.urls.map((url) =>
-          String(url.id ?? url.url_id) === String(id) ? updatedUrl : url,
+          String(url.id) === String(id) ? updatedUrl : url,
         ),
 
         selectedUrl:
-          state.selectedUrl &&
-          String(state.selectedUrl.id ?? state.selectedUrl.url_id) ===
-            String(id)
+          state.selectedUrl && String(state.selectedUrl.id) === String(id)
             ? updatedUrl
             : state.selectedUrl,
 
@@ -170,7 +168,7 @@ const useUrlStore = create((set) => ({
 
       return {
         success: true,
-        data: response,
+        data: updatedUrl,
       };
     } catch (error) {
       const message = error.response?.data?.message || "Failed to update URL";
@@ -195,17 +193,13 @@ const useUrlStore = create((set) => ({
     });
 
     try {
-      const response = await urlApi.delete(id);
+      await urlApi.delete(id);
 
       set((state) => ({
-        urls: state.urls.filter(
-          (url) => String(url.id ?? url.url_id) !== String(id),
-        ),
+        urls: state.urls.filter((url) => String(url.id) !== String(id)),
 
         selectedUrl:
-          state.selectedUrl &&
-          String(state.selectedUrl.id ?? state.selectedUrl.url_id) ===
-            String(id)
+          state.selectedUrl && String(state.selectedUrl.id) === String(id)
             ? null
             : state.selectedUrl,
 
@@ -214,7 +208,6 @@ const useUrlStore = create((set) => ({
 
       return {
         success: true,
-        data: response,
       };
     } catch (error) {
       const message = error.response?.data?.message || "Failed to delete URL";
@@ -242,14 +235,13 @@ const useUrlStore = create((set) => ({
       const response = await urlApi.getAnalytics(id, params);
 
       set({
-        analytics: response?.data?.analytics || response?.data || null,
-
+        analytics: response.data,
         isAnalyticsLoading: false,
       });
 
       return {
         success: true,
-        data: response,
+        data: response.data,
       };
     } catch (error) {
       const message =
