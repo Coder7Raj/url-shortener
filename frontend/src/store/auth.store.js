@@ -127,20 +127,52 @@ const useAuthStore = create((set) => ({
     });
 
     try {
-      await authApi.logout();
-    } catch (error) {
-      console.error("Logout API error:", error);
-    } finally {
+      const refreshToken = authStorage.getRefreshToken();
+
+      /*
+       * If there is a refresh token,
+       * tell the backend to invalidate the session.
+       */
+      if (refreshToken) {
+        await authApi.logout(refreshToken);
+      }
+
+      /*
+       * Clear local authentication state
+       * regardless of whether a refresh token exists.
+       */
       authStorage.clear();
 
       set({
         user: null,
-        accessToken: null,
-        refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
       });
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      console.error("Logout API error:", error);
+
+      /*
+       * Even if the backend logout fails,
+       * clear the local session.
+       */
+      authStorage.clear();
+
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: error.response?.data?.message || "Logout failed",
+      });
+
+      return {
+        success: false,
+        error,
+      };
     }
   },
 
