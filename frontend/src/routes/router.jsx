@@ -1,29 +1,42 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
-import LoginForm from "../components/LoginForm.jsx";
+import { createBrowserRouter } from "react-router-dom";
+
 import { ROUTES } from "../constants/routes.js";
-import AuthLayout from "../layouts/AuthLayout.jsx";
+
 import DashboardLayout from "../layouts/DashboardLayout.jsx";
+
 import Home from "../pages/Home.jsx";
 import NotFound from "../pages/NotFound.jsx";
+
+import LoginPage from "../pages/auth/LoginPage.jsx";
+import RegisterPage from "../pages/auth/RegisterPage.jsx";
+
 import ProtectedRoute from "./ProtectedRoute.jsx";
+import PublicRoute from "./PublicRoute.jsx";
 
 const router = createBrowserRouter([
+  // Public Routes
   {
     path: ROUTES.HOME,
     element: <Home />,
   },
 
+  // Authentication Routes
   {
-    element: <AuthLayout />,
+    element: <PublicRoute />,
     children: [
       {
         path: ROUTES.LOGIN,
-        element: <LoginForm />, // Redirect to login page
+        element: <LoginPage />,
       },
-      // Register
+
+      {
+        path: ROUTES.REGISTER,
+        element: <RegisterPage />,
+      },
     ],
   },
 
+  // Protected Routes
   {
     element: <ProtectedRoute />,
     children: [
@@ -32,23 +45,39 @@ const router = createBrowserRouter([
         children: [
           {
             path: ROUTES.DASHBOARD,
-            element: <Navigate to={ROUTES.URLS} replace />,
+            element: <div>Dashboard</div>,
           },
 
-          // URLs
+          {
+            path: ROUTES.URLS,
+            element: <div>URLs</div>,
+          },
 
-          // Analytics
+          {
+            path: ROUTES.ANALYTICS,
+            element: <div>Analytics</div>,
+          },
 
-          // QR
+          {
+            path: ROUTES.QR,
+            element: <div>QR Codes</div>,
+          },
 
-          // Sessions
+          {
+            path: ROUTES.SESSIONS,
+            element: <div>Sessions</div>,
+          },
 
-          // Profile
+          {
+            path: ROUTES.PROFILE,
+            element: <div>Profile</div>,
+          },
         ],
       },
     ],
   },
 
+  // 404
   {
     path: "*",
     element: <NotFound />,

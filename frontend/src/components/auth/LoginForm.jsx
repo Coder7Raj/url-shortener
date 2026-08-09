@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { useLogin } from "../features/hooks/useLogin.js";
-import { loginSchema } from "../features/schemas/login.schema.js";
+import { useLogin } from "../../hooks/useLogin.js";
+import { loginSchema } from "../../schemas/login.schema.js";
 
 const LoginForm = () => {
   const { handleLogin, isLoading } = useLogin();

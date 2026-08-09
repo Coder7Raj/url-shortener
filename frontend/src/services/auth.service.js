@@ -1,6 +1,6 @@
-import { unwrapResponse } from "../../lib/ApiResponse.js";
-import { storage } from "../../lib/storage.js";
 import { loginApi, logoutApi, meApi, registerApi } from "../api/auth.api.js";
+import { unwrapResponse } from "../lib/ApiResponse.js";
+import { storage } from "../lib/storage.js";
 import useAuthStore from "../store/auth.store.js";
 
 export const login = async (values) => {

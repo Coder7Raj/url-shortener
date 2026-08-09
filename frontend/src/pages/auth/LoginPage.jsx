@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
-import AuthLayout from "../../../layouts/AuthLayout.jsx";
-import LoginForm from "../../components/LoginForm.jsx";
+
+import LoginForm from "../../components/auth/LoginForm.jsx";
+import { ROUTES } from "../../constants/routes.js";
+import AuthLayout from "../../layouts/AuthLayout.jsx";
 
 const LoginPage = () => {
   return (
@@ -9,9 +11,9 @@ const LoginPage = () => {
       description="Login to manage your shortened URLs."
       footer={
         <>
-          Don't have an account?{" "}
+          Don't have an account?
           <Link
-            to="/register"
+            to={ROUTES.REGISTER}
             className="font-medium text-primary hover:underline"
           >
             Create one
