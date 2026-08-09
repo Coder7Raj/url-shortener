@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -7,32 +8,28 @@ import { Label } from "@/components/ui/label";
 
 import { ROUTES } from "../../constants/routes.js";
 import useAuth from "../../hooks/useAuth.js";
+import { loginSchema } from "../../schemas/login.schema.js";
 
 const LoginForm = () => {
   const navigate = useNavigate();
 
   const { login, isLoading, error, clearError } = useAuth();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    clearError();
-
-    setFormData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const result = await login(formData);
+  const onSubmit = async (values) => {
+    const result = await login(values);
 
     if (result.success) {
       navigate(ROUTES.DASHBOARD, {
@@ -42,20 +39,25 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Email */}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
 
         <Input
           id="email"
-          name="email"
           type="email"
           placeholder="you@example.com"
-          value={formData.email}
-          onChange={handleChange}
+          autoComplete="email"
           disabled={isLoading}
+          {...register("email", {
+            onChange: () => clearError(),
+          })}
         />
+
+        {errors.email && (
+          <p className="text-sm text-destructive">{errors.email.message}</p>
+        )}
       </div>
 
       {/* Password */}
@@ -64,16 +66,21 @@ const LoginForm = () => {
 
         <Input
           id="password"
-          name="password"
           type="password"
           placeholder="Enter your password"
-          value={formData.password}
-          onChange={handleChange}
+          autoComplete="current-password"
           disabled={isLoading}
+          {...register("password", {
+            onChange: () => clearError(),
+          })}
         />
+
+        {errors.password && (
+          <p className="text-sm text-destructive">{errors.password.message}</p>
+        )}
       </div>
 
-      {/* Error */}
+      {/* Server error */}
       {error && (
         <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}

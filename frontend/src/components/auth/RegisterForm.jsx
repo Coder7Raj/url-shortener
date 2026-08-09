@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -7,50 +8,40 @@ import { Label } from "@/components/ui/label";
 
 import { ROUTES } from "../../constants/routes.js";
 import useAuth from "../../hooks/useAuth.js";
+import { registerSchema } from "../../schemas/register.schema.js";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
 
-  const { register, isLoading, error, clearError } = useAuth();
+  const { register: registerUser, isLoading, error, clearError } = useAuth();
 
-  const [formData, setFormData] = useState({
-    username: "",
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+
+    defaultValues: {
+      username: "",
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
+  const onSubmit = async (values) => {
+    const registerData = {
+      username: values.username,
+      name: values.name,
+      email: values.email,
+      password: values.password,
+    };
 
-    clearError();
-
-    setFormData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
-      return;
-    }
-
-    const result = await register({
-      username: formData.username,
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-    });
+    const result = await registerUser(registerData);
 
     if (result.success) {
-      /*
-       * If your backend automatically logs
-       * the user in after registration:
-       */
       if (result.data?.accessToken) {
         navigate(ROUTES.DASHBOARD, {
           replace: true,
@@ -59,9 +50,6 @@ const RegisterForm = () => {
         return;
       }
 
-      /*
-       * Otherwise go to login.
-       */
       navigate(ROUTES.LOGIN, {
         replace: true,
       });
@@ -69,20 +57,25 @@ const RegisterForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Username */}
       <div className="space-y-2">
         <Label htmlFor="username">Username</Label>
 
         <Input
           id="username"
-          name="username"
           type="text"
           placeholder="yourusername"
-          value={formData.username}
-          onChange={handleChange}
+          autoComplete="username"
           disabled={isLoading}
+          {...register("username", {
+            onChange: () => clearError(),
+          })}
         />
+
+        {errors.username && (
+          <p className="text-sm text-destructive">{errors.username.message}</p>
+        )}
       </div>
 
       {/* Name */}
@@ -91,13 +84,18 @@ const RegisterForm = () => {
 
         <Input
           id="name"
-          name="name"
           type="text"
           placeholder="Your name"
-          value={formData.name}
-          onChange={handleChange}
+          autoComplete="name"
           disabled={isLoading}
+          {...register("name", {
+            onChange: () => clearError(),
+          })}
         />
+
+        {errors.name && (
+          <p className="text-sm text-destructive">{errors.name.message}</p>
+        )}
       </div>
 
       {/* Email */}
@@ -106,13 +104,18 @@ const RegisterForm = () => {
 
         <Input
           id="email"
-          name="email"
           type="email"
           placeholder="you@example.com"
-          value={formData.email}
-          onChange={handleChange}
+          autoComplete="email"
           disabled={isLoading}
+          {...register("email", {
+            onChange: () => clearError(),
+          })}
         />
+
+        {errors.email && (
+          <p className="text-sm text-destructive">{errors.email.message}</p>
+        )}
       </div>
 
       {/* Password */}
@@ -121,13 +124,18 @@ const RegisterForm = () => {
 
         <Input
           id="password"
-          name="password"
           type="password"
           placeholder="Create a password"
-          value={formData.password}
-          onChange={handleChange}
+          autoComplete="new-password"
           disabled={isLoading}
+          {...register("password", {
+            onChange: () => clearError(),
+          })}
         />
+
+        {errors.password && (
+          <p className="text-sm text-destructive">{errors.password.message}</p>
+        )}
       </div>
 
       {/* Confirm Password */}
@@ -136,16 +144,23 @@ const RegisterForm = () => {
 
         <Input
           id="confirmPassword"
-          name="confirmPassword"
           type="password"
           placeholder="Confirm your password"
-          value={formData.confirmPassword}
-          onChange={handleChange}
+          autoComplete="new-password"
           disabled={isLoading}
+          {...register("confirmPassword", {
+            onChange: () => clearError(),
+          })}
         />
+
+        {errors.confirmPassword && (
+          <p className="text-sm text-destructive">
+            {errors.confirmPassword.message}
+          </p>
+        )}
       </div>
 
-      {/* Error */}
+      {/* Server error */}
       {error && (
         <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
