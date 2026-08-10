@@ -1,47 +1,89 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CreateUrlForm from "../../components/urls/CreateUrlForm.jsx";
 import UrlCreateTips from "../../components/urls/UrlCreateTips.jsx";
 import UrlList from "../../components/urls/UrlList.jsx";
 import UrlPagination from "../../components/urls/UrlPagination.jsx";
+import UrlToolbar from "../../components/urls/UrlToolbar.jsx";
+import useDebounce from "../../hooks/useDebounce.js";
 import useUrls from "../../hooks/useUrls.js";
 
 const UrlsPage = () => {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [sort, setSort] = useState("createdAt");
+  const [order, setOrder] = useState("desc");
 
   const { fetchUrls, isLoading, urls, pagination, error } = useUrls();
 
+  const debouncedSearch = useDebounce(search, 400);
+
+  const loadUrls = useCallback(
+    (pageNumber = 1) => {
+      fetchUrls({
+        page: pageNumber,
+        limit: 10,
+        search: debouncedSearch.trim() || undefined,
+        status: status || undefined,
+        sort,
+        order,
+      });
+    },
+    [fetchUrls, debouncedSearch, status, sort, order],
+  );
+
   useEffect(() => {
-    fetchUrls({
-      page,
-      limit: 10,
-      sort: "createdAt",
-      order: "desc",
-    });
-  }, [page, fetchUrls]);
+    setPage(1);
+    loadUrls(1);
+  }, [debouncedSearch, status, sort, order, loadUrls]);
+
+  const handleSearchChange = (value) => {
+    setSearch(value);
+  };
+
+  const handleStatusChange = (value) => {
+    setStatus(value);
+  };
+
+  const handleSortChange = (value) => {
+    setSort(value);
+    setOrder("desc");
+  };
+
+  const handleOrderChange = (value) => {
+    setOrder(value);
+  };
+
+  const handleReset = () => {
+    setSearch("");
+    setStatus("");
+    setSort("createdAt");
+    setOrder("desc");
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    loadUrls(newPage);
+  };
 
   const handleCreateSuccess = () => {
     setPage(1);
-
-    fetchUrls({
-      page: 1,
-      limit: 10,
-      sort: "createdAt",
-      order: "desc",
-    });
+    loadUrls(1);
   };
+
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* header */}
       <div>
-        <h1 className="text-2xl font-bold">My URLs</h1>
+        <h1 className="text-2xl font-bold tracking-tight">My URLs</h1>
 
         <p className="mt-1 text-muted-foreground">
           Create and manage your shortened URLs.
         </p>
       </div>
 
-      {/* Create URL */}
+      {/* create url */}
       <Card>
         <CardHeader>
           <CardTitle>Create Short URL</CardTitle>
@@ -51,53 +93,92 @@ const UrlsPage = () => {
           <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
             {/* Create URL */}
             <Card>
-              {/* <CardHeader>
-                <CardTitle>Create Short URL</CardTitle>
-              </CardHeader> */}
-
               <CardContent>
                 <CreateUrlForm onSuccess={handleCreateSuccess} />
               </CardContent>
             </Card>
 
             {/* Tips */}
-            {/* <Card> */}
             <CardContent>
               <UrlCreateTips />
             </CardContent>
-            {/* </Card> */}
           </div>
         </CardContent>
       </Card>
 
-      {/* URL List */}
+      {/* url list */}
       <Card>
         <CardHeader>
-          <CardTitle>Your URLs</CardTitle>
+          <div className="flex flex-col gap-4">
+            <div>
+              <CardTitle>Your URLs</CardTitle>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Search, filter, and sort your shortened URLs.
+              </p>
+            </div>
+
+            <UrlToolbar
+              search={search}
+              status={status}
+              sort={sort}
+              order={order}
+              onSearchChange={handleSearchChange}
+              onStatusChange={handleStatusChange}
+              onSortChange={handleSortChange}
+              onOrderChange={handleOrderChange}
+              onReset={handleReset}
+            />
+          </div>
         </CardHeader>
 
         <CardContent>
+          {/* Loading */}
+
           {isLoading && (
-            <p className="text-sm text-muted-foreground">Loading URLs...</p>
+            <div className="py-10 text-center">
+              <p className="text-sm text-muted-foreground">Loading URLs...</p>
+            </div>
           )}
+
+          {/* Error */}
+
+          {!isLoading && error && (
+            <div className="py-10 text-center">
+              <p className="text-sm text-destructive">{error}</p>
+            </div>
+          )}
+
+          {/* Empty State */}
 
           {!isLoading && !error && urls.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              You haven't created any shortened URLs yet.
-            </p>
+            <div className="py-10 text-center">
+              <p className="font-medium">
+                {search || status
+                  ? "No URLs match your filters."
+                  : "You haven't created any shortened URLs yet."}
+              </p>
+
+              {(search || status) && (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Try changing your search or filters.
+                </p>
+              )}
+            </div>
           )}
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {/* URL List */}
 
           {!isLoading && !error && urls.length > 0 && <UrlList />}
 
           {/* Pagination */}
+
           {!isLoading && !error && pagination.totalItems > 0 && (
             <UrlPagination
               page={page}
               totalPages={pagination.totalPages}
               totalItems={pagination.totalItems}
-              onPageChange={setPage}
+              onPageChange={handlePageChange}
             />
           )}
         </CardContent>
