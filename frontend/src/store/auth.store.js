@@ -1,4 +1,5 @@
 import { create } from "zustand";
+
 import authApi from "../api/auth.api.js";
 import { authStorage } from "../lib/auth-storage.js";
 
@@ -14,13 +15,116 @@ const getStoredUser = () => {
 
 const useAuthStore = create((set) => ({
   user: getStoredUser(),
+
   accessToken: authStorage.getAccessToken(),
   refreshToken: authStorage.getRefreshToken(),
+
   isAuthenticated: Boolean(authStorage.getAccessToken()),
+
   isLoading: false,
+
+  isInitializing: true,
+
   error: null,
 
+  // ==========================================
+  // Initialize Authentication
+  // ==========================================
+  initializeAuth: async () => {
+    try {
+      const accessToken = authStorage.getAccessToken();
+      const refreshToken = authStorage.getRefreshToken();
+
+      /*
+       * We already have an access token.
+       * Let the API interceptor handle expiration
+       * when necessary.
+       */
+      if (accessToken) {
+        set({
+          accessToken,
+          refreshToken,
+          isAuthenticated: true,
+          isInitializing: false,
+        });
+
+        return {
+          success: true,
+        };
+      }
+
+      /*
+       * No access token.
+       * Try to restore the session using refresh token.
+       */
+      if (refreshToken) {
+        const result = await authApi.refreshToken(refreshToken);
+
+        const newAccessToken = result.data?.accessToken;
+        const newRefreshToken = result.data?.refreshToken;
+
+        if (!newAccessToken) {
+          throw new Error("Failed to refresh access token");
+        }
+
+        authStorage.setAccessToken(newAccessToken);
+
+        if (newRefreshToken) {
+          authStorage.setRefreshToken(newRefreshToken);
+        }
+
+        set({
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken || refreshToken,
+          isAuthenticated: true,
+          isInitializing: false,
+          error: null,
+        });
+
+        return {
+          success: true,
+        };
+      }
+
+      /*
+       * No access token and no refresh token.
+       */
+      authStorage.clear();
+
+      set({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isInitializing: false,
+      });
+
+      return {
+        success: false,
+      };
+    } catch (error) {
+      console.error("Auth initialization failed:", error);
+
+      authStorage.clear();
+
+      set({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isInitializing: false,
+        error: null,
+      });
+
+      return {
+        success: false,
+      };
+    }
+  },
+
+  // ==========================================
   // Login
+  // ==========================================
   login: async (credentials) => {
     set({
       isLoading: true,
@@ -31,6 +135,7 @@ const useAuthStore = create((set) => ({
       const result = await authApi.login(credentials);
 
       const { user, accessToken, refreshToken } = result.data;
+
       authStorage.setAccessToken(accessToken);
       authStorage.setRefreshToken(refreshToken);
       authStorage.setUser(user);
@@ -64,7 +169,9 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  // ==========================================
   // Register
+  // ==========================================
   register: async (userData) => {
     set({
       isLoading: true,
@@ -73,6 +180,7 @@ const useAuthStore = create((set) => ({
 
     try {
       const result = await authApi.register(userData);
+
       const accessToken = result.data?.accessToken;
       const refreshToken = result.data?.refreshToken;
       const user = result.data?.user;
@@ -119,7 +227,9 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  // ==========================================
   // Logout
+  // ==========================================
   logout: async () => {
     set({
       isLoading: true,
@@ -129,22 +239,16 @@ const useAuthStore = create((set) => ({
     try {
       const refreshToken = authStorage.getRefreshToken();
 
-      /*
-       * If there is a refresh token,
-       * tell the backend to invalidate the session.
-       */
       if (refreshToken) {
         await authApi.logout(refreshToken);
       }
 
-      /*
-       * Clear local authentication state
-       * regardless of whether a refresh token exists.
-       */
       authStorage.clear();
 
       set({
         user: null,
+        accessToken: null,
+        refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
@@ -156,14 +260,12 @@ const useAuthStore = create((set) => ({
     } catch (error) {
       console.error("Logout API error:", error);
 
-      /*
-       * Even if the backend logout fails,
-       * clear the local session.
-       */
       authStorage.clear();
 
       set({
         user: null,
+        accessToken: null,
+        refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
         error: error.response?.data?.message || "Logout failed",
@@ -176,7 +278,9 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  // ==========================================
   // Logout All
+  // ==========================================
   logoutAll: async () => {
     set({
       isLoading: true,
@@ -188,9 +292,7 @@ const useAuthStore = create((set) => ({
     } catch (error) {
       console.error("Logout all API error:", error);
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
+      authStorage.clear();
 
       set({
         user: null,
@@ -203,8 +305,9 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  // ==========================================
   // Get Current User
-
+  // ==========================================
   getCurrentUser: async () => {
     try {
       const result = await authApi.getCurrentUser();
@@ -212,7 +315,7 @@ const useAuthStore = create((set) => ({
       const user = result.data?.user;
 
       if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
+        authStorage.setUser(user);
 
         set({
           user,
@@ -233,8 +336,11 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  // ==========================================
+  // Set Access Token
+  // ==========================================
   setAccessToken: (accessToken) => {
-    localStorage.setItem("accessToken", accessToken);
+    authStorage.setAccessToken(accessToken);
 
     set({
       accessToken,
@@ -242,7 +348,9 @@ const useAuthStore = create((set) => ({
     });
   },
 
+  // ==========================================
   // Clear Error
+  // ==========================================
   clearError: () => {
     set({
       error: null,

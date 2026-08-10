@@ -92,7 +92,7 @@ apiClient.interceptors.response.use(
     /*
      * Don't try to refresh the refresh endpoint itself.
      */
-    if (originalRequest?.url?.includes("/auth/refresh")) {
+    if (originalRequest?.url?.includes("/auth/refresh-token")) {
       return Promise.reject(error);
     }
 
@@ -134,7 +134,7 @@ apiClient.interceptors.response.use(
        * Call refresh endpoint without the
        * normal apiClient interceptor.
        */
-      const response = await refreshClient.post("/auth/refresh", {
+      const response = await refreshClient.post("/auth/refresh-token", {
         refreshToken,
       });
 
