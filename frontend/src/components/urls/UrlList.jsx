@@ -1,13 +1,27 @@
-import { Copy, ExternalLink, MoreHorizontal } from "lucide-react";
-import { toast } from "sonner";
+import { Copy, ExternalLink, Pencil } from "lucide-react";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
 import useUrls from "../../hooks/useUrls.js";
+import EditUrlDialog from "./EditUrlDialog.jsx";
 
-const UrlList = () => {
-  const { urls, isLoading } = useUrls();
+const UrlList = ({ onUpdated }) => {
+  const { urls, updateUrl, isLoading } = useUrls();
+
+  const [editingUrl, setEditingUrl] = useState(null);
+
+  const handleUpdate = async (payload) => {
+    if (!editingUrl) return;
+
+    const result = await updateUrl(editingUrl.id, payload);
+
+    if (result?.success) {
+      setEditingUrl(null);
+      onUpdated?.();
+    }
+  };
 
   const handleCopy = async (shortUrl) => {
     try {
@@ -48,49 +62,34 @@ const UrlList = () => {
       <CardContent className="p-0">
         <div className="divide-y">
           {urls.map((url) => (
-            <div key={url.id} className="p-5">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                {/* URL information */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <a
-                      href={url.shortUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-semibold text-primary hover:underline"
-                    >
-                      {url.shortUrl}
-                    </a>
-
-                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                  </div>
+            <div key={url.id} className="rounded-lg border p-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <a
+                    href={url.shortUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium text-primary hover:underline"
+                  >
+                    {url.shortUrl}
+                  </a>
 
                   <p className="mt-1 truncate text-sm text-muted-foreground">
                     {url.originalUrl}
                   </p>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                    <span>{url.totalClicks} clicks</span>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span>{url.totalClicks || 0} clicks</span>
 
                     <span>•</span>
 
                     <span>{url.status}</span>
-
-                    {url.expiresAt && (
-                      <>
-                        <span>•</span>
-
-                        <span>
-                          Expires {new Date(url.expiresAt).toLocaleDateString()}
-                        </span>
-                      </>
-                    )}
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 gap-2">
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => handleCopy(url.shortUrl)}
@@ -99,14 +98,38 @@ const UrlList = () => {
                     Copy
                   </Button>
 
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
+                  <Button type="button" variant="outline" size="sm">
+                    <a href={url.shortUrl} target="_blank" rel="noreferrer">
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Open
+                    </a>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingUrl(url)}
+                  >
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Edit
                   </Button>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
+        <EditUrlDialog
+          url={editingUrl}
+          open={Boolean(editingUrl)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditingUrl(null);
+            }
+          }}
+          onSubmit={handleUpdate}
+        />
       </CardContent>
     </Card>
   );
