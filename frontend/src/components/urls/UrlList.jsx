@@ -1,16 +1,18 @@
-import { Copy, ExternalLink, Pencil } from "lucide-react";
+import { Copy, ExternalLink, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import useUrls from "../../hooks/useUrls.js";
+import DeleteUrlDialog from "./DeleteUrlDialog.jsx";
 import EditUrlDialog from "./EditUrlDialog.jsx";
 
-const UrlList = ({ onUpdated }) => {
-  const { urls, updateUrl, isLoading } = useUrls();
+const UrlList = ({ onUpdated, onDeleted }) => {
+  const { urls, updateUrl, isLoading, deleteUrl, isDeleting } = useUrls();
 
   const [editingUrl, setEditingUrl] = useState(null);
+  const [deletingUrl, setDeletingUrl] = useState(null);
 
   const handleUpdate = async (payload) => {
     if (!editingUrl) return;
@@ -30,6 +32,19 @@ const UrlList = ({ onUpdated }) => {
       toast.success("Short URL copied to clipboard");
     } catch {
       toast.error("Failed to copy short URL");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deletingUrl) {
+      return;
+    }
+
+    const result = await deleteUrl(deletingUrl.id);
+
+    if (result?.success) {
+      setDeletingUrl(null);
+      onDeleted?.();
     }
   };
 
@@ -114,6 +129,18 @@ const UrlList = ({ onUpdated }) => {
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit
                   </Button>
+
+                  {/* Delete */}
+
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setDeletingUrl(url)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
                 </div>
               </div>
             </div>
@@ -129,6 +156,20 @@ const UrlList = ({ onUpdated }) => {
             }
           }}
           onSubmit={handleUpdate}
+        />
+
+        {/* Delete Dialog */}
+
+        <DeleteUrlDialog
+          url={deletingUrl}
+          open={Boolean(deletingUrl)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setDeletingUrl(null);
+            }
+          }}
+          onConfirm={handleDelete}
+          isDeleting={isDeleting}
         />
       </CardContent>
     </Card>

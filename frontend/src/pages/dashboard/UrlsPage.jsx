@@ -169,7 +169,16 @@ const UrlsPage = () => {
 
           {/* URL List */}
 
-          {!isLoading && !error && urls.length > 0 && <UrlList />}
+          {!isLoading && !error && urls.length > 0 && (
+            <UrlList
+              onUpdated={() => {
+                loadUrls(page);
+              }}
+              onDeleted={() => {
+                loadUrls(page);
+              }}
+            />
+          )}
 
           {/* Pagination */}
 
