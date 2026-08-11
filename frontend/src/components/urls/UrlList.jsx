@@ -1,4 +1,4 @@
-import { Copy, ExternalLink, Pencil, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, Pencil, QrCode, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -7,12 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import useUrls from "../../hooks/useUrls.js";
 import DeleteUrlDialog from "./DeleteUrlDialog.jsx";
 import EditUrlDialog from "./EditUrlDialog.jsx";
+import QrCodeDialog from "./QrCodeDialog.jsx";
 
 const UrlList = ({ onUpdated, onDeleted }) => {
   const { urls, updateUrl, isLoading, deleteUrl, isDeleting } = useUrls();
 
   const [editingUrl, setEditingUrl] = useState(null);
   const [deletingUrl, setDeletingUrl] = useState(null);
+  const [qrUrl, setQrUrl] = useState(null);
 
   const handleUpdate = async (payload) => {
     if (!editingUrl) return;
@@ -141,6 +143,15 @@ const UrlList = ({ onUpdated, onDeleted }) => {
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setQrUrl(url)}
+                  >
+                    <QrCode className="mr-2 h-4 w-4" />
+                    QR
+                  </Button>
                 </div>
               </div>
             </div>
@@ -170,6 +181,15 @@ const UrlList = ({ onUpdated, onDeleted }) => {
           }}
           onConfirm={handleDelete}
           isDeleting={isDeleting}
+        />
+        <QrCodeDialog
+          url={qrUrl}
+          open={Boolean(qrUrl)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setQrUrl(null);
+            }
+          }}
         />
       </CardContent>
     </Card>

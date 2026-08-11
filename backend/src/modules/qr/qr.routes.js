@@ -23,18 +23,18 @@ router.get(
   controller.getQrCode,
 );
 
-router.delete(
-  "/urls/:id/qr",
-  authMiddleware,
-  validate(qrParamsSchema),
-  controller.deleteQrCode,
-);
-
 router.post(
   "/urls/:id/qr/regenerate",
   authMiddleware,
   validate(qrParamsSchema),
   controller.regenerateQrCode,
+);
+
+router.delete(
+  "/urls/:id/qr",
+  authMiddleware,
+  validate(qrParamsSchema),
+  controller.deleteQrCode,
 );
 
 router.get(

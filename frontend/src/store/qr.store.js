@@ -174,6 +174,58 @@ const useQrStore = create((set) => ({
     }
   },
 
+  downloadQr: async (urlId) => {
+    set({
+      isDownloading: true,
+      error: null,
+    });
+
+    try {
+      const result = await qrApi.download(urlId);
+
+      const downloadUrl = result.data?.downloadUrl;
+
+      if (!downloadUrl) {
+        throw new Error("Download URL not found");
+      }
+
+      // Create temporary download link
+      const link = document.createElement("a");
+
+      link.href = downloadUrl;
+      link.download = `qr-code-${urlId}.png`;
+      link.target = "_blank";
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      set({
+        isDownloading: false,
+      });
+
+      return {
+        success: true,
+        data: result.data,
+      };
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to download QR code";
+
+      set({
+        isDownloading: false,
+        error: message,
+      });
+
+      return {
+        success: false,
+        message,
+      };
+    }
+  },
+
   clearQr: () => {
     set({
       qrCode: null,

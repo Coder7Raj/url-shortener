@@ -1,15 +1,13 @@
-import apiClient from "./apiClient.js";
+import apiClient from "./client.js";
 
 const qrApi = {
   generate: async (urlId) => {
     const response = await apiClient.post(`/urls/${urlId}/qr`);
-
     return response.data;
   },
 
   get: async (urlId) => {
     const response = await apiClient.get(`/urls/${urlId}/qr`);
-
     return response.data;
   },
 
@@ -21,12 +19,13 @@ const qrApi = {
 
   delete: async (urlId) => {
     const response = await apiClient.delete(`/urls/${urlId}/qr`);
-
     return response.data;
   },
 
   download: async (urlId) => {
-    return `/urls/${urlId}/qr/download`;
+    const response = await apiClient.get(`/urls/${urlId}/qr/download`);
+
+    return response.data;
   },
 };
 
