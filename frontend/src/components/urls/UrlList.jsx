@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 import useUrls from "../../hooks/useUrls.js";
 import DeleteUrlDialog from "./DeleteUrlDialog.jsx";
 import EditUrlDialog from "./EditUrlDialog.jsx";
@@ -126,6 +127,19 @@ const UrlList = ({ onUpdated, onDeleted }) => {
                     type="button"
                     variant="outline"
                     size="sm"
+                    onClick={() => setQrUrl(url)}
+                  >
+                    <QrCode className="mr-2 h-4 w-4" />
+                    QR
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Link to={`/dashboard/urls/${url.id}`}>View Details</Link>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={() => setEditingUrl(url)}
                   >
                     <Pencil className="mr-2 h-4 w-4" />
@@ -142,15 +156,6 @@ const UrlList = ({ onUpdated, onDeleted }) => {
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setQrUrl(url)}
-                  >
-                    <QrCode className="mr-2 h-4 w-4" />
-                    QR
                   </Button>
                 </div>
               </div>

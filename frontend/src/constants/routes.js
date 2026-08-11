@@ -7,10 +7,10 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
 
   URLS: "/dashboard/urls",
-  ANALYTICS: "/dashboard/analytics",
+  URL_DETAILS: "/dashboard/urls/:id",
 
+  ANALYTICS: "/dashboard/analytics",
   QR: "/dashboard/qr",
   SESSIONS: "/dashboard/sessions",
-
   PROFILE: "/dashboard/profile",
 };
