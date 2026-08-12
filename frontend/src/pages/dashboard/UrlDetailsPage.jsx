@@ -1,31 +1,158 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ArrowLeft,
   Calendar,
   ExternalLink,
   MousePointerClick,
+  Pencil,
   QrCode,
 } from "lucide-react";
-import { useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
-
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import DeleteUrlDialog from "../../components/urls/DeleteUrlDialog.jsx";
+import EditUrlDialog from "../../components/urls/EditUrlDialog.jsx";
 import useQr from "../../hooks/useQr.js";
 import useUrls from "../../hooks/useUrls.js";
 
 const UrlDetailsPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  const { selectedUrl, fetchUrlById, isLoading, error } = useUrls();
+  const {
+    selectedUrl,
+    fetchUrlById,
+    updateUrl,
+    deleteUrl,
+    isLoading,
+    isUpdating,
+    isDeleting,
+    error,
+  } = useUrls();
 
-  const { qrCode, isLoading: isQrLoading, fetchQr } = useQr();
+  const {
+    qrCode,
+    clearQr,
+    clearError: clearQrError,
+    fetchQr,
+    regenerateQr,
+    isLoading: isQrLoading,
+    isRegenerating,
+    error: qrError,
+  } = useQr();
+
+  const [editingUrl, setEditingUrl] = useState(null);
+  const [deletingUrl, setDeletingUrl] = useState(null);
 
   useEffect(() => {
     if (!id) return;
 
-    fetchUrlById(id);
-    fetchQr(id);
+    const loadDetails = async () => {
+      await fetchUrlById(id);
+      await fetchQr(id);
+    };
+
+    loadDetails();
   }, [id, fetchUrlById, fetchQr]);
+
+  const handleEdit = async (url) => {
+    if (!url) return;
+
+    clearQr();
+    clearQrError();
+
+    setEditingUrl(url);
+
+    const result = await fetchQr(url.id);
+
+    if (!result.success) {
+      console.log("No QR code found for this URL.");
+    }
+  };
+  const handleDelete = async () => {
+    if (!deletingUrl) return;
+
+    const result = await deleteUrl(deletingUrl.id);
+
+    if (result?.success) {
+      setDeletingUrl(null);
+      clearQr();
+
+      toast.success("URL deleted successfully");
+
+      navigate("/dashboard/urls");
+    }
+  };
+  const handleUpdate = async (payload) => {
+    if (!editingUrl) {
+      return {
+        success: false,
+        error: "No URL selected",
+      };
+    }
+
+    const result = await updateUrl(editingUrl.id, payload);
+
+    if (result?.success) {
+      await fetchUrlById(editingUrl.id);
+      await fetchQr(editingUrl.id);
+
+      setEditingUrl(null);
+
+      toast.success("URL updated successfully");
+    }
+
+    return result;
+  };
+
+  const handleRegenerateQr = async () => {
+    if (!editingUrl) {
+      return {
+        success: false,
+        error: "No URL selected",
+      };
+    }
+
+    const result = await regenerateQr(editingUrl.id);
+
+    if (result?.success) {
+      await fetchQr(editingUrl.id);
+
+      toast.success("QR code regenerated successfully");
+    }
+
+    return result;
+  };
+
+  const handleDeleteFromEdit = async () => {
+    if (!editingUrl) {
+      return {
+        success: false,
+        error: "No URL selected",
+      };
+    }
+
+    const result = await deleteUrl(editingUrl.id);
+
+    if (result?.success) {
+      clearQr();
+      setEditingUrl(null);
+
+      toast.success("URL deleted successfully");
+      navigate("/dashboard/urls");
+    }
+
+    return result;
+  };
+
+  const handleDialogOpenChange = (open) => {
+    if (!open) {
+      setEditingUrl(null);
+      clearQr();
+      clearQrError();
+    }
+  };
 
   if (isLoading) {
     return (
@@ -39,7 +166,7 @@ const UrlDetailsPage = () => {
     return (
       <div className="space-y-4">
         <Button variant="ghost">
-          <Link to="/dashboard/urls">
+          <Link className="flex items-center" to="/dashboard/urls">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Link>
@@ -54,7 +181,7 @@ const UrlDetailsPage = () => {
     return (
       <div className="space-y-4">
         <Button variant="ghost">
-          <Link to="/dashboard/urls">
+          <Link className="flex items-center" to="/dashboard/urls">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Link>
@@ -141,6 +268,7 @@ const UrlDetailsPage = () => {
 
           {/* Metadata */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Clicks */}
             <div className="rounded-lg border p-4">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MousePointerClick className="h-4 w-4" />
@@ -153,6 +281,7 @@ const UrlDetailsPage = () => {
               </p>
             </div>
 
+            {/* Created */}
             <div className="rounded-lg border p-4">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="h-4 w-4" />
@@ -167,12 +296,14 @@ const UrlDetailsPage = () => {
               </p>
             </div>
 
+            {/* Status */}
             <div className="rounded-lg border p-4">
               <p className="text-sm text-muted-foreground">Status</p>
 
               <p className="mt-2 font-semibold">{selectedUrl.status}</p>
             </div>
 
+            {/* Expires */}
             <div className="rounded-lg border p-4">
               <p className="text-sm text-muted-foreground">Expires</p>
 
@@ -207,7 +338,7 @@ const UrlDetailsPage = () => {
               <p className="mt-3 font-medium">No QR code generated</p>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                Generate a QR code for this URL.
+                Generate a QR code for this URL from the edit dialog.
               </p>
             </div>
           )}
@@ -225,15 +356,54 @@ const UrlDetailsPage = () => {
               </p>
             </div>
           )}
+
+          {qrError && (
+            <p className="mt-3 text-sm text-destructive">{qrError}</p>
+          )}
         </CardContent>
       </Card>
 
-      {/* Actions */}
+      {/* Page Actions */}
       <div className="flex flex-wrap gap-3">
-        <Button>Edit URL</Button>
+        <Button type="button" onClick={() => handleEdit(selectedUrl)}>
+          <Pencil className="mr-2 h-4 w-4" />
+          Edit URL
+        </Button>
 
-        <Button variant="destructive">Delete URL</Button>
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={() => setDeletingUrl(selectedUrl)}
+        >
+          Delete URL
+        </Button>
       </div>
+
+      {/* Shared Edit / Delete / QR Dialog */}
+      <EditUrlDialog
+        url={editingUrl}
+        qrCode={qrCode}
+        open={Boolean(editingUrl)}
+        onOpenChange={handleDialogOpenChange}
+        onUpdate={handleUpdate}
+        onDelete={handleDeleteFromEdit}
+        onRegenerateQr={handleRegenerateQr}
+        isUpdating={isUpdating}
+        isDeleting={isDeleting}
+        isRegenerating={isRegenerating}
+        qrError={qrError}
+      />
+      <DeleteUrlDialog
+        url={deletingUrl}
+        open={Boolean(deletingUrl)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeletingUrl(null);
+          }
+        }}
+        onConfirm={handleDelete}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

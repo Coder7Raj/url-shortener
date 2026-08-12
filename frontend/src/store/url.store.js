@@ -116,15 +116,16 @@ const useUrlStore = create((set) => ({
     try {
       const response = await urlApi.getById(id);
 
-      set({
-        selectedUrl: response?.data?.url || response?.data || null,
+      const selectedUrl = response.data.url;
 
+      set({
+        selectedUrl,
         isLoading: false,
       });
 
       return {
         success: true,
-        data: response,
+        data: selectedUrl,
       };
     } catch (error) {
       const message = error.response?.data?.message || "Failed to fetch URL";
@@ -140,7 +141,6 @@ const useUrlStore = create((set) => ({
       };
     }
   },
-
   // update url
   updateUrl: async (id, data) => {
     set({
