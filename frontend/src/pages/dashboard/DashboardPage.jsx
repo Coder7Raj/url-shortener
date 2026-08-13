@@ -7,13 +7,25 @@ import StatCard from "@/components/dashboard/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import useDashboard from "@/hooks/useDashboard";
+import RecentUrls from "../../components/dashboard/RecentUrls";
+import TopUrls from "../../components/dashboard/TopUrls";
 
 const DashboardPage = () => {
-  const { overview, isOverviewLoading, error, fetchOverview } = useDashboard();
+  const {
+    overview,
+    recentUrls,
+    topUrls,
+    fetchOverview,
+    isOverviewLoading,
+    isRecentUrlsLoading,
+    isTopUrlsLoading,
+    error,
+    fetchDashboard,
+  } = useDashboard();
 
   useEffect(() => {
-    fetchOverview();
-  }, [fetchOverview]);
+    fetchDashboard();
+  }, [fetchDashboard]);
 
   if (isOverviewLoading && !overview) {
     return (
@@ -174,29 +186,13 @@ const DashboardPage = () => {
 
       {/* Temporary next sections */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent URLs</CardTitle>
-          </CardHeader>
+        <CardContent>
+          <RecentUrls urls={recentUrls} isLoading={isRecentUrlsLoading} />
+        </CardContent>
 
-          <CardContent>
-            <div className="flex min-h-40 items-center justify-center text-sm text-muted-foreground">
-              Recent URLs will appear here.
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Top URLs</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <div className="flex min-h-40 items-center justify-center text-sm text-muted-foreground">
-              Top performing URLs will appear here.
-            </div>
-          </CardContent>
-        </Card>
+        <CardContent>
+          <TopUrls urls={topUrls} isLoading={isTopUrlsLoading} />
+        </CardContent>
       </div>
     </div>
   );
