@@ -148,18 +148,18 @@ const UrlList = ({ onUpdated, onDeleted }) => {
       <CardContent className="p-0">
         <div className="divide-y">
           {urls.map((url) => (
-            <div key={url.id} className="rounded-lg border p-4">
+            <div key={url.id} className="rounded-lg p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 {/* URL INFO */}
                 <div className="min-w-0">
-                  <a
+                  <Link
                     href={url.shortUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="font-medium text-primary hover:underline"
                   >
                     {url.shortUrl}
-                  </a>
+                  </Link>
 
                   <p className="mt-1 truncate text-sm text-muted-foreground">
                     {url.originalUrl}
