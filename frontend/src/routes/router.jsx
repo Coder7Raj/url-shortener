@@ -5,6 +5,7 @@ import Home from "../pages/Home.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import LoginPage from "../pages/auth/LoginPage.jsx";
 import RegisterPage from "../pages/auth/RegisterPage.jsx";
+import DashboardPage from "../pages/dashboard/DashboardPage";
 import UrlDetailsPage from "../pages/dashboard/UrlDetailsPage.jsx";
 import UrlsPage from "../pages/dashboard/UrlsPage";
 import ProtectedRoute from "./ProtectedRoute.jsx";
@@ -42,7 +43,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: ROUTES.DASHBOARD,
-            element: <div>Dashboard</div>,
+            element: <DashboardPage />,
           },
 
           {
