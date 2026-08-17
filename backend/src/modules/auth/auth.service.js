@@ -188,10 +188,33 @@ const refreshAccessToken = async (refreshToken, requestContext) => {
   };
 };
 
-const getUserSessions = async (userId) => {
-  const sessions = await sessionRepository.findUserSessions(userId);
+const getUserSessions = async (userId, page = 1, limit = 10) => {
+  const currentPage = Number(page);
+  const currentLimit = Number(limit);
 
-  return toSessionListResponse(sessions);
+  const skip = (currentPage - 1) * currentLimit;
+
+  const [sessions, total] = await Promise.all([
+    sessionRepository.findUserSessions(userId, {
+      skip,
+      take: currentLimit,
+    }),
+
+    sessionRepository.countUserSessions(userId),
+  ]);
+
+  const totalPages = Math.ceil(total / currentLimit);
+
+  return {
+    sessions: toSessionListResponse(sessions),
+
+    pagination: {
+      page: currentPage,
+      limit: currentLimit,
+      total,
+      totalPages,
+    },
+  };
 };
 
 module.exports = {

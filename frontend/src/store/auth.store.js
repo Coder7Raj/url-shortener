@@ -15,31 +15,18 @@ const getStoredUser = () => {
 
 const useAuthStore = create((set) => ({
   user: getStoredUser(),
-
   accessToken: authStorage.getAccessToken(),
   refreshToken: authStorage.getRefreshToken(),
-
   isAuthenticated: Boolean(authStorage.getAccessToken()),
-
   isLoading: false,
-
   isInitializing: true,
-
   error: null,
 
-  // ==========================================
-  // Initialize Authentication
-  // ==========================================
   initializeAuth: async () => {
     try {
       const accessToken = authStorage.getAccessToken();
       const refreshToken = authStorage.getRefreshToken();
 
-      /*
-       * We already have an access token.
-       * Let the API interceptor handle expiration
-       * when necessary.
-       */
       if (accessToken) {
         set({
           accessToken,
@@ -53,10 +40,6 @@ const useAuthStore = create((set) => ({
         };
       }
 
-      /*
-       * No access token.
-       * Try to restore the session using refresh token.
-       */
       if (refreshToken) {
         const result = await authApi.refreshToken(refreshToken);
 
@@ -86,9 +69,6 @@ const useAuthStore = create((set) => ({
         };
       }
 
-      /*
-       * No access token and no refresh token.
-       */
       authStorage.clear();
 
       set({
@@ -122,9 +102,6 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  // ==========================================
-  // Login
-  // ==========================================
   login: async (credentials) => {
     set({
       isLoading: true,
@@ -169,9 +146,6 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  // ==========================================
-  // Register
-  // ==========================================
   register: async (userData) => {
     set({
       isLoading: true,
@@ -227,9 +201,6 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  // ==========================================
-  // Logout
-  // ==========================================
   logout: async () => {
     set({
       isLoading: true,
@@ -278,9 +249,6 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  // ==========================================
-  // Logout All
-  // ==========================================
   logoutAll: async () => {
     set({
       isLoading: true,
@@ -305,9 +273,6 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  // ==========================================
-  // Get Current User
-  // ==========================================
   getCurrentUser: async () => {
     try {
       const result = await authApi.getCurrentUser();
@@ -336,9 +301,6 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  // ==========================================
-  // Set Access Token
-  // ==========================================
   setAccessToken: (accessToken) => {
     authStorage.setAccessToken(accessToken);
 
@@ -348,9 +310,6 @@ const useAuthStore = create((set) => ({
     });
   },
 
-  // ==========================================
-  // Clear Error
-  // ==========================================
   clearError: () => {
     set({
       error: null,

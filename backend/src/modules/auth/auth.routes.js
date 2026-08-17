@@ -8,6 +8,7 @@ const {
   registerSchema,
   loginSchema,
   refreshTokenSchema,
+  sessionsSchema,
 } = require("./auth.validation.js");
 
 const controller = require("./auth.controller.js");
@@ -22,5 +23,10 @@ router.post(
 );
 router.post("/logout", controller.logout);
 router.post("/logout-all", authMiddleware, controller.logoutAll);
-router.get("/sessions", authMiddleware, controller.getSessions);
+router.get(
+  "/sessions",
+  authMiddleware,
+  validate(sessionsSchema),
+  controller.getSessions,
+);
 module.exports = router;

@@ -31,17 +31,17 @@ const deleteSession = async (sessionId) => {
   });
 };
 
-const findUserSessions = async (userId) => {
-  return prisma.sessions.findMany({
-    where: {
-      user_id: BigInt(userId),
-      revoked_at: null,
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-  });
-};
+// const findUserSessions = async (userId) => {
+//   return prisma.sessions.findMany({
+//     where: {
+//       user_id: BigInt(userId),
+//       revoked_at: null,
+//     },
+//     orderBy: {
+//       created_at: "desc",
+//     },
+//   });
+// };
 
 const deleteUserSessions = async (userId) => {
   return prisma.sessions.deleteMany({
@@ -51,10 +51,36 @@ const deleteUserSessions = async (userId) => {
   });
 };
 
+const findUserSessions = async (userId, { skip, take }) => {
+  return prisma.sessions.findMany({
+    where: {
+      user_id: BigInt(userId),
+      revoked_at: null,
+    },
+
+    orderBy: {
+      created_at: "desc",
+    },
+
+    skip,
+    take,
+  });
+};
+
+const countUserSessions = async (userId) => {
+  return prisma.sessions.count({
+    where: {
+      user_id: BigInt(userId),
+      revoked_at: null,
+    },
+  });
+};
+
 module.exports = {
   createSession,
   findSessionByTokenId,
   findUserSessions,
+  countUserSessions,
   updateSession,
   deleteSession,
   deleteUserSessions,
