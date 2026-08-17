@@ -7,6 +7,7 @@ import LoginPage from "../pages/auth/LoginPage.jsx";
 import RegisterPage from "../pages/auth/RegisterPage.jsx";
 import AnalyticsPage from "../pages/dashboard/AnalyticsPage.jsx";
 import DashboardPage from "../pages/dashboard/DashboardPage";
+import QrPage from "../pages/dashboard/QrPage.jsx";
 import UrlDetailsPage from "../pages/dashboard/UrlDetailsPage.jsx";
 import UrlsPage from "../pages/dashboard/UrlsPage";
 import ProtectedRoute from "./ProtectedRoute.jsx";
@@ -63,7 +64,7 @@ const router = createBrowserRouter([
 
           {
             path: ROUTES.QR,
-            element: <div>QR Codes</div>,
+            element: <QrPage />,
           },
 
           {

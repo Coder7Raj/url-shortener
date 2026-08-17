@@ -7,6 +7,7 @@ const useQrStore = create((set) => ({
   isGenerating: false,
   isRegenerating: false,
   isDeleting: false,
+  isDownloading: false,
 
   error: null,
 
@@ -234,6 +235,7 @@ const useQrStore = create((set) => ({
       isGenerating: false,
       isRegenerating: false,
       isDeleting: false,
+      isDownloading: false,
     });
   },
 
