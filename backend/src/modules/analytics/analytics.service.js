@@ -129,14 +129,27 @@ const getReferrers = async (userId, urlId) => {
  * Unified dashboard analytics
  */
 const getDashboard = async (userId, urlId) => {
-  const summary = await getSummary(userId, urlId);
-  const timeline = await getTimeline(userId, urlId, "30d");
-  const countries = await getCountries(userId, urlId);
-  const cities = await getCities(userId, urlId);
-  const browsers = await getBrowsers(userId, urlId);
-  const devices = await getDevices(userId, urlId);
-  const operatingSystems = await getOperatingSystems(userId, urlId);
-  const referrers = await getReferrers(userId, urlId);
+  await validateOwnership(urlId, userId);
+
+  const [
+    summary,
+    timeline,
+    countries,
+    cities,
+    browsers,
+    devices,
+    operatingSystems,
+    referrers,
+  ] = await Promise.all([
+    getSummary(userId, urlId),
+    getTimeline(userId, urlId, "30d"),
+    getCountries(userId, urlId),
+    getCities(userId, urlId),
+    getBrowsers(userId, urlId),
+    getDevices(userId, urlId),
+    getOperatingSystems(userId, urlId),
+    getReferrers(userId, urlId),
+  ]);
 
   return toDashboardDto({
     summary,
