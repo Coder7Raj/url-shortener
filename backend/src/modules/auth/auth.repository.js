@@ -71,9 +71,19 @@ const deleteAllRefreshTokens = async (userId) => {
   });
 };
 
+const updateUser = async (userId, data) => {
+  return prisma.users.update({
+    where: {
+      user_id: BigInt(userId),
+    },
+    data,
+  });
+};
+
 module.exports = {
   findUserById,
   findUserByEmail,
+  updateUser,
   findUserByUsername,
   createUser,
   updateLastLogin,

@@ -9,6 +9,8 @@ const {
   loginSchema,
   refreshTokenSchema,
   sessionsSchema,
+  updateProfileSchema,
+  changePasswordSchema,
 } = require("./auth.validation.js");
 
 const controller = require("./auth.controller.js");
@@ -28,5 +30,18 @@ router.get(
   authMiddleware,
   validate(sessionsSchema),
   controller.getSessions,
+);
+
+router.patch(
+  "/profile",
+  authMiddleware,
+  validate(updateProfileSchema),
+  controller.updateProfile,
+);
+router.patch(
+  "/change-password",
+  authMiddleware,
+  validate(changePasswordSchema),
+  controller.changePassword,
 );
 module.exports = router;

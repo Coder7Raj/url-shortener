@@ -268,7 +268,7 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
   );
 
   if (!isCurrentPasswordValid) {
-    throw new ApiError(401, "Current password is incorrect");
+    throw new ApiError(401, "Something went wrong !");
   }
 
   const isSamePassword = await comparePassword(newPassword, user.password_hash);

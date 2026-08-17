@@ -7,6 +7,7 @@ import LoginPage from "../pages/auth/LoginPage.jsx";
 import RegisterPage from "../pages/auth/RegisterPage.jsx";
 import AnalyticsPage from "../pages/dashboard/AnalyticsPage.jsx";
 import DashboardPage from "../pages/dashboard/DashboardPage";
+import ProfilePage from "../pages/dashboard/ProfilePage.jsx";
 import QrPage from "../pages/dashboard/QrPage.jsx";
 import SessionsPage from "../pages/dashboard/SessionsPage.jsx";
 import UrlDetailsPage from "../pages/dashboard/UrlDetailsPage.jsx";
@@ -75,7 +76,7 @@ const router = createBrowserRouter([
 
           {
             path: ROUTES.PROFILE,
-            element: <div>Profile</div>,
+            element: <ProfilePage />,
           },
         ],
       },

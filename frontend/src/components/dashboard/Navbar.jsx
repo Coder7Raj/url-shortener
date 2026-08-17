@@ -43,9 +43,7 @@ const Navbar = () => {
           </div>
 
           <div className="text-right">
-            <p className="text-sm font-medium">
-              {user?.name || user?.username || "User"}
-            </p>
+            <p className="text-sm font-medium">{user?.username || "User"}</p>
 
             <p className="text-xs text-muted-foreground">{user?.email}</p>
           </div>
