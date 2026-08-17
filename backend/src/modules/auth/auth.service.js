@@ -217,10 +217,86 @@ const getUserSessions = async (userId, page = 1, limit = 10) => {
   };
 };
 
+const updateProfile = async (userId, userData) => {
+  const user = await repository.findUserById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const updateData = {};
+
+  if (userData.username !== undefined && userData.username !== user.username) {
+    const usernameExists = await repository.findUserByUsername(
+      userData.username,
+    );
+
+    if (usernameExists && Number(usernameExists.user_id) !== Number(userId)) {
+      throw new ApiError(409, "Username already exists");
+    }
+
+    updateData.username = userData.username;
+  }
+
+  if (userData.name !== undefined) {
+    updateData.name = userData.name;
+  }
+
+  if (userData.profilePicture !== undefined) {
+    updateData.profile_picture = userData.profilePicture;
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    return toUserResponse(user);
+  }
+
+  const updatedUser = await repository.updateUser(userId, updateData);
+
+  return toUserResponse(updatedUser);
+};
+
+const changePassword = async (userId, { currentPassword, newPassword }) => {
+  const user = await repository.findUserById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const isCurrentPasswordValid = await comparePassword(
+    currentPassword,
+    user.password_hash,
+  );
+
+  if (!isCurrentPasswordValid) {
+    throw new ApiError(401, "Current password is incorrect");
+  }
+
+  const isSamePassword = await comparePassword(newPassword, user.password_hash);
+
+  if (isSamePassword) {
+    throw new ApiError(
+      400,
+      "New password must be different from current password",
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+  await repository.updateUser(userId, {
+    password_hash: hashedPassword,
+  });
+
+  return {
+    message: "Password changed successfully",
+  };
+};
+
 module.exports = {
   registerUser,
   loginUser,
   logout,
+  updateProfile,
+  changePassword,
   logoutAll,
   getUserSessions,
   getCurrentUser,

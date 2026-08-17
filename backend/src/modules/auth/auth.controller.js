@@ -78,9 +78,27 @@ const getSessions = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "Sessions fetched successfully", data));
 });
 
+const updateProfile = asyncHandler(async (req, res) => {
+  const user = await service.updateProfile(req.user.id, req.validated.body);
+
+  res.status(200).json(
+    new ApiResponse(200, "Profile updated successfully", {
+      user,
+    }),
+  );
+});
+
+const changePassword = asyncHandler(async (req, res) => {
+  const result = await service.changePassword(req.user.id, req.validated.body);
+
+  res.status(200).json(new ApiResponse(200, result.message));
+});
+
 module.exports = {
   register,
   login,
+  updateProfile,
+  changePassword,
   logout,
   logoutAll,
   getSessions,
