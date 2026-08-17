@@ -5,6 +5,7 @@ import Home from "../pages/Home.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import LoginPage from "../pages/auth/LoginPage.jsx";
 import RegisterPage from "../pages/auth/RegisterPage.jsx";
+import AnalyticsPage from "../pages/dashboard/AnalyticsPage.jsx";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import UrlDetailsPage from "../pages/dashboard/UrlDetailsPage.jsx";
 import UrlsPage from "../pages/dashboard/UrlsPage";
@@ -57,7 +58,7 @@ const router = createBrowserRouter([
 
           {
             path: ROUTES.ANALYTICS,
-            element: <div>Analytics</div>,
+            element: <AnalyticsPage />,
           },
 
           {
