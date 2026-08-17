@@ -54,7 +54,7 @@ const TopUrls = ({ urls = [], isLoading = false }) => {
         ) : (
           <div className="space-y-3">
             {urls.map((url, index) => {
-              const shortUrl = `${import.meta.env.VITE_BASE_URL}/${url.shortCode}`;
+              const shortUrl = `${import.meta.env.VITE_API_URL}/${url.shortCode}`;
 
               return (
                 <div
