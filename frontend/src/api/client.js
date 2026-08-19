@@ -9,15 +9,6 @@ const apiClient = axios.create({
   },
 });
 
-/*
- * Separate Axios instance for refreshing the token.
- *
- * Important:
- * We DON'T use apiClient here because apiClient
- * itself has the response interceptor.
- *
- * Otherwise we could create an interceptor loop.
- */
 const refreshClient = axios.create({
   baseURL: API_URL,
   headers: {
@@ -25,18 +16,10 @@ const refreshClient = axios.create({
   },
 });
 
-/*
- * Prevent multiple refresh requests
- * from happening simultaneously.
- */
 let isRefreshing = false;
 
 let failedQueue = [];
 
-/*
- * Resolve/reject requests waiting for
- * the refresh operation.
- */
 const processQueue = (error, accessToken = null) => {
   failedQueue.forEach((promise) => {
     if (error) {
@@ -49,11 +32,6 @@ const processQueue = (error, accessToken = null) => {
   failedQueue = [];
 };
 
-/*
- * Request interceptor
- *
- * Automatically attach access token.
- */
 apiClient.interceptors.request.use(
   (config) => {
     const accessToken = authStorage.getAccessToken();
@@ -69,11 +47,6 @@ apiClient.interceptors.request.use(
   },
 );
 
-/*
- * Response interceptor
- *
- * Handle expired access tokens.
- */
 apiClient.interceptors.response.use(
   (response) => {
     return response;
@@ -82,24 +55,14 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    /*
-     * Only handle 401 responses.
-     */
     if (error.response?.status !== 401 || originalRequest?._retry) {
       return Promise.reject(error);
     }
 
-    /*
-     * Don't try to refresh the refresh endpoint itself.
-     */
     if (originalRequest?.url?.includes("/auth/refresh-token")) {
       return Promise.reject(error);
     }
 
-    /*
-     * If another request is already refreshing
-     * the token, wait for it.
-     */
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({
@@ -130,10 +93,6 @@ apiClient.interceptors.response.use(
     }
 
     try {
-      /*
-       * Call refresh endpoint without the
-       * normal apiClient interceptor.
-       */
       const response = await refreshClient.post("/auth/refresh-token", {
         refreshToken,
       });
@@ -146,38 +105,18 @@ apiClient.interceptors.response.use(
         throw new Error("No access token returned from refresh.");
       }
 
-      /*
-       * Store new access token.
-       */
       authStorage.setAccessToken(newAccessToken);
 
-      /*
-       * Some backends rotate the refresh token.
-       *
-       * If a new refresh token is returned,
-       * replace the old one.
-       */
       if (newRefreshToken) {
         authStorage.setRefreshToken(newRefreshToken);
       }
 
-      /*
-       * Resolve all queued requests.
-       */
       processQueue(null, newAccessToken);
 
-      /*
-       * Retry the original request.
-       */
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
       return apiClient(originalRequest);
     } catch (refreshError) {
-      /*
-       * Refresh failed.
-       *
-       * The session is no longer recoverable.
-       */
       processQueue(refreshError, null);
 
       authStorage.clear();
