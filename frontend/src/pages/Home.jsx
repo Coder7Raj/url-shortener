@@ -1,5 +1,7 @@
+import FeaturesSection from "@/components/home/FeaturesSection";
 import HeroSection from "@/components/home/HeroSection";
 import Navbar from "@/components/home/Navbar";
+import HowItWorksSection from "../components/home/HowItWorksSection.jsx";
 
 const Home = () => {
   return (
@@ -8,6 +10,8 @@ const Home = () => {
 
       <main>
         <HeroSection />
+        <FeaturesSection />
+        <HowItWorksSection />
       </main>
     </div>
   );

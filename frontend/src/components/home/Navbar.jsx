@@ -13,7 +13,7 @@ const Navbar = () => {
             <Link2 className="h-5 w-5" />
           </div>
 
-          <span className="text-lg font-bold tracking-tight">Linkly</span>
+          <span className="text-lg font-bold tracking-tight">Shortly</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -47,7 +47,7 @@ const Navbar = () => {
           </Button>
 
           <Button>
-            <Link to="/register">
+            <Link className="flex items-center" to="/register">
               Get started
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
