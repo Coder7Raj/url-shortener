@@ -1,8 +1,11 @@
 const asyncHandler = require("../../utils/asyncHandler.js");
-
 const ApiResponse = require("../../utils/apiResponse.js");
-
 const service = require("./auth.service.js");
+const {
+  accessCookieOptions,
+  refreshCookieOptions,
+} = require("../../config/cookies.js");
+const apiError = require("../../utils/apiError.js");
 
 const register = asyncHandler(async (req, res) => {
   const user = await service.registerUser(req.validated.body);
@@ -15,35 +18,74 @@ const register = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-  const result = await service.loginUser(req.validated.body, {
-    ipAddress: req.ip,
-    userAgent: req.get("user-agent"),
-    deviceName: null,
-  });
+  const result = await service.loginUser(
+    req.validated.body,
+    {
+      ipAddress: req.ip,
+      userAgent: req.get("user-agent"),
+      deviceName: null,
+    },
+    {
+      ipAddress: req.ip,
+      userAgent: req.get("user-agent"),
+      method: req.method,
+      path: req.originalUrl,
+    },
+  );
 
-  res.status(200).json(new ApiResponse(200, "Login successful", result));
+  res
+    .cookie("accessToken", result.accessToken, accessCookieOptions)
+    .cookie("refreshToken", result.refreshToken, refreshCookieOptions)
+    .status(200)
+    .json(
+      new ApiResponse(200, "Login successful", {
+        user: result.user,
+      }),
+    );
 });
 
 const logout = asyncHandler(async (req, res) => {
-  const { refreshToken } = req.body;
+  const refreshToken = req.cookies.refreshToken;
 
-  await service.logout(refreshToken);
+  if (refreshToken) {
+    await service.logout(refreshToken);
+  }
 
-  res.status(200).json({
-    success: true,
-    statusCode: 200,
-    message: "Logged out successfully",
-  });
+  res
+    .clearCookie("accessToken", {
+      ...accessCookieOptions,
+      maxAge: undefined,
+    })
+    .clearCookie("refreshToken", {
+      ...refreshCookieOptions,
+      maxAge: undefined,
+    })
+    .status(200)
+    .json({
+      success: true,
+      statusCode: 200,
+      message: "Logged out successfully",
+    });
 });
 
 const logoutAll = asyncHandler(async (req, res) => {
   await service.logoutAll(req.user.id);
 
-  res.status(200).json({
-    success: true,
-    statusCode: 200,
-    message: "Logged out from all devices",
-  });
+  res
+    .clearCookie("accessToken", {
+      ...accessCookieOptions,
+      maxAge: undefined,
+    })
+    .clearCookie("refreshToken", {
+      ...refreshCookieOptions,
+      maxAge: undefined,
+    })
+    .status(200)
+    .json({
+      success: true,
+      statusCode: 200,
+      message: "Logged out from all devices",
+    });
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
@@ -57,13 +99,19 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const refreshToken = asyncHandler(async (req, res) => {
-  const { refreshToken } = req.validated.body;
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    throw new apiError(401, "Refresh token required");
+  }
 
   const tokens = await service.refreshAccessToken(refreshToken);
 
   res
+    .cookie("accessToken", tokens.accessToken, accessCookieOptions)
+    .cookie("refreshToken", tokens.refreshToken, refreshCookieOptions)
     .status(200)
-    .json(new ApiResponse(200, "Token refreshed successfully", tokens));
+    .json(new ApiResponse(200, "Token refreshed successfully"));
 });
 
 const getSessions = asyncHandler(async (req, res) => {
