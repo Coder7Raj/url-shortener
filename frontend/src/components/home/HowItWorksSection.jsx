@@ -26,7 +26,7 @@ const steps = [
 
 const HowItWorksSection = () => {
   return (
-    <section className="border-y bg-muted/30 py-24 sm:py-32">
+    <section id="how-it-works" className="border-y bg-muted/30 py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Heading */}
         <div className="mx-auto max-w-2xl text-center">

@@ -31,7 +31,7 @@ const countries = [
 
 const AnalyticsShowcase = () => {
   return (
-    <section className="overflow-hidden py-24 sm:py-32">
+    <section id="analytics" className="overflow-hidden py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
