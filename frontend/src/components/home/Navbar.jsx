@@ -42,11 +42,11 @@ const Navbar = () => {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" className="hidden sm:inline-flex">
+          <Button variant="ghost" className="hidden sm:inline-flex">
             <Link to="/login">Log in</Link>
           </Button>
 
-          <Button asChild>
+          <Button>
             <Link to="/register">
               Get started
               <ArrowRight className="ml-1 h-4 w-4" />

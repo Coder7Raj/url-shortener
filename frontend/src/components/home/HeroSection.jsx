@@ -42,14 +42,14 @@ const HeroSection = () => {
 
             {/* CTA */}
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="h-12 px-6">
+              <Button size="lg" className="h-12 px-6">
                 <Link to="/register">
                   Get started for free
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
 
-              <Button asChild size="lg" variant="outline" className="h-12 px-6">
+              <Button size="lg" variant="outline" className="h-12 px-6">
                 <a href="#features">Explore features</a>
               </Button>
             </div>
