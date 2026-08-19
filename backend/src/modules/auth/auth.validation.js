@@ -31,12 +31,6 @@ const loginSchema = z.object({
   }),
 });
 
-const refreshTokenSchema = z.object({
-  body: z.object({
-    refreshToken: z.string().min(1, "Refresh token is required"),
-  }),
-});
-
 const sessionsSchema = z.object({
   query: z.object({
     page: z.coerce.number().int().positive().default(1),
@@ -91,7 +85,6 @@ const changePasswordSchema = z
 module.exports = {
   registerSchema,
   loginSchema,
-  refreshTokenSchema,
   sessionsSchema,
   updateProfileSchema,
   changePasswordSchema,

@@ -7,7 +7,6 @@ const authMiddleware = require("../../middlewares/auth.middleware.js");
 const {
   registerSchema,
   loginSchema,
-  refreshTokenSchema,
   sessionsSchema,
   updateProfileSchema,
   changePasswordSchema,
@@ -18,11 +17,7 @@ const controller = require("./auth.controller.js");
 router.post("/register", validate(registerSchema), controller.register);
 router.post("/login", validate(loginSchema), controller.login);
 router.get("/me", authMiddleware, controller.getCurrentUser);
-router.post(
-  "/refresh-token",
-  validate(refreshTokenSchema),
-  controller.refreshToken,
-);
+router.post("/refresh-token", controller.refreshToken);
 router.post("/logout", controller.logout);
 router.post("/logout-all", authMiddleware, controller.logoutAll);
 router.get(

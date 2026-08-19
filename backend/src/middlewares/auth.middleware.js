@@ -1,18 +1,14 @@
 const ApiError = require("../utils/apiError.js");
-
 const repository = require("../modules/auth/auth.repository.js");
-
 const { verifyAccessToken } = require("../services/jwt.services.js");
 
 const authMiddleware = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
+    const token = req.cookies.accessToken;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!token) {
       return next(new ApiError(401, "Authentication required"));
     }
-
-    const token = authHeader.split(" ")[1];
 
     const payload = verifyAccessToken(token);
 
