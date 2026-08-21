@@ -50,7 +50,7 @@ const AnalyticsTimeline = ({ timeline, range, onRangeChange, loading }) => {
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="text-foreground">
           <h2 className="text-lg font-semibold">Clicks Over Time</h2>
 
           <p className="text-sm text-muted-foreground">

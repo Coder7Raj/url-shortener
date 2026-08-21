@@ -75,7 +75,7 @@ const AnalyticsPage = () => {
       <div className="space-y-6">
         <AnalyticsHeader urls={[]} selectedUrlId="" onUrlChange={() => {}} />
 
-        <div className="rounded-xl border bg-card p-10 text-center">
+        <div className="rounded-xl border bg-card p-10 text-center text-foreground">
           <h2 className="text-lg font-semibold">No URLs available</h2>
 
           <p className="mt-2 text-sm text-muted-foreground">
@@ -135,7 +135,7 @@ const AnalyticsPage = () => {
           {/* Audience */}
 
           <div>
-            <div className="mb-4">
+            <div className="mb-4 text-foreground">
               <h2 className="text-xl font-semibold">Audience</h2>
 
               <p className="text-sm text-muted-foreground">
@@ -161,7 +161,7 @@ const AnalyticsPage = () => {
           {/* Technology */}
 
           <div>
-            <div className="mb-4">
+            <div className="mb-4 text-foreground">
               <h2 className="text-xl font-semibold">Technology</h2>
 
               <p className="text-sm text-muted-foreground">
@@ -193,7 +193,7 @@ const AnalyticsPage = () => {
           {/* Traffic */}
 
           <div>
-            <div className="mb-4">
+            <div className="mb-4 text-foreground">
               <h2 className="text-xl font-semibold">Traffic Sources</h2>
 
               <p className="text-sm text-muted-foreground">

@@ -8,7 +8,7 @@ const AnalyticsUrlInfo = ({ url }) => {
 
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between text-foreground">
         <div className="min-w-0">
           <p className="text-sm text-muted-foreground">Analyzing URL</p>
 

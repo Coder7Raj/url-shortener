@@ -14,7 +14,9 @@ const AnalyticsHeader = ({
         </div>
 
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+            Analytics
+          </h1>
 
           <p className="text-sm text-muted-foreground">
             Understand how your short URLs are performing.
@@ -22,7 +24,7 @@ const AnalyticsHeader = ({
         </div>
       </div>
 
-      <div className="w-full sm:w-[320px]">
+      <div className="w-full sm:w-[320px] text-foreground">
         <label
           htmlFor="analytics-url"
           className="mb-2 block text-sm font-medium"

@@ -103,7 +103,7 @@ const SessionsPage = () => {
       {/* Header */}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="text-foreground">
           <h1 className="text-2xl font-bold tracking-tight">Sessions</h1>
 
           <p className="text-muted-foreground">
@@ -112,7 +112,12 @@ const SessionsPage = () => {
           </p>
         </div>
 
-        <Button variant="outline" onClick={fetchSessions} disabled={isLoading}>
+        <Button
+          className="text-foreground"
+          variant="outline"
+          onClick={fetchSessions}
+          disabled={isLoading}
+        >
           <RefreshCw className="mr-2 h-4 w-4" />
           Refresh
         </Button>

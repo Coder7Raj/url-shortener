@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 
 import { ROUTES } from "../../constants/routes.js";
 import useAuth from "../../hooks/useAuth.js";
+import ThemeToggle from "../ThemToggle.jsx";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -20,11 +21,6 @@ const Navbar = () => {
       });
     }
   };
-
-  const userInitial =
-    user?.name?.charAt(0)?.toUpperCase() ||
-    user?.username?.charAt(0)?.toUpperCase() ||
-    "U";
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-background px-6">
@@ -47,11 +43,22 @@ const Navbar = () => {
         >
           <Home className="h-4 w-4" />
         </Button>
+        <div className="text-foreground">
+          <ThemeToggle />
+        </div>
 
         {/* User */}
         <div className="hidden items-center gap-3 sm:flex">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-            {userInitial}
+            {user?.profilePicture ? (
+              <img
+                className="h-full w-full object-cover rounded-full"
+                src={user?.profilePicture}
+                alt={user?.username}
+              />
+            ) : (
+              user?.username?.charAt(0)?.toUpperCase()
+            )}
           </div>
 
           <div className="text-right text-foreground">

@@ -76,7 +76,9 @@ const UrlsPage = () => {
     <div className="space-y-6">
       {/* header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">My URLs</h1>
+        <h1 className="text-2xl text-foreground font-bold tracking-tight">
+          My URLs
+        </h1>
 
         <p className="mt-1 text-muted-foreground">
           Create and manage your shortened URLs.

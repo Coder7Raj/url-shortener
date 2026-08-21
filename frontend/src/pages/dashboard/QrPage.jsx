@@ -136,7 +136,7 @@ const QrPage = () => {
     <div className="space-y-6">
       {/* Header */}
 
-      <div>
+      <div className="text-foreground">
         <h1 className="text-2xl font-bold tracking-tight">QR Codes</h1>
 
         <p className="text-muted-foreground">
