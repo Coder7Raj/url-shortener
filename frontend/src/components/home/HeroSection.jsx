@@ -50,7 +50,7 @@ const HeroSection = () => {
               </Button>
 
               <Button size="lg" variant="outline" className="h-12 px-6">
-                <a href="#features">Explore features</a>
+                <Link href="#features">Explore features</Link>
               </Button>
             </div>
 

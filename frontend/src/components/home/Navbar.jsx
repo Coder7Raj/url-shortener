@@ -25,26 +25,26 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-8 md:flex">
-          <a
+          <Link
             href="#features"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Features
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="#analytics"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Analytics
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="#how-it-works"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             How it works
-          </a>
+          </Link>
         </nav>
 
         {/* Actions */}

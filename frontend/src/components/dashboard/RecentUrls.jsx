@@ -117,13 +117,13 @@ const RecentUrls = ({ urls = [], isLoading = false }) => {
                       </Button>
 
                       <Button variant="ghost" size="icon" title="Open">
-                        <a
+                        <Link
                           href={shortUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
                           <ExternalLink className="h-4 w-4" />
-                        </a>
+                        </Link>
                       </Button>
 
                       <Button variant="ghost" size="icon" title="Details">

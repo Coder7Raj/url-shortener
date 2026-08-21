@@ -100,13 +100,13 @@ const TopUrls = ({ urls = [], isLoading = false }) => {
 
                   {/* Open */}
                   <Button variant="ghost" size="icon" title="Open">
-                    <a
+                    <Link
                       href={shortUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       <ExternalLink className="h-4 w-4" />
-                    </a>
+                    </Link>
                   </Button>
                 </div>
               );

@@ -27,21 +27,21 @@ const Footer = () => {
 
             {/* Social */}
             <div className="mt-6 flex items-center gap-3">
-              <a
+              <Link
                 href="#"
                 aria-label="GitHub"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border transition-colors hover:bg-muted"
               >
                 <GitBranch className="h-4 w-4" />
-              </a>
+              </Link>
 
-              <a
+              <Link
                 href="#"
                 aria-label="LinkedIn"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border transition-colors hover:bg-muted"
               >
                 <span className="text-xs font-bold">in</span>
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -51,39 +51,39 @@ const Footer = () => {
 
             <ul className="mt-5 space-y-3 text-sm text-muted-foreground">
               <li>
-                <a
+                <Link
                   href="#features"
                   className="transition-colors hover:text-foreground"
                 >
                   Features
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
+                <Link
                   href="#analytics"
                   className="transition-colors hover:text-foreground"
                 >
                   Analytics
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
+                <Link
                   href="#how-it-works"
                   className="transition-colors hover:text-foreground"
                 >
                   How it works
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
+                <Link
                   href="#security"
                   className="transition-colors hover:text-foreground"
                 >
                   Security
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

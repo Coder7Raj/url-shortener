@@ -223,7 +223,7 @@ const UrlDetailsPage = () => {
               Short URL
             </p>
 
-            <a
+            <Link
               href={selectedUrl.shortUrl}
               target="_blank"
               rel="noreferrer"
@@ -232,7 +232,7 @@ const UrlDetailsPage = () => {
               {selectedUrl.shortUrl}
 
               <ExternalLink className="h-4 w-4 shrink-0" />
-            </a>
+            </Link>
           </div>
 
           {/* Original URL */}
