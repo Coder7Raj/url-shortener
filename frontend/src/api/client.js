@@ -1,5 +1,5 @@
 import axios from "axios";
-import { authStorage } from "../lib/auth-storage.js";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 const apiClient = axios.create({
@@ -7,6 +7,7 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 const refreshClient = axios.create({
@@ -14,43 +15,27 @@ const refreshClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 let isRefreshing = false;
 
 let failedQueue = [];
 
-const processQueue = (error, accessToken = null) => {
+const processQueue = (error) => {
   failedQueue.forEach((promise) => {
     if (error) {
       promise.reject(error);
     } else {
-      promise.resolve(accessToken);
+      promise.resolve();
     }
   });
 
   failedQueue = [];
 };
 
-apiClient.interceptors.request.use(
-  (config) => {
-    const accessToken = authStorage.getAccessToken();
-
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
-
 apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
 
   async (error) => {
     const originalRequest = error.config;
@@ -69,9 +54,7 @@ apiClient.interceptors.response.use(
           resolve,
           reject,
         });
-      }).then((accessToken) => {
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-
+      }).then(() => {
         return apiClient(originalRequest);
       });
     }
@@ -80,46 +63,14 @@ apiClient.interceptors.response.use(
 
     isRefreshing = true;
 
-    const refreshToken = authStorage.getRefreshToken();
-
-    // No refresh token means the session cannot be recovered.
-
-    if (!refreshToken) {
-      isRefreshing = false;
-
-      authStorage.clear();
-
-      return Promise.reject(error);
-    }
-
     try {
-      const response = await refreshClient.post("/auth/refresh-token", {
-        refreshToken,
-      });
+      await refreshClient.post("/auth/refresh-token");
 
-      const data = response.data?.data;
-      const newAccessToken = data?.accessToken;
-      const newRefreshToken = data?.refreshToken;
-
-      if (!newAccessToken) {
-        throw new Error("No access token returned from refresh.");
-      }
-
-      authStorage.setAccessToken(newAccessToken);
-
-      if (newRefreshToken) {
-        authStorage.setRefreshToken(newRefreshToken);
-      }
-
-      processQueue(null, newAccessToken);
-
-      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      processQueue(null);
 
       return apiClient(originalRequest);
     } catch (refreshError) {
-      processQueue(refreshError, null);
-
-      authStorage.clear();
+      processQueue(refreshError);
 
       return Promise.reject(refreshError);
     } finally {

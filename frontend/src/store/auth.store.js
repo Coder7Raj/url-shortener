@@ -1,96 +1,40 @@
 import { create } from "zustand";
-
 import authApi from "../api/auth.api.js";
-import { authStorage } from "../lib/auth-storage.js";
-
-const getStoredUser = () => {
-  try {
-    const user = localStorage.getItem("user");
-
-    return user ? JSON.parse(user) : null;
-  } catch {
-    return null;
-  }
-};
 
 const useAuthStore = create((set) => ({
-  user: getStoredUser(),
-  accessToken: authStorage.getAccessToken(),
-  refreshToken: authStorage.getRefreshToken(),
-  isAuthenticated: Boolean(authStorage.getAccessToken()),
+  user: null,
+
+  isAuthenticated: false,
+
   isLoading: false,
+
   isInitializing: true,
+
   error: null,
 
   initializeAuth: async () => {
     try {
-      const accessToken = authStorage.getAccessToken();
-      const refreshToken = authStorage.getRefreshToken();
+      const result = await authApi.getCurrentUser();
 
-      if (accessToken) {
-        set({
-          accessToken,
-          refreshToken,
-          isAuthenticated: true,
-          isInitializing: false,
-        });
+      const user = result.data?.user;
 
-        return {
-          success: true,
-        };
+      if (!user) {
+        throw new Error("User not found");
       }
-
-      if (refreshToken) {
-        const result = await authApi.refreshToken(refreshToken);
-
-        const newAccessToken = result.data?.accessToken;
-        const newRefreshToken = result.data?.refreshToken;
-
-        if (!newAccessToken) {
-          throw new Error("Failed to refresh access token");
-        }
-
-        authStorage.setAccessToken(newAccessToken);
-
-        if (newRefreshToken) {
-          authStorage.setRefreshToken(newRefreshToken);
-        }
-
-        set({
-          accessToken: newAccessToken,
-          refreshToken: newRefreshToken || refreshToken,
-          isAuthenticated: true,
-          isInitializing: false,
-          error: null,
-        });
-
-        return {
-          success: true,
-        };
-      }
-
-      authStorage.clear();
 
       set({
-        user: null,
-        accessToken: null,
-        refreshToken: null,
-        isAuthenticated: false,
+        user,
+        isAuthenticated: true,
         isInitializing: false,
+        error: null,
       });
 
       return {
-        success: false,
+        success: true,
       };
     } catch (error) {
-      console.error("Auth initialization failed:", error);
-
-      authStorage.clear();
-
       set({
         user: null,
-        accessToken: null,
-        refreshToken: null,
         isAuthenticated: false,
         isInitializing: false,
         error: null,
@@ -111,16 +55,10 @@ const useAuthStore = create((set) => ({
     try {
       const result = await authApi.login(credentials);
 
-      const { user, accessToken, refreshToken } = result.data;
-
-      authStorage.setAccessToken(accessToken);
-      authStorage.setRefreshToken(refreshToken);
-      authStorage.setUser(user);
+      const user = result.data?.user;
 
       set({
         user,
-        accessToken,
-        refreshToken,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -155,27 +93,7 @@ const useAuthStore = create((set) => ({
     try {
       const result = await authApi.register(userData);
 
-      const accessToken = result.data?.accessToken;
-      const refreshToken = result.data?.refreshToken;
-      const user = result.data?.user;
-
-      if (accessToken) {
-        authStorage.setAccessToken(accessToken);
-      }
-
-      if (refreshToken) {
-        authStorage.setRefreshToken(refreshToken);
-      }
-
-      if (user) {
-        authStorage.setUser(user);
-      }
-
       set({
-        user: user || null,
-        accessToken: accessToken || null,
-        refreshToken: refreshToken || null,
-        isAuthenticated: Boolean(accessToken),
         isLoading: false,
         error: null,
       });
@@ -208,18 +126,10 @@ const useAuthStore = create((set) => ({
     });
 
     try {
-      const refreshToken = authStorage.getRefreshToken();
-
-      if (refreshToken) {
-        await authApi.logout(refreshToken);
-      }
-
-      authStorage.clear();
+      await authApi.logout();
 
       set({
         user: null,
-        accessToken: null,
-        refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
@@ -229,22 +139,15 @@ const useAuthStore = create((set) => ({
         success: true,
       };
     } catch (error) {
-      console.error("Logout API error:", error);
-
-      authStorage.clear();
-
       set({
         user: null,
-        accessToken: null,
-        refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
-        error: error.response?.data?.message || "Logout failed",
+        error: null,
       });
 
       return {
         success: false,
-        error,
       };
     }
   },
@@ -260,12 +163,8 @@ const useAuthStore = create((set) => ({
     } catch (error) {
       console.error("Logout all API error:", error);
     } finally {
-      authStorage.clear();
-
       set({
         user: null,
-        accessToken: null,
-        refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
@@ -280,8 +179,6 @@ const useAuthStore = create((set) => ({
       const user = result.data?.user;
 
       if (user) {
-        authStorage.setUser(user);
-
         set({
           user,
           isAuthenticated: true,
@@ -293,21 +190,10 @@ const useAuthStore = create((set) => ({
         data: user,
       };
     } catch (error) {
-      console.error("Get current user error:", error);
-
       return {
         success: false,
       };
     }
-  },
-
-  setAccessToken: (accessToken) => {
-    authStorage.setAccessToken(accessToken);
-
-    set({
-      accessToken,
-      isAuthenticated: true,
-    });
   },
 
   clearError: () => {

@@ -13,10 +13,8 @@ const authApi = {
     return response.data;
   },
 
-  logout: async (refreshToken) => {
-    const response = await apiClient.post("/auth/logout", {
-      refreshToken,
-    });
+  logout: async () => {
+    const response = await apiClient.post("/auth/logout");
 
     return response.data;
   },
@@ -27,10 +25,8 @@ const authApi = {
     return response.data;
   },
 
-  refreshToken: async (refreshToken) => {
-    const response = await apiClient.post("/auth/refresh-token", {
-      refreshToken,
-    });
+  refreshToken: async () => {
+    const response = await apiClient.post("/auth/refresh-token");
 
     return response.data;
   },
