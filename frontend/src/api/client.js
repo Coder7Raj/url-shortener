@@ -19,15 +19,14 @@ const refreshClient = axios.create({
 });
 
 let isRefreshing = false;
-
 let failedQueue = [];
 
 const processQueue = (error) => {
-  failedQueue.forEach((promise) => {
+  failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
-      promise.reject(error);
+      reject(error);
     } else {
-      promise.resolve();
+      resolve();
     }
   });
 
@@ -40,14 +39,33 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status !== 401 || originalRequest?._retry) {
+    if (!originalRequest) {
       return Promise.reject(error);
     }
 
-    if (originalRequest?.url?.includes("/auth/refresh-token")) {
+    // Only handle 401 errors.
+    if (error.response?.status !== 401) {
       return Promise.reject(error);
     }
 
+    // Never refresh again for the same request.
+    if (originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    // Never intercept authentication endpoints.
+    const requestUrl = originalRequest.url || "";
+
+    if (
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/register") ||
+      requestUrl.includes("/auth/refresh-token") ||
+      requestUrl.includes("/auth/logout")
+    ) {
+      return Promise.reject(error);
+    }
+
+    // Another request is already refreshing.
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({
@@ -60,7 +78,6 @@ apiClient.interceptors.response.use(
     }
 
     originalRequest._retry = true;
-
     isRefreshing = true;
 
     try {

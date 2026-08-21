@@ -50,7 +50,7 @@ const RegisterForm = () => {
         return;
       }
 
-      navigate(ROUTES.LOGIN, {
+      navigate(ROUTES.HOME, {
         replace: true,
       });
     }

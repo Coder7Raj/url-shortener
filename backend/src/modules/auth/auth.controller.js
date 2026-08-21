@@ -4,8 +4,8 @@ const service = require("./auth.service.js");
 const {
   accessCookieOptions,
   refreshCookieOptions,
-} = require("../../config/cookies.js");
-const apiError = require("../../utils/apiError.js");
+} = require("../../config/cookie.config.js");
+const ApiError = require("../../utils/apiError.js");
 
 const register = asyncHandler(async (req, res) => {
   const user = await service.registerUser(req.validated.body);
@@ -28,8 +28,7 @@ const login = asyncHandler(async (req, res) => {
     {
       ipAddress: req.ip,
       userAgent: req.get("user-agent"),
-      method: req.method,
-      path: req.originalUrl,
+      deviceName: req.get("x-device-name") || null,
     },
   );
 
@@ -48,18 +47,16 @@ const logout = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (refreshToken) {
-    await service.logout(refreshToken);
+    await service.logout(refreshToken, {
+      ipAddress: req.ip,
+      userAgent: req.get("user-agent"),
+      deviceName: req.get("x-device-name") || null,
+    });
   }
 
   res
-    .clearCookie("accessToken", {
-      ...accessCookieOptions,
-      maxAge: undefined,
-    })
-    .clearCookie("refreshToken", {
-      ...refreshCookieOptions,
-      maxAge: undefined,
-    })
+    .clearCookie("accessToken", accessCookieOptions)
+    .clearCookie("refreshToken", refreshCookieOptions)
     .status(200)
     .json({
       success: true,
@@ -69,17 +66,15 @@ const logout = asyncHandler(async (req, res) => {
 });
 
 const logoutAll = asyncHandler(async (req, res) => {
-  await service.logoutAll(req.user.id);
+  await service.logoutAll(req.user.id, {
+    ipAddress: req.ip,
+    userAgent: req.get("user-agent"),
+    deviceName: req.get("x-device-name") || null,
+  });
 
   res
-    .clearCookie("accessToken", {
-      ...accessCookieOptions,
-      maxAge: undefined,
-    })
-    .clearCookie("refreshToken", {
-      ...refreshCookieOptions,
-      maxAge: undefined,
-    })
+    .clearCookie("accessToken", accessCookieOptions)
+    .clearCookie("refreshToken", refreshCookieOptions)
     .status(200)
     .json({
       success: true,
@@ -102,16 +97,24 @@ const refreshToken = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
-    throw new apiError(401, "Refresh token required");
+    throw new ApiError(401, "Refresh token not found");
   }
 
-  const tokens = await service.refreshAccessToken(refreshToken);
+  const tokens = await service.refreshAccessToken(refreshToken, {
+    ipAddress: req.ip,
+    userAgent: req.get("user-agent"),
+    deviceName: req.get("x-device-name") || null,
+  });
 
   res
     .cookie("accessToken", tokens.accessToken, accessCookieOptions)
     .cookie("refreshToken", tokens.refreshToken, refreshCookieOptions)
     .status(200)
-    .json(new ApiResponse(200, "Token refreshed successfully"));
+    .json(
+      new ApiResponse(200, "Token refreshed successfully", {
+        success: true,
+      }),
+    );
 });
 
 const getSessions = asyncHandler(async (req, res) => {

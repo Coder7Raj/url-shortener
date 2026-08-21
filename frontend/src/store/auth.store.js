@@ -3,17 +3,14 @@ import authApi from "../api/auth.api.js";
 
 const useAuthStore = create((set) => ({
   user: null,
-
   isAuthenticated: false,
-
   isLoading: false,
-
   isInitializing: true,
-
   error: null,
 
   initializeAuth: async () => {
     try {
+      // First try the current access token/session.
       const result = await authApi.getCurrentUser();
 
       const user = result.data?.user;

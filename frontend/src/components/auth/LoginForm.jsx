@@ -32,7 +32,7 @@ const LoginForm = () => {
     const result = await login(values);
 
     if (result.success) {
-      navigate(ROUTES.DASHBOARD, {
+      navigate(ROUTES.HOME, {
         replace: true,
       });
     }

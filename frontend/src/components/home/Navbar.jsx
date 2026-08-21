@@ -3,12 +3,19 @@ import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 
+import { ROUTES } from "../../constants/routes.js";
+import useAuthStore from "../../store/auth.store.js";
+
 const Navbar = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  const isInitializing = useAuthStore((state) => state.isInitializing);
+
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link to={ROUTES.HOME} className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <Link2 className="h-5 w-5" />
           </div>
@@ -42,16 +49,24 @@ const Navbar = () => {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" className="hidden sm:inline-flex">
-            <Link to="/login">Log in</Link>
-          </Button>
+          {!isInitializing && isAuthenticated ? (
+            <Button>
+              <Link to={ROUTES.DASHBOARD}>Dashboard</Link>
+            </Button>
+          ) : !isInitializing ? (
+            <>
+              <Button variant="ghost" className="hidden sm:inline-flex">
+                <Link to={ROUTES.LOGIN}>Log in</Link>
+              </Button>
 
-          <Button>
-            <Link className="flex items-center" to="/register">
-              Get started
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
+              <Button>
+                <Link className="flex items-center" to={ROUTES.REGISTER}>
+                  Get started
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+            </>
+          ) : null}
         </div>
       </div>
     </header>

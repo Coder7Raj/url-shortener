@@ -1,18 +1,20 @@
 const isProduction = process.env.NODE_ENV === "production";
 
-const accessCookieOptions = {
+const baseCookieOptions = {
   httpOnly: true,
   secure: isProduction,
-  sameSite: "lax",
-  maxAge: 6 * 60 * 60 * 1000, // 6 hours
+  sameSite: isProduction ? "none" : "lax",
+};
+
+const accessCookieOptions = {
+  ...baseCookieOptions,
+  maxAge: 6 * 60 * 60 * 1000,
   path: "/",
 };
 
 const refreshCookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: "lax",
-  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  ...baseCookieOptions,
+  maxAge: 30 * 24 * 60 * 60 * 1000,
   path: "/api/v1/auth",
 };
 
