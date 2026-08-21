@@ -1,12 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ToastContainer } from "react-toastify";
-import App from "./App";
+import App from "./App.jsx";
+import ThemeProvider from "./components/ThemeProvider.jsx";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ToastContainer />
-    <App />
+    <ThemeProvider>
+      <ToastContainer />
+      <App />
+    </ThemeProvider>
   </React.StrictMode>,
 );
