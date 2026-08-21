@@ -60,7 +60,8 @@ apiClient.interceptors.response.use(
       requestUrl.includes("/auth/login") ||
       requestUrl.includes("/auth/register") ||
       requestUrl.includes("/auth/refresh-token") ||
-      requestUrl.includes("/auth/logout")
+      requestUrl.includes("/auth/logout") ||
+      requestUrl.includes("/auth/me")
     ) {
       return Promise.reject(error);
     }

@@ -13,7 +13,7 @@ const sessionRepository = require("./session.repository.js");
 const { toSessionListResponse } = require("./session.dto.js");
 const audit = require("../../common/audit");
 
-const registerUser = async (userData) => {
+const registerUser = async (userData, deviceInfo, requestContext) => {
   const emailExists = await repository.findUserByEmail(userData.email);
 
   if (emailExists) {
@@ -35,7 +35,29 @@ const registerUser = async (userData) => {
     password_hash: hashedPassword,
   });
 
-  return toUserResponse(user);
+  const accessToken = generateAccessToken(user);
+
+  const { refreshToken, tokenId } = generateRefreshToken(user);
+
+  const hashedToken = await hashToken(refreshToken);
+
+  await sessionRepository.createSession({
+    user_id: user.user_id,
+    token_id: tokenId,
+    token_hash: hashedToken,
+    ip_address: deviceInfo.ipAddress,
+    user_agent: deviceInfo.userAgent,
+    device_name: deviceInfo.deviceName,
+    expires_at: calculateRefreshTokenExpiry(),
+  });
+
+  await repository.updateLastLogin(user.user_id);
+
+  return {
+    user: toUserResponse(user),
+    accessToken,
+    refreshToken,
+  };
 };
 
 const loginUser = async ({ email, password }, deviceInfo, requestContext) => {

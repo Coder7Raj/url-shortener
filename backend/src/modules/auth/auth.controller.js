@@ -8,13 +8,29 @@ const {
 const ApiError = require("../../utils/apiError.js");
 
 const register = asyncHandler(async (req, res) => {
-  const user = await service.registerUser(req.validated.body);
-
-  res.status(201).json(
-    new ApiResponse(201, "User registered successfully", {
-      user,
-    }),
+  const result = await service.registerUser(
+    req.validated.body,
+    {
+      ipAddress: req.ip,
+      userAgent: req.get("user-agent"),
+      deviceName: null,
+    },
+    {
+      ipAddress: req.ip,
+      userAgent: req.get("user-agent"),
+      deviceName: req.get("x-device-name") || null,
+    },
   );
+
+  res
+    .cookie("accessToken", result.accessToken, accessCookieOptions)
+    .cookie("refreshToken", result.refreshToken, refreshCookieOptions)
+    .status(201)
+    .json(
+      new ApiResponse(201, "Registration successful", {
+        user: result.user,
+      }),
+    );
 });
 
 const login = asyncHandler(async (req, res) => {

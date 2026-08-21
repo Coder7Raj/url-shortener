@@ -90,8 +90,13 @@ const useAuthStore = create((set) => ({
     try {
       const result = await authApi.register(userData);
 
+      const user = result.data?.user;
+
       set({
+        user,
+        isAuthenticated: true,
         isLoading: false,
+        isInitializing: false,
         error: null,
       });
 
