@@ -1,5 +1,6 @@
-import { ArrowRight, Link2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowRight, Link2, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
 
@@ -7,9 +8,27 @@ import { ROUTES } from "../../constants/routes.js";
 import useAuthStore from "../../store/auth.store.js";
 
 const Navbar = () => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const navigate = useNavigate();
 
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isInitializing = useAuthStore((state) => state.isInitializing);
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+
+      toast.success("Logged out successfully");
+
+      navigate(ROUTES.HOME);
+    } catch (error) {
+      console.error("Logout failed:", error);
+
+      toast.error(
+        error?.response?.data?.message || "Failed to logout. Please try again.",
+      );
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl">
@@ -50,9 +69,20 @@ const Navbar = () => {
         {/* Actions */}
         <div className="flex items-center gap-2">
           {!isInitializing && isAuthenticated ? (
-            <Button>
-              <Link to={ROUTES.DASHBOARD}>Dashboard</Link>
-            </Button>
+            <>
+              <Button>
+                <Link to={ROUTES.DASHBOARD}>Dashboard</Link>
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={handleLogout}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
+            </>
           ) : !isInitializing ? (
             <>
               <Button variant="ghost" className="hidden sm:inline-flex">

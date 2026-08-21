@@ -1,4 +1,4 @@
-import { LogOut } from "lucide-react";
+import { Home, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,17 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-4">
+        {/* Home */}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate(ROUTES.HOME)}
+          title="Home"
+        >
+          <Home className="h-4 w-4" />
+        </Button>
+
+        {/* User */}
         <div className="hidden items-center gap-3 sm:flex">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
             {userInitial}
@@ -49,6 +60,7 @@ const Navbar = () => {
           </div>
         </div>
 
+        {/* Logout */}
         <Button
           variant="outline"
           size="icon"
