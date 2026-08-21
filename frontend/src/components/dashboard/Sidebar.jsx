@@ -42,7 +42,7 @@ const Sidebar = () => {
     <aside className="hidden w-64 shrink-0 border-r bg-card md:block">
       <div className="flex h-16 items-center border-b px-6">
         <div>
-          <h1 className="text-xl font-bold">Shortly</h1>
+          <h1 className="text-foreground text-xl font-bold">Shortly</h1>
 
           <p className="text-xs text-muted-foreground">Smart URL Management</p>
         </div>

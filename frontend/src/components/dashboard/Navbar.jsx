@@ -29,7 +29,7 @@ const Navbar = () => {
   return (
     <header className="flex h-16 items-center justify-between border-b bg-background px-6">
       <div>
-        <h2 className="text-lg font-semibold">Welcome back</h2>
+        <h2 className="text-lg text-foreground font-semibold">Welcome back</h2>
 
         <p className="text-sm text-muted-foreground">
           Manage your shortened URLs
@@ -39,6 +39,7 @@ const Navbar = () => {
       <div className="flex items-center gap-4">
         {/* Home */}
         <Button
+          className="text-foreground"
           variant="outline"
           size="icon"
           onClick={() => navigate(ROUTES.HOME)}
@@ -53,7 +54,7 @@ const Navbar = () => {
             {userInitial}
           </div>
 
-          <div className="text-right">
+          <div className="text-right text-foreground">
             <p className="text-sm font-medium">{user?.username || "User"}</p>
 
             <p className="text-xs text-muted-foreground">{user?.email}</p>
@@ -62,6 +63,7 @@ const Navbar = () => {
 
         {/* Logout */}
         <Button
+          className="text-foreground"
           variant="outline"
           size="icon"
           onClick={handleLogout}

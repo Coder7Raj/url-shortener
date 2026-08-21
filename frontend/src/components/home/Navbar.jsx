@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { ROUTES } from "../../constants/routes.js";
 import useAuthStore from "../../store/auth.store.js";
+import ThemeToggle from "../ThemToggle.jsx";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -67,7 +68,11 @@ const Navbar = () => {
         </nav>
 
         {/* Actions */}
+
         <div className="flex items-center gap-2">
+          <div>
+            <ThemeToggle />
+          </div>
           {!isInitializing && isAuthenticated ? (
             <>
               <Button>

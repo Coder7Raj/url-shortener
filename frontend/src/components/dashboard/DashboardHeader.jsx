@@ -9,7 +9,9 @@ const DashboardHeader = () => {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl text-foreground font-bold tracking-tight">
+          Dashboard
+        </h1>
 
         <p className="mt-1 text-sm text-muted-foreground">
           Here's an overview of your shortened URLs and their performance.
