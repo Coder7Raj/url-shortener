@@ -56,10 +56,6 @@ const SessionsPage = () => {
     logoutAll,
   } = useSessions();
 
-  //   useEffect(() => {
-  //     fetchSessions();
-  //   }, [fetchSessions]);
-
   useEffect(() => {
     fetchSessions({
       page: 1,

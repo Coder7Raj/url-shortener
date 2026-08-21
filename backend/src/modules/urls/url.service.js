@@ -7,12 +7,7 @@ const { SHORT_URL_STATUS } = require("./constants.js");
 const prisma = require("../../config/prisma.js");
 const { getPagination } = require("../../utils/pagination.js");
 
-// audit service:
 const audit = require("../../common/audit");
-const {
-  AUDIT_ACTIONS,
-  AUDIT_ENTITIES,
-} = require("../../common/audit/audit.constants.js");
 
 const generateUniqueShortCode = async () => {
   while (true) {
@@ -49,7 +44,6 @@ const createShortUrl = async (userId, payload, requestContext) => {
     status: SHORT_URL_STATUS.ACTIVE,
   });
 
-  // Log the creation of the short URL in the audit service
   await audit.url.created({
     userId,
     url,

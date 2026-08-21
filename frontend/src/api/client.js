@@ -43,17 +43,14 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Only handle 401 errors.
     if (error.response?.status !== 401) {
       return Promise.reject(error);
     }
 
-    // Never refresh again for the same request.
     if (originalRequest._retry) {
       return Promise.reject(error);
     }
 
-    // Never intercept authentication endpoints.
     const requestUrl = originalRequest.url || "";
 
     if (
@@ -66,7 +63,6 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Another request is already refreshing.
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({

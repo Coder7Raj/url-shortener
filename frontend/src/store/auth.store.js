@@ -10,7 +10,6 @@ const useAuthStore = create((set) => ({
 
   initializeAuth: async () => {
     try {
-      // First try the current access token/session.
       const result = await authApi.getCurrentUser();
 
       const user = result.data?.user;

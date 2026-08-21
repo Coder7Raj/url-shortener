@@ -47,18 +47,6 @@ const toTopUrlDto = (url) => ({
 
 const toTopUrlsDto = (urls) => urls.map(toTopUrlDto);
 
-// const toDashboardUrlDto = (url) => ({
-//   id: Number(url.url_id),
-//   shortCode: url.short_code,
-//   title: url.title,
-//   originalUrl: url.original_url,
-//   status: url.status,
-//   totalClicks: Number(url.total_clicks),
-//   createdAt: url.created_at,
-//   expiresAt: url.expires_at,
-//   lastClickedAt: url.last_clicked_at,
-// });
-
 module.exports = {
   toOverviewDto,
   toRecentUrlDto,

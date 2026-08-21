@@ -31,18 +31,6 @@ const deleteSession = async (sessionId) => {
   });
 };
 
-// const findUserSessions = async (userId) => {
-//   return prisma.sessions.findMany({
-//     where: {
-//       user_id: BigInt(userId),
-//       revoked_at: null,
-//     },
-//     orderBy: {
-//       created_at: "desc",
-//     },
-//   });
-// };
-
 const deleteUserSessions = async (userId) => {
   return prisma.sessions.deleteMany({
     where: {

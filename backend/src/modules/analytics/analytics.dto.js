@@ -1,17 +1,3 @@
-// const toUrlDto = (url) => ({
-//   id: Number(url.url_id),
-//   shortCode: url.short_code,
-//   originalUrl: url.original_url,
-//   title: url.title,
-//   description: url.description,
-//   status: url.status,
-//   totalClicks: Number(url.total_clicks || 0),
-//   createdAt: url.created_at,
-//   updatedAt: url.updated_at,
-//   expiresAt: url.expires_at,
-//   lastClickedAt: url.last_clicked_at,
-// });
-
 const toSummaryDto = ({
   url,
   totalClicks,

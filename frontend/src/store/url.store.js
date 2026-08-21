@@ -3,7 +3,6 @@ import { create } from "zustand";
 import urlApi from "../api/url.api.js";
 
 const useUrlStore = create((set) => ({
-  // states
   urls: [],
   selectedUrl: null,
   analytics: null,
@@ -21,14 +20,12 @@ const useUrlStore = create((set) => ({
     totalPages: 0,
   },
 
-  // error
   clearError: () => {
     set({
       error: null,
     });
   },
 
-  // create url
   createUrl: async (data) => {
     set({
       isCreating: true,
@@ -66,7 +63,6 @@ const useUrlStore = create((set) => ({
     }
   },
 
-  // all urls
   fetchUrls: async (params = {}) => {
     set({
       isLoading: true,
@@ -106,7 +102,6 @@ const useUrlStore = create((set) => ({
     }
   },
 
-  // get url by id
   fetchUrlById: async (id) => {
     set({
       isLoading: true,
@@ -141,7 +136,7 @@ const useUrlStore = create((set) => ({
       };
     }
   },
-  // update url
+
   updateUrl: async (id, data) => {
     set({
       isUpdating: true,
@@ -185,7 +180,6 @@ const useUrlStore = create((set) => ({
     }
   },
 
-  // delete url
   deleteUrl: async (id) => {
     set({
       isDeleting: true,
@@ -224,7 +218,6 @@ const useUrlStore = create((set) => ({
     }
   },
 
-  // url analytics
   fetchAnalytics: async (id, params = {}) => {
     set({
       isAnalyticsLoading: true,
@@ -259,7 +252,6 @@ const useUrlStore = create((set) => ({
     }
   },
 
-  // reset selected url and analytics
   clearSelectedUrl: () => {
     set({
       selectedUrl: null,

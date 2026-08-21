@@ -16,13 +16,11 @@ import ProtectedRoute from "./ProtectedRoute.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 
 const router = createBrowserRouter([
-  // Public Routes
   {
     path: ROUTES.HOME,
     element: <Home />,
   },
 
-  // Authentication Routes
   {
     element: <PublicRoute />,
     children: [
@@ -38,7 +36,6 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Protected Routes
   {
     element: <ProtectedRoute />,
     children: [
@@ -83,7 +80,6 @@ const router = createBrowserRouter([
     ],
   },
 
-  // 404
   {
     path: "*",
     element: <NotFound />,

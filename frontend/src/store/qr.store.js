@@ -11,8 +11,6 @@ const useQrStore = create((set) => ({
 
   error: null,
 
-  // Get QR
-
   fetchQr: async (urlId) => {
     set({
       isLoading: true,
@@ -64,8 +62,6 @@ const useQrStore = create((set) => ({
     }
   },
 
-  // Generate QR
-
   generateQr: async (urlId) => {
     set({
       isGenerating: true,
@@ -101,8 +97,6 @@ const useQrStore = create((set) => ({
     }
   },
 
-  // Regenerate QR
-
   regenerateQr: async (urlId) => {
     set({
       isRegenerating: true,
@@ -137,8 +131,6 @@ const useQrStore = create((set) => ({
       };
     }
   },
-
-  // Delete QR
 
   deleteQr: async (urlId) => {
     set({
@@ -190,7 +182,6 @@ const useQrStore = create((set) => ({
         throw new Error("Download URL not found");
       }
 
-      // Create temporary download link
       const link = document.createElement("a");
 
       link.href = downloadUrl;
