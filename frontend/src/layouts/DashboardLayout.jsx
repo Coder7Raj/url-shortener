@@ -8,11 +8,9 @@ const DashboardLayout = () => {
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
 
-      {/* Main area */}
-      <div className="flex min-w-0 min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <Navbar />
-
-        <main className="min-h-0 flex-1 overflow-y-auto p-6">
+        <main className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
           <Outlet />
         </main>
       </div>

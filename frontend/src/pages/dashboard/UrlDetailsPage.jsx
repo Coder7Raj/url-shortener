@@ -195,7 +195,7 @@ const UrlDetailsPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="text-foreground">
         <Button variant="ghost" className="mb-4 -ml-3">
           <Link className="flex items-center" to="/dashboard/urls">
             <ArrowLeft className="mr-2 h-4 w-4" />

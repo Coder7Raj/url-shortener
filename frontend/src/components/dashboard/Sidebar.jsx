@@ -1,5 +1,4 @@
 import { BarChart3, Home, Link2, QrCode, User, Users } from "lucide-react";
-
 import { NavLink } from "react-router-dom";
 
 import { ROUTES } from "../../constants/routes.js";
@@ -37,17 +36,19 @@ const navigation = [
   },
 ];
 
-const Sidebar = () => {
+const SidebarContent = ({ onNavigate }) => {
   return (
-    <aside className="hidden w-64 shrink-0 border-r bg-card md:block">
+    <>
+      {/* Logo */}
       <div className="flex h-16 items-center border-b px-6">
         <div>
-          <h1 className="text-foreground text-xl font-bold">Shortly</h1>
+          <h1 className="text-xl font-bold text-foreground">Shortly</h1>
 
           <p className="text-xs text-muted-foreground">Smart URL Management</p>
         </div>
       </div>
 
+      {/* Navigation */}
       <nav className="space-y-1 p-4">
         {navigation.map((item) => {
           const Icon = item.icon;
@@ -57,6 +58,7 @@ const Sidebar = () => {
               key={item.href}
               to={item.href}
               end={item.href === ROUTES.DASHBOARD}
+              onClick={onNavigate}
               className={({ isActive }) =>
                 [
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
@@ -73,8 +75,18 @@ const Sidebar = () => {
           );
         })}
       </nav>
+    </>
+  );
+};
+
+const Sidebar = () => {
+  return (
+    <aside className="hidden h-screen w-64 shrink-0 border-r bg-card lg:block">
+      <SidebarContent />
     </aside>
   );
 };
+
+export { SidebarContent };
 
 export default Sidebar;
