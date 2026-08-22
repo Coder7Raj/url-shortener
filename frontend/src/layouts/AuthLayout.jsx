@@ -4,9 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const AuthLayout = ({ title, description, children, footer }) => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
+    <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
+        <div className="mb-8 text-center text-foreground">
           <Link to="/" className="text-4xl font-bold tracking-tight">
             Shortly
           </Link>

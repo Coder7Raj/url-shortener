@@ -88,7 +88,7 @@ const AnalyticsTimeline = ({ timeline, range, onRangeChange, loading }) => {
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData}>
+            <AreaChart className="text-foreground" data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
 
               <XAxis
@@ -102,6 +102,18 @@ const AnalyticsTimeline = ({ timeline, range, onRangeChange, loading }) => {
               <Tooltip
                 labelFormatter={(label) => label}
                 formatter={(value) => [value, "Clicks"]}
+                contentStyle={{
+                  backgroundColor: "hsl(var(--popover))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "0.5rem",
+                  color: "hsl(var(--popover-foreground))",
+                }}
+                labelStyle={{
+                  color: "hsl(var(--popover-foreground))",
+                }}
+                itemStyle={{
+                  color: "hsl(var(--popover-foreground))",
+                }}
               />
 
               <Area
