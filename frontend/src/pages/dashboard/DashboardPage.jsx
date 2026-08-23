@@ -185,14 +185,14 @@ const DashboardPage = () => {
       </div>
 
       {/* Temporary next sections */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <CardContent>
+      <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+        <div className="min-w-0">
           <RecentUrls urls={recentUrls} isLoading={isRecentUrlsLoading} />
-        </CardContent>
+        </div>
 
-        <CardContent>
+        <div className="min-w-0">
           <TopUrls urls={topUrls} isLoading={isTopUrlsLoading} />
-        </CardContent>
+        </div>
       </div>
     </div>
   );

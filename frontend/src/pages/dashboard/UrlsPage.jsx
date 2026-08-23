@@ -112,14 +112,6 @@ const UrlsPage = () => {
       <Card>
         <CardHeader>
           <div className="flex flex-col gap-4">
-            {/* {/* <div>
-              <CardTitle>Your URLs</CardTitle>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Search, filter, and sort your shortened URLs.
-              </p>
-            </div> */}
-
             <UrlToolbar
               search={search}
               status={status}

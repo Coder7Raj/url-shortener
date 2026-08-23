@@ -10,7 +10,6 @@ import { ROUTES } from "@/constants/routes.js";
 const RecentUrls = ({ urls = [], isLoading = false }) => {
   const copyShortUrl = async (shortCode) => {
     const baseUrl = import.meta.env.VITE_API_URL;
-
     const shortUrl = `${baseUrl}/${shortCode}`;
 
     try {
@@ -24,7 +23,7 @@ const RecentUrls = ({ urls = [], isLoading = false }) => {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="min-w-0">
         <CardHeader>
           <CardTitle>Recent URLs</CardTitle>
         </CardHeader>
@@ -34,8 +33,8 @@ const RecentUrls = ({ urls = [], isLoading = false }) => {
             {Array.from({ length: 5 }).map((_, index) => (
               <div key={index} className="animate-pulse rounded-lg border p-4">
                 <div className="space-y-3">
-                  <div className="h-4 w-40 rounded bg-muted" />
-                  <div className="h-3 w-64 rounded bg-muted" />
+                  <div className="h-4 w-40 max-w-full rounded bg-muted" />
+                  <div className="h-3 w-64 max-w-full rounded bg-muted" />
                   <div className="h-3 w-24 rounded bg-muted" />
                 </div>
               </div>
@@ -47,12 +46,12 @@ const RecentUrls = ({ urls = [], isLoading = false }) => {
   }
 
   return (
-    <Card>
+    <Card className="min-w-0">
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle>Recent URLs</CardTitle>
 
         <Button variant="ghost" size="sm">
-          <Link to={ROUTES.URLS}>View all</Link>
+          <Link to={ROUTES.URLS}>View All</Link>
         </Button>
       </CardHeader>
 
@@ -70,43 +69,54 @@ const RecentUrls = ({ urls = [], isLoading = false }) => {
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="min-w-0 space-y-3">
             {urls.map((url) => {
               const shortUrl = `${import.meta.env.VITE_API_URL}/${url.shortCode}`;
 
               return (
                 <div
                   key={url.id}
-                  className="group rounded-xl border p-4 transition-colors hover:bg-muted/40"
+                  className="min-w-0 rounded-xl border p-3 sm:p-4"
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="truncate font-medium">
-                          {url.title || url.shortCode}
-                        </h3>
+                  {/* Main content */}
+                  <div className="min-w-0">
+                    {/* Title + status */}
+                    <div className="flex min-w-0 items-start gap-2">
+                      <h3 className="min-w-0 flex-1 truncate font-medium">
+                        {url.title || url.shortCode}
+                      </h3>
 
-                        <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                            url.status === "ACTIVE"
-                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {url.status}
-                        </span>
-                      </div>
-
-                      <p className="mt-1 truncate text-sm text-muted-foreground">
-                        {shortUrl}
-                      </p>
-
-                      <p className="mt-1 truncate text-xs text-muted-foreground">
-                        {url.originalUrl}
-                      </p>
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                          url.status === "ACTIVE"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {url.status}
+                      </span>
                     </div>
 
+                    {/* Short URL */}
+                    <p className="mt-1 min-w-0 truncate text-sm text-muted-foreground">
+                      {shortUrl}
+                    </p>
+
+                    {/* Original URL */}
+                    <p className="mt-1 min-w-0 truncate text-xs text-muted-foreground">
+                      {url.originalUrl}
+                    </p>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="mt-3 flex items-center justify-between gap-2 border-t pt-3">
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {url.totalClicks}{" "}
+                      {url.totalClicks === 1 ? "click" : "clicks"}
+                    </span>
+
                     <div className="flex shrink-0 items-center gap-1">
+                      {/* Copy */}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -116,16 +126,19 @@ const RecentUrls = ({ urls = [], isLoading = false }) => {
                         <Copy className="h-4 w-4" />
                       </Button>
 
-                      <Button variant="ghost" size="icon" title="Open">
-                        <Link
-                          href={shortUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </Link>
-                      </Button>
+                      {/* Open */}
+                      <Link
+                        href={shortUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Open"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        <span className="sr-only">Open URL</span>
+                      </Link>
 
+                      {/* Details */}
                       <Button variant="ghost" size="icon" title="Details">
                         <Link to={`${ROUTES.URLS}/${url.id}`}>
                           <MoreHorizontal className="h-4 w-4" />
@@ -134,13 +147,9 @@ const RecentUrls = ({ urls = [], isLoading = false }) => {
                     </div>
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between border-t pt-3 text-xs text-muted-foreground">
-                    <span>
-                      {url.totalClicks}{" "}
-                      {url.totalClicks === 1 ? "click" : "clicks"}
-                    </span>
-
-                    <span>{new Date(url.createdAt).toLocaleDateString()}</span>
+                  {/* Date */}
+                  <div className="mt-2 text-right text-xs text-muted-foreground">
+                    {new Date(url.createdAt).toLocaleDateString()}
                   </div>
                 </div>
               );

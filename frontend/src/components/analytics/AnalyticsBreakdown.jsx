@@ -15,7 +15,7 @@ const AnalyticsBreakdown = ({
           <BarChart3 className="h-4 w-4 text-primary" />
         </div>
 
-        <div>
+        <div className="text-foreground">
           <h2 className="font-semibold">{title}</h2>
 
           <p className="text-sm text-muted-foreground">{description}</p>

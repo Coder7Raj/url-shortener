@@ -38,6 +38,7 @@ const UrlList = ({ onUpdated, onDeleted }) => {
       toast.error("Failed to copy short URL");
     }
   };
+
   const handleEdit = async (url) => {
     clearQr();
     clearQrError();
@@ -149,7 +150,7 @@ const UrlList = ({ onUpdated, onDeleted }) => {
         <div className="divide-y">
           {urls.map((url) => (
             <div key={url.id} className="rounded-lg p-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between md:flex-col lg:flex-row">
                 {/* URL INFO */}
                 <div className="min-w-0">
                   <Link
