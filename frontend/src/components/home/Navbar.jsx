@@ -45,26 +45,26 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-8 md:flex">
-          <Link
+          <a
             href="#features"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Features
-          </Link>
+          </a>
 
-          <Link
+          <a
             href="#analytics"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Analytics
-          </Link>
+          </a>
 
-          <Link
+          <a
             href="#how-it-works"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             How it works
-          </Link>
+          </a>
         </nav>
 
         {/* Actions */}

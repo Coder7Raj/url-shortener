@@ -48,7 +48,10 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className="relative overflow-hidden py-24 sm:py-32">
+    <section
+      id="features"
+      className="scroll-mt-16 relative overflow-hidden py-24 sm:py-32"
+    >
       {/* Background decoration */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-20 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
