@@ -14,4 +14,11 @@ router.get(
   controller.getDashboard,
 );
 
+router.get(
+  "/analytics",
+  authMiddleware,
+  adminMiddleware,
+  controller.getAnalytics,
+);
+
 module.exports = router;

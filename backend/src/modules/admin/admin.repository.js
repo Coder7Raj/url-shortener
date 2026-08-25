@@ -183,9 +183,50 @@ const getRecentAuditLogs = async (limit = 10) => {
   });
 };
 
+const getAnalytics = async (days) => {
+  const users = await prisma.$queryRaw`
+    SELECT
+      DATE(created_at) AS date,
+      COUNT(*) AS count
+    FROM users
+    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ${days - 1} DAY)
+      AND deleted_at IS NULL
+    GROUP BY DATE(created_at)
+    ORDER BY DATE(created_at) ASC
+  `;
+
+  const urls = await prisma.$queryRaw`
+    SELECT
+      DATE(created_at) AS date,
+      COUNT(*) AS count
+    FROM urls
+    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ${days - 1} DAY)
+      AND deleted_at IS NULL
+    GROUP BY DATE(created_at)
+    ORDER BY DATE(created_at) ASC
+  `;
+
+  const clicks = await prisma.$queryRaw`
+    SELECT
+      DATE(clicked_at) AS date,
+      COUNT(*) AS count
+    FROM clicks
+    WHERE clicked_at >= DATE_SUB(CURDATE(), INTERVAL ${days - 1} DAY)
+    GROUP BY DATE(clicked_at)
+    ORDER BY DATE(clicked_at) ASC
+  `;
+
+  return {
+    users,
+    urls,
+    clicks,
+  };
+};
+
 module.exports = {
   getDashboardStats,
   getRecentUsers,
   getRecentUrls,
   getRecentAuditLogs,
+  getAnalytics,
 };
