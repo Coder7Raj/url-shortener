@@ -13,4 +13,11 @@ export const ROUTES = {
   QR: "/dashboard/qr",
   SESSIONS: "/dashboard/sessions",
   PROFILE: "/dashboard/profile",
+
+  ADMIN_DASHBOARD: "/admin/dashboard",
+  ADMIN_USERS: "/admin/users",
+  ADMIN_URLS: "/admin/urls",
+  ADMIN_SESSIONS: "/admin/sessions",
+  ADMIN_AUDIT_LOGS: "/admin/audit-logs",
+  ADMIN_PROFILE: "/admin/profile",
 };
