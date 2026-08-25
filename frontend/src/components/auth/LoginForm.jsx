@@ -32,9 +32,15 @@ const LoginForm = () => {
     const result = await login(values);
 
     if (result.success) {
-      navigate(ROUTES.HOME, {
-        replace: true,
-      });
+      if (result.data?.user?.role === "ADMIN") {
+        navigate(ROUTES.ADMIN_DASHBOARD, {
+          replace: true,
+        });
+      } else {
+        navigate(ROUTES.HOME, {
+          replace: true,
+        });
+      }
     }
   };
 

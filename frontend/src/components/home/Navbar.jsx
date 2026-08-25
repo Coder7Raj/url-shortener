@@ -5,10 +5,12 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 
 import { ROUTES } from "../../constants/routes.js";
+import useAuth from "../../hooks/useAuth.js";
 import useAuthStore from "../../store/auth.store.js";
 import ThemeToggle from "../ThemToggle.jsx";
 
 const Navbar = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -76,7 +78,11 @@ const Navbar = () => {
           {!isInitializing && isAuthenticated ? (
             <>
               <Button>
-                <Link to={ROUTES.DASHBOARD}>Dashboard</Link>
+                {user?.role === "ADMIN" ? (
+                  <Link to={ROUTES.ADMIN_DASHBOARD}>Admin</Link>
+                ) : (
+                  <Link to={ROUTES.DASHBOARD}>Dashboard</Link>
+                )}
               </Button>
 
               <Button

@@ -42,7 +42,7 @@ const AdminNavbar = () => {
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 text-foreground">
         {/* Home */}
         <Button variant="outline" size="icon" onClick={handleHome} title="Home">
           <Home className="h-4 w-4" />

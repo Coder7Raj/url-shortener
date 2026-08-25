@@ -1,8 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
 import { ROUTES } from "../constants/routes.js";
+import AdminLayout from "../layouts/AdminLayout.jsx";
 import DashboardLayout from "../layouts/DashboardLayout.jsx";
 import Home from "../pages/Home.jsx";
 import NotFound from "../pages/NotFound.jsx";
+import AdminDashboardPage from "../pages/admin/AdminDashboardPage.jsx";
 import LoginPage from "../pages/auth/LoginPage.jsx";
 import RegisterPage from "../pages/auth/RegisterPage.jsx";
 import AnalyticsPage from "../pages/dashboard/AnalyticsPage.jsx";
@@ -12,6 +14,7 @@ import QrPage from "../pages/dashboard/QrPage.jsx";
 import SessionsPage from "../pages/dashboard/SessionsPage.jsx";
 import UrlDetailsPage from "../pages/dashboard/UrlDetailsPage.jsx";
 import UrlsPage from "../pages/dashboard/UrlsPage";
+import AdminRoute from "./AdminRoute.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 
@@ -28,7 +31,6 @@ const router = createBrowserRouter([
         path: ROUTES.LOGIN,
         element: <LoginPage />,
       },
-
       {
         path: ROUTES.REGISTER,
         element: <RegisterPage />,
@@ -51,6 +53,7 @@ const router = createBrowserRouter([
             path: ROUTES.URLS,
             element: <UrlsPage />,
           },
+
           {
             path: ROUTES.URL_DETAILS,
             element: <UrlDetailsPage />,
@@ -74,6 +77,21 @@ const router = createBrowserRouter([
           {
             path: ROUTES.PROFILE,
             element: <ProfilePage />,
+          },
+        ],
+      },
+    ],
+  },
+
+  {
+    element: <AdminRoute />,
+    children: [
+      {
+        element: <AdminLayout />,
+        children: [
+          {
+            path: ROUTES.ADMIN_DASHBOARD,
+            element: <AdminDashboardPage />,
           },
         ],
       },
