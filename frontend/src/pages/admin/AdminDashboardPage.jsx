@@ -3,13 +3,23 @@ import {
   ExternalLink,
   Link2,
   MousePointerClick,
+  RefreshCw,
   Users,
 } from "lucide-react";
-
+import AdminAnalytics from "../../components/admin/AdminAnalytics.jsx";
+import useAdminAnalytics from "../../hooks/admin/useAdminAnalytics.js";
 import useAdminDashboard from "../../hooks/admin/useAdminDashboard.js";
 
 const AdminDashboardPage = () => {
   const { data, isLoading, error } = useAdminDashboard();
+  const {
+    analytics,
+    days,
+    setDays,
+    isLoading: analyticsLoading,
+    error: analyticsError,
+    refetch: refetchAnalytics,
+  } = useAdminAnalytics(7);
 
   if (isLoading) {
     return (
@@ -98,6 +108,71 @@ const AdminDashboardPage = () => {
         })}
       </div>
 
+      {/* Analytics */}
+      <section className="mt-8 space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-foreground">Analytics</h2>
+
+            <p className="text-sm text-muted-foreground">
+              Monitor platform activity over time.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Period */}
+            <div className="flex rounded-lg border bg-card p-1">
+              {[7, 30, 90].map((period) => (
+                <button
+                  key={period}
+                  type="button"
+                  onClick={() => setDays(period)}
+                  className={[
+                    "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                    days === period
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ].join(" ")}
+                >
+                  {period} days
+                </button>
+              ))}
+            </div>
+
+            {/* Refresh */}
+            <button
+              type="button"
+              onClick={refetchAnalytics}
+              disabled={analyticsLoading}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              title="Refresh analytics"
+            >
+              <RefreshCw
+                className={[
+                  "h-4 w-4",
+                  analyticsLoading ? "animate-spin" : "",
+                ].join(" ")}
+              />
+            </button>
+          </div>
+        </div>
+
+        {analyticsError && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+            <p className="text-sm text-destructive">{analyticsError}</p>
+          </div>
+        )}
+
+        {analyticsLoading && !analytics ? (
+          <div className="rounded-xl border bg-card p-10 text-center">
+            <p className="text-sm text-muted-foreground">
+              Loading analytics...
+            </p>
+          </div>
+        ) : (
+          <AdminAnalytics analytics={analytics} />
+        )}
+      </section>
       {/* User + URL overview */}
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border bg-card">
@@ -190,7 +265,6 @@ const AdminDashboardPage = () => {
           </div>
         </div>
       </div>
-
       {/* Recent URLs */}
       <div className="rounded-xl border bg-card">
         <div className="border-b p-5">
