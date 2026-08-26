@@ -61,10 +61,21 @@ const updateUserStatus = asyncHandler(async (req, res) => {
     );
 });
 
+const updateUserRole = asyncHandler(async (req, res) => {
+  const { role } = req.validated.body;
+
+  const data = await service.updateUserRole(req.params.id, role, req.user);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "User role updated successfully", data));
+});
+
 module.exports = {
   getDashboard,
   getAnalytics,
   getUsers,
   getUserDetails,
   updateUserStatus,
+  updateUserRole,
 };

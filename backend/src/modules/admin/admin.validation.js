@@ -6,6 +6,13 @@ const updateUserStatusSchema = z.object({
   }),
 });
 
+const updateUserRoleSchema = z.object({
+  body: z.object({
+    role: z.enum(["USER", "ADMIN"]),
+  }),
+});
+
 module.exports = {
   updateUserStatusSchema,
+  updateUserRoleSchema,
 };

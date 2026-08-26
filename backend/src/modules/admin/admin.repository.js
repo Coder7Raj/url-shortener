@@ -354,6 +354,27 @@ const updateUserStatus = async (userId, isActive) => {
   });
 };
 
+const updateUserRole = async (userId, role) => {
+  return prisma.users.update({
+    where: {
+      user_id: BigInt(userId),
+    },
+    data: {
+      role,
+    },
+    select: {
+      user_id: true,
+      username: true,
+      name: true,
+      email: true,
+      role: true,
+      is_active: true,
+      email_verified: true,
+      updated_at: true,
+    },
+  });
+};
+
 module.exports = {
   getDashboardStats,
   getRecentUsers,
@@ -363,4 +384,5 @@ module.exports = {
   getUsers,
   findUserById,
   updateUserStatus,
+  updateUserRole,
 };

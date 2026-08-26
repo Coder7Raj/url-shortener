@@ -174,10 +174,29 @@ const updateUserStatus = async (targetUserId, isActive, adminUser) => {
   };
 };
 
+const updateUserRole = async (targetUserId, role, adminUser) => {
+  const user = await repository.findUserById(targetUserId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (Number(user.user_id) === Number(adminUser.id)) {
+    throw new ApiError(400, "You cannot change your own role");
+  }
+
+  const updatedUser = await repository.updateUserRole(targetUserId, role);
+
+  return {
+    user: updatedUser,
+  };
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
   getUsers,
   getUserDetails,
   updateUserStatus,
+  updateUserRole,
 };
