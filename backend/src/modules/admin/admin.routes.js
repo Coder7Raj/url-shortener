@@ -7,18 +7,12 @@ const adminMiddleware = require("../../middlewares/admin.middleware.js");
 
 const controller = require("./admin.controller.js");
 
-router.get(
-  "/dashboard",
-  authMiddleware,
-  adminMiddleware,
-  controller.getDashboard,
-);
+router.use(authMiddleware, adminMiddleware);
 
-router.get(
-  "/analytics",
-  authMiddleware,
-  adminMiddleware,
-  controller.getAnalytics,
-);
+router.get("/dashboard", controller.getDashboard);
+
+router.get("/analytics", controller.getAnalytics);
+
+router.get("/users", controller.getUsers);
 
 module.exports = router;

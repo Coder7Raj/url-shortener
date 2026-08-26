@@ -223,10 +223,92 @@ const getAnalytics = async (days) => {
   };
 };
 
+const getUsers = async ({
+  page = 1,
+  limit = 10,
+  search = "",
+  role,
+  status,
+}) => {
+  const skip = (page - 1) * limit;
+
+  const where = {
+    deleted_at: null,
+  };
+
+  if (search) {
+    where.OR = [
+      {
+        username: {
+          contains: search,
+        },
+      },
+      {
+        name: {
+          contains: search,
+        },
+      },
+      {
+        email: {
+          contains: search,
+        },
+      },
+    ];
+  }
+
+  if (role) {
+    where.role = role;
+  }
+
+  if (status === "ACTIVE") {
+    where.is_active = true;
+  }
+
+  if (status === "INACTIVE") {
+    where.is_active = false;
+  }
+
+  const [users, total] = await Promise.all([
+    prisma.users.findMany({
+      where,
+      skip,
+      take: limit,
+
+      select: {
+        user_id: true,
+        username: true,
+        name: true,
+        email: true,
+        profile_picture: true,
+        role: true,
+        is_active: true,
+        email_verified: true,
+        last_login_at: true,
+        created_at: true,
+        updated_at: true,
+      },
+
+      orderBy: {
+        created_at: "desc",
+      },
+    }),
+
+    prisma.users.count({
+      where,
+    }),
+  ]);
+
+  return {
+    users,
+    total,
+  };
+};
+
 module.exports = {
   getDashboardStats,
   getRecentUsers,
   getRecentUrls,
   getRecentAuditLogs,
   getAnalytics,
+  getUsers,
 };

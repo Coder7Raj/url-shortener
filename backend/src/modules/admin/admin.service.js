@@ -76,7 +76,57 @@ const getAnalytics = async (days = 30) => {
   };
 };
 
+const getUsers = async ({
+  page = 1,
+  limit = 10,
+  search = "",
+  role,
+  status,
+}) => {
+  const parsedPage = Number(page);
+  const parsedLimit = Number(limit);
+
+  if (!Number.isInteger(parsedPage) || parsedPage < 1) {
+    throw new ApiError(400, "Invalid page");
+  }
+
+  if (!Number.isInteger(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
+    throw new ApiError(400, "Limit must be between 1 and 100");
+  }
+
+  const allowedRoles = ["USER", "ADMIN"];
+
+  if (role && !allowedRoles.includes(role)) {
+    throw new ApiError(400, "Invalid role");
+  }
+
+  const allowedStatuses = ["ACTIVE", "INACTIVE"];
+
+  if (status && !allowedStatuses.includes(status)) {
+    throw new ApiError(400, "Invalid status");
+  }
+
+  const result = await repository.getUsers({
+    page: parsedPage,
+    limit: parsedLimit,
+    search: search.trim(),
+    role,
+    status,
+  });
+
+  return {
+    users: result.users,
+    pagination: {
+      page: parsedPage,
+      limit: parsedLimit,
+      total: result.total,
+      totalPages: Math.ceil(result.total / parsedLimit),
+    },
+  };
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
+  getUsers,
 };
