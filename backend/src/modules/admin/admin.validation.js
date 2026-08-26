@@ -12,7 +12,19 @@ const updateUserRoleSchema = z.object({
   }),
 });
 
+const sessionsQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().min(1).optional(),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+
+    search: z.string().trim().optional(),
+
+    status: z.enum(["ACTIVE", "REVOKED", "EXPIRED"]).optional(),
+  }),
+});
+
 module.exports = {
   updateUserStatusSchema,
   updateUserRoleSchema,
+  sessionsQuerySchema,
 };

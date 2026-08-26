@@ -218,6 +218,32 @@ const deleteUser = async (targetUserId, adminUser) => {
   };
 };
 
+const getAllSessions = async (query = {}) => {
+  const page = Math.max(Number(query.page) || 1, 1);
+
+  const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 100);
+
+  const search = query.search?.trim() || "";
+  const status = query.status || "";
+
+  const { sessions, total } = await repository.findAllSessions({
+    page,
+    limit,
+    search,
+    status,
+  });
+
+  return {
+    sessions,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -226,4 +252,5 @@ module.exports = {
   updateUserStatus,
   updateUserRole,
   deleteUser,
+  getAllSessions,
 };

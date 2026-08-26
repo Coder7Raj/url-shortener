@@ -77,6 +77,14 @@ const deleteUser = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, "User deleted successfully", data));
 });
 
+const getAllSessions = asyncHandler(async (req, res) => {
+  const data = await service.getAllSessions(req.validated.query);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Sessions fetched successfully", data));
+});
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -85,4 +93,5 @@ module.exports = {
   updateUserStatus,
   updateUserRole,
   deleteUser,
+  getAllSessions,
 };

@@ -406,6 +406,103 @@ const deleteUser = async (userId) => {
   });
 };
 
+const findAllSessions = async ({ page, limit, search, status }) => {
+  const skip = (page - 1) * limit;
+
+  const where = {};
+
+  // Filter by session status
+  if (status === "ACTIVE") {
+    where.revoked_at = null;
+    where.expires_at = {
+      gt: new Date(),
+    };
+  }
+
+  if (status === "REVOKED") {
+    where.revoked_at = {
+      not: null,
+    };
+  }
+
+  if (status === "EXPIRED") {
+    where.revoked_at = null;
+    where.expires_at = {
+      lte: new Date(),
+    };
+  }
+
+  // Search by user information
+  if (search) {
+    where.users = {
+      OR: [
+        {
+          username: {
+            contains: search,
+          },
+        },
+        {
+          name: {
+            contains: search,
+          },
+        },
+        {
+          email: {
+            contains: search,
+          },
+        },
+      ],
+    };
+  }
+
+  const [sessions, total] = await prisma.$transaction([
+    prisma.sessions.findMany({
+      where,
+      skip,
+      take: limit,
+
+      orderBy: {
+        created_at: "desc",
+      },
+
+      select: {
+        session_id: true,
+        user_id: true,
+        token_id: true,
+        device_name: true,
+        ip_address: true,
+        user_agent: true,
+        last_used_at: true,
+        expires_at: true,
+        revoked_at: true,
+        created_at: true,
+        updated_at: true,
+
+        users: {
+          select: {
+            user_id: true,
+            username: true,
+            name: true,
+            email: true,
+            role: true,
+            is_active: true,
+            deleted_at: true,
+          },
+        },
+      },
+    }),
+
+    prisma.sessions.count({
+      where,
+    }),
+  ]);
+
+  return {
+    sessions,
+    total,
+  };
+};
+
 module.exports = {
   getDashboardStats,
   getRecentUsers,
@@ -418,4 +515,5 @@ module.exports = {
   updateUserRole,
   countActiveAdmins,
   deleteUser,
+  findAllSessions,
 };

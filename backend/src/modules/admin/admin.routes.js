@@ -9,6 +9,7 @@ const validate = require("../../middlewares/validate.middleware.js");
 const {
   updateUserStatusSchema,
   updateUserRoleSchema,
+  sessionsQuerySchema,
 } = require("./admin.validation.js");
 const controller = require("./admin.controller.js");
 
@@ -35,5 +36,11 @@ router.patch(
 );
 
 router.delete("/users/:id", controller.deleteUser);
+
+router.get(
+  "/sessions",
+  validate(sessionsQuerySchema),
+  controller.getAllSessions,
+);
 
 module.exports = router;
