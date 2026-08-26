@@ -192,6 +192,32 @@ const updateUserRole = async (targetUserId, role, adminUser) => {
   };
 };
 
+const deleteUser = async (targetUserId, adminUser) => {
+  const user = await repository.findUserById(targetUserId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (Number(user.user_id) === Number(adminUser.id)) {
+    throw new ApiError(400, "You cannot delete your own account");
+  }
+
+  if (user.role === "ADMIN") {
+    const activeAdmins = await repository.countActiveAdmins();
+
+    if (activeAdmins <= 1) {
+      throw new ApiError(400, "Cannot delete the last active admin");
+    }
+  }
+
+  const deletedUser = await repository.deleteUser(targetUserId);
+
+  return {
+    user: deletedUser,
+  };
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -199,4 +225,5 @@ module.exports = {
   getUserDetails,
   updateUserStatus,
   updateUserRole,
+  deleteUser,
 };

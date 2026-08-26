@@ -375,6 +375,37 @@ const updateUserRole = async (userId, role) => {
   });
 };
 
+const countActiveAdmins = async () => {
+  return prisma.users.count({
+    where: {
+      role: "ADMIN",
+      is_active: true,
+      deleted_at: null,
+    },
+  });
+};
+
+const deleteUser = async (userId) => {
+  return prisma.users.update({
+    where: {
+      user_id: BigInt(userId),
+    },
+    data: {
+      deleted_at: new Date(),
+      is_active: false,
+    },
+    select: {
+      user_id: true,
+      username: true,
+      name: true,
+      email: true,
+      role: true,
+      is_active: true,
+      deleted_at: true,
+    },
+  });
+};
+
 module.exports = {
   getDashboardStats,
   getRecentUsers,
@@ -385,4 +416,6 @@ module.exports = {
   findUserById,
   updateUserStatus,
   updateUserRole,
+  countActiveAdmins,
+  deleteUser,
 };

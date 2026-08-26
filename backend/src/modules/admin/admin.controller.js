@@ -71,6 +71,12 @@ const updateUserRole = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "User role updated successfully", data));
 });
 
+const deleteUser = asyncHandler(async (req, res) => {
+  const data = await service.deleteUser(req.params.id, req.user);
+
+  res.status(200).json(new ApiResponse(200, "User deleted successfully", data));
+});
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -78,4 +84,5 @@ module.exports = {
   getUserDetails,
   updateUserStatus,
   updateUserRole,
+  deleteUser,
 };
