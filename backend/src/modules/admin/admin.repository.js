@@ -304,6 +304,56 @@ const getUsers = async ({
   };
 };
 
+const findUserById = async (userId) => {
+  return prisma.users.findUnique({
+    where: {
+      user_id: BigInt(userId),
+    },
+    select: {
+      user_id: true,
+      username: true,
+      name: true,
+      email: true,
+      profile_picture: true,
+      role: true,
+      is_active: true,
+      email_verified: true,
+      last_login_at: true,
+      created_at: true,
+      updated_at: true,
+
+      _count: {
+        select: {
+          urls: true,
+          sessions: true,
+          audit_logs: true,
+        },
+      },
+    },
+  });
+};
+
+const updateUserStatus = async (userId, isActive) => {
+  return prisma.users.update({
+    where: {
+      user_id: BigInt(userId),
+    },
+    data: {
+      is_active: isActive,
+    },
+    select: {
+      user_id: true,
+      username: true,
+      name: true,
+      email: true,
+      role: true,
+      is_active: true,
+      email_verified: true,
+      updated_at: true,
+    },
+  });
+};
+
 module.exports = {
   getDashboardStats,
   getRecentUsers,
@@ -311,4 +361,6 @@ module.exports = {
   getRecentAuditLogs,
   getAnalytics,
   getUsers,
+  findUserById,
+  updateUserStatus,
 };

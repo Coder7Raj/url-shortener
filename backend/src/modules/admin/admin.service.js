@@ -1,4 +1,5 @@
 const repository = require("./admin.repository.js");
+const ApiError = require("../../utils/apiError.js");
 
 const getDashboard = async () => {
   const [stats, recentUsers, recentUrls, recentAuditLogs] = await Promise.all([
@@ -125,8 +126,58 @@ const getUsers = async ({
   };
 };
 
+const getUserDetails = async (userId) => {
+  const user = await repository.findUserById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return {
+    user: {
+      user_id: user.user_id,
+      username: user.username,
+      name: user.name,
+      email: user.email,
+      profile_picture: user.profile_picture,
+      role: user.role,
+      is_active: user.is_active,
+      email_verified: user.email_verified,
+      last_login_at: user.last_login_at,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    },
+
+    stats: {
+      urls: user._count.urls,
+      sessions: user._count.sessions,
+      audit_logs: user._count.audit_logs,
+    },
+  };
+};
+
+const updateUserStatus = async (targetUserId, isActive, adminUser) => {
+  const user = await repository.findUserById(targetUserId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (Number(user.user_id) === Number(adminUser.id) && isActive === false) {
+    throw new ApiError(400, "You cannot deactivate your own account");
+  }
+
+  const updatedUser = await repository.updateUserStatus(targetUserId, isActive);
+
+  return {
+    user: updatedUser,
+  };
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
   getUsers,
+  getUserDetails,
+  updateUserStatus,
 };

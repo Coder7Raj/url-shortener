@@ -33,8 +33,38 @@ const getUsers = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "Users fetched successfully", data));
 });
 
+const getUserDetails = asyncHandler(async (req, res) => {
+  const data = await service.getUserDetails(req.params.id);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "User details fetched successfully", data));
+});
+
+const updateUserStatus = asyncHandler(async (req, res) => {
+  const { is_active } = req.validated.body;
+
+  const data = await service.updateUserStatus(
+    req.params.id,
+    is_active,
+    req.user,
+  );
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        `User ${is_active ? "activated" : "deactivated"} successfully`,
+        data,
+      ),
+    );
+});
+
 module.exports = {
   getDashboard,
   getAnalytics,
   getUsers,
+  getUserDetails,
+  updateUserStatus,
 };
