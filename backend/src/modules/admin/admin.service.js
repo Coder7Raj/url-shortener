@@ -266,6 +266,24 @@ const revokeSession = async (sessionId) => {
   };
 };
 
+const revokeAllUserSessions = async (targetUserId, adminUser) => {
+  const user = await repository.findUserById(targetUserId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (Number(user.user_id) === Number(adminUser.id)) {
+    throw new ApiError(400, "You cannot revoke your own sessions");
+  }
+
+  const result = await repository.revokeAllUserSessions(targetUserId);
+
+  return {
+    revokedCount: result.count,
+  };
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -276,4 +294,5 @@ module.exports = {
   deleteUser,
   getAllSessions,
   revokeSession,
+  revokeAllUserSessions,
 };

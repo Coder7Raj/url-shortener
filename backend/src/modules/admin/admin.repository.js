@@ -544,6 +544,21 @@ const revokeSession = async (sessionId) => {
   });
 };
 
+const revokeAllUserSessions = async (userId) => {
+  return prisma.sessions.updateMany({
+    where: {
+      user_id: BigInt(userId),
+      revoked_at: null,
+      expires_at: {
+        gt: new Date(),
+      },
+    },
+    data: {
+      revoked_at: new Date(),
+    },
+  });
+};
+
 module.exports = {
   getDashboardStats,
   getRecentUsers,
@@ -559,4 +574,5 @@ module.exports = {
   findAllSessions,
   findSessionById,
   revokeSession,
+  revokeAllUserSessions,
 };

@@ -44,4 +44,7 @@ router.get(
 );
 
 router.patch("/sessions/:id/revoke", controller.revokeSession);
+
+router.post("/users/:id/revoke-sessions", controller.revokeAllUserSessions);
+
 module.exports = router;
