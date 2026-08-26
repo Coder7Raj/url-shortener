@@ -85,6 +85,14 @@ const getAllSessions = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "Sessions fetched successfully", data));
 });
 
+const revokeSession = asyncHandler(async (req, res) => {
+  const data = await service.revokeSession(req.params.id);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Session revoked successfully", data));
+});
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -94,4 +102,5 @@ module.exports = {
   updateUserRole,
   deleteUser,
   getAllSessions,
+  revokeSession,
 };

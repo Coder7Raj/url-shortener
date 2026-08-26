@@ -244,6 +244,28 @@ const getAllSessions = async (query = {}) => {
   };
 };
 
+const revokeSession = async (sessionId) => {
+  const session = await repository.findSessionById(sessionId);
+
+  if (!session) {
+    throw new ApiError(404, "Session not found");
+  }
+
+  if (session.revoked_at) {
+    throw new ApiError(400, "Session is already revoked");
+  }
+
+  if (new Date(session.expires_at) <= new Date()) {
+    throw new ApiError(400, "Session has already expired");
+  }
+
+  const revokedSession = await repository.revokeSession(sessionId);
+
+  return {
+    session: revokedSession,
+  };
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -253,4 +275,5 @@ module.exports = {
   updateUserRole,
   deleteUser,
   getAllSessions,
+  revokeSession,
 };

@@ -503,6 +503,47 @@ const findAllSessions = async ({ page, limit, search, status }) => {
   };
 };
 
+const findSessionById = async (sessionId) => {
+  return prisma.sessions.findUnique({
+    where: {
+      session_id: BigInt(sessionId),
+    },
+    select: {
+      session_id: true,
+      user_id: true,
+      token_id: true,
+      revoked_at: true,
+      expires_at: true,
+      users: {
+        select: {
+          user_id: true,
+          username: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+};
+
+const revokeSession = async (sessionId) => {
+  return prisma.sessions.update({
+    where: {
+      session_id: BigInt(sessionId),
+    },
+    data: {
+      revoked_at: new Date(),
+    },
+    select: {
+      session_id: true,
+      user_id: true,
+      token_id: true,
+      revoked_at: true,
+      expires_at: true,
+    },
+  });
+};
+
 module.exports = {
   getDashboardStats,
   getRecentUsers,
@@ -516,4 +557,6 @@ module.exports = {
   countActiveAdmins,
   deleteUser,
   findAllSessions,
+  findSessionById,
+  revokeSession,
 };
