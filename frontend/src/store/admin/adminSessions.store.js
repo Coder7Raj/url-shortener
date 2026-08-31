@@ -28,7 +28,7 @@ const useAdminSessionsStore = create((set) => ({
     try {
       const result = await adminApi.getAdminSessions(params);
 
-      const data = result.data;
+      const data = result.data.data;
 
       set({
         sessions: data.sessions || [],

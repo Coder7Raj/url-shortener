@@ -17,7 +17,6 @@ const AdminSessionsPage = () => {
     revokeSession,
     revokeUserSessions,
   } = useAdminSessionsStore();
-  console.log("sessions", sessions);
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
