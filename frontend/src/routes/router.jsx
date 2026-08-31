@@ -5,6 +5,7 @@ import DashboardLayout from "../layouts/DashboardLayout.jsx";
 import Home from "../pages/Home.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage.jsx";
+import AdminSessionsPage from "../pages/admin/AdminSessionsPage.jsx";
 import AdminUsersPage from "../pages/admin/AdminUsersPage.jsx";
 import LoginPage from "../pages/auth/LoginPage.jsx";
 import RegisterPage from "../pages/auth/RegisterPage.jsx";
@@ -97,6 +98,10 @@ const router = createBrowserRouter([
           {
             path: ROUTES.ADMIN_USERS,
             element: <AdminUsersPage />,
+          },
+          {
+            path: ROUTES.ADMIN_SESSIONS,
+            element: <AdminSessionsPage />,
           },
         ],
       },

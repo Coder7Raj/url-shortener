@@ -36,10 +36,27 @@ const getUsers = async ({
   return response.data;
 };
 
+const getAdminSessions = (params = {}) => {
+  return apiClient.get("/admin/sessions", {
+    params,
+  });
+};
+
+const revokeAdminSession = (sessionId) => {
+  return apiClient.patch(`/admin/sessions/${sessionId}/revoke`);
+};
+
+const revokeUserSessions = (userId) => {
+  return apiClient.post(`/admin/users/${userId}/revoke-sessions`);
+};
+
 const adminApi = {
   getDashboard,
   getAnalytics,
   getUsers,
+  getAdminSessions,
+  revokeAdminSession,
+  revokeUserSessions,
 };
 
 export default adminApi;
