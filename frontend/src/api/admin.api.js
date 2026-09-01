@@ -50,13 +50,53 @@ const revokeUserSessions = (userId) => {
   return apiClient.post(`/admin/users/${userId}/revoke-sessions`);
 };
 
+const getUrls = async ({ page = 1, limit = 10, search = "", status }) => {
+  const response = await apiClient.get("/admin/urls", {
+    params: {
+      page,
+      limit,
+      ...(search && { search }),
+      ...(status && { status }),
+    },
+  });
+
+  return response.data;
+};
+
+const getUrlDetails = async (urlId) => {
+  const response = await apiClient.get(`/admin/urls/${urlId}`);
+
+  return response.data;
+};
+
+const updateUrlStatus = async (urlId, status) => {
+  const response = await apiClient.patch(`/admin/urls/${urlId}/status`, {
+    status,
+  });
+
+  return response.data;
+};
+
+const deleteUrl = async (urlId) => {
+  const response = await apiClient.delete(`/admin/urls/${urlId}`);
+
+  return response.data;
+};
+
 const adminApi = {
   getDashboard,
   getAnalytics,
+
   getUsers,
+
   getAdminSessions,
   revokeAdminSession,
   revokeUserSessions,
+
+  getUrls,
+  getUrlDetails,
+  updateUrlStatus,
+  deleteUrl,
 };
 
 export default adminApi;
