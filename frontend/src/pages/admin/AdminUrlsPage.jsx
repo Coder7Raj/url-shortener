@@ -1,6 +1,7 @@
-import { ExternalLink, Link2, Search } from "lucide-react";
+import { Eye, Link2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -9,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import AdminUrlDetailsDialog from "./AdminUrlDetailsDialog.jsx";
 
 import useAdminUrlsStore from "../../store/admin/useAdminUrlsStore.js";
 
@@ -60,10 +63,30 @@ const truncateUrl = (url, length = 45) => {
 };
 
 const AdminUrlsPage = () => {
-  const { urls, pagination, filters, isLoading, error, fetchUrls, setFilters } =
-    useAdminUrlsStore();
+  const {
+    urls,
+    pagination,
+    filters,
+
+    isLoading,
+    error,
+
+    selectedUrl,
+    isDetailsLoading,
+    isUpdating,
+    isDeleting,
+
+    fetchUrls,
+    fetchUrlDetails,
+    updateUrlStatus,
+    deleteUrl,
+
+    setFilters,
+    clearSelectedUrl,
+  } = useAdminUrlsStore();
 
   const [searchInput, setSearchInput] = useState(filters.search);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   useEffect(() => {
     fetchUrls({
@@ -95,7 +118,80 @@ const AdminUrlsPage = () => {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const handleStatusChange = (status) => {
+  const handleViewDetails = async (urlId) => {
+    setDetailsOpen(true);
+
+    await fetchUrlDetails(urlId);
+  };
+
+  const handleDetailsOpenChange = (open) => {
+    setDetailsOpen(open);
+
+    if (!open) {
+      clearSelectedUrl();
+    }
+  };
+
+  const handleStatusChange = async (status) => {
+    if (!selectedUrl || isUpdating) {
+      return;
+    }
+
+    const result = await updateUrlStatus(selectedUrl.url_id, status);
+
+    if (!result.success) {
+      return;
+    }
+
+    await fetchUrlDetails(selectedUrl.url_id);
+
+    await fetchUrls({
+      page: pagination.page,
+      limit: pagination.limit,
+      search: filters.search,
+      status: filters.status,
+    });
+  };
+
+  const handleDelete = async () => {
+    if (!selectedUrl || isDeleting) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${selectedUrl.short_code}"?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const result = await deleteUrl(selectedUrl.url_id);
+
+    if (!result.success) {
+      return;
+    }
+
+    setDetailsOpen(false);
+    clearSelectedUrl();
+
+    const shouldGoToPreviousPage = urls.length === 1 && pagination.page > 1;
+
+    const nextPage = shouldGoToPreviousPage
+      ? pagination.page - 1
+      : pagination.page;
+
+    await fetchUrls({
+      page: nextPage,
+      limit: pagination.limit,
+      search: filters.search,
+      status: filters.status,
+    });
+  };
+
+  const handleStatusFilterChange = (value) => {
+    const status = value === "ALL" ? "" : value;
+
     setFilters({
       status,
     });
@@ -162,9 +258,7 @@ const AdminUrlsPage = () => {
         {/* Status */}
         <Select
           value={filters.status || "ALL"}
-          onValueChange={(value) => {
-            handleStatusChange(value === "ALL" ? "" : value);
-          }}
+          onValueChange={handleStatusFilterChange}
         >
           <SelectTrigger className="w-full sm:w-48">
             <SelectValue placeholder="All Status" />
@@ -190,7 +284,7 @@ const AdminUrlsPage = () => {
         </div>
       )}
 
-      {/* Table */}
+      {/* URL Table */}
       <div className="overflow-hidden rounded-lg border bg-card">
         <div className="overflow-x-auto">
           <table className="w-full min-w-225 text-sm">
@@ -211,6 +305,7 @@ const AdminUrlsPage = () => {
             </thead>
 
             <tbody>
+              {/* Loading */}
               {isLoading ? (
                 <tr>
                   <td
@@ -221,6 +316,7 @@ const AdminUrlsPage = () => {
                   </td>
                 </tr>
               ) : urls.length === 0 ? (
+                /* Empty */
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center">
                     <div className="flex flex-col items-center gap-2">
@@ -235,6 +331,7 @@ const AdminUrlsPage = () => {
                   </td>
                 </tr>
               ) : (
+                /* Data */
                 urls.map((url) => (
                   <tr
                     key={url.url_id}
@@ -296,15 +393,16 @@ const AdminUrlsPage = () => {
 
                     {/* Action */}
                     <td className="px-4 py-4 text-right">
-                      <a
-                        href={url.original_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={isLoading}
+                        onClick={() => handleViewDetails(url.url_id)}
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        Visit
-                      </a>
+                        <Eye className="mr-1.5 h-3.5 w-3.5" />
+                        Details
+                      </Button>
                     </td>
                   </tr>
                 ))
@@ -312,6 +410,18 @@ const AdminUrlsPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Details Dialog */}
+        <AdminUrlDetailsDialog
+          open={detailsOpen}
+          onOpenChange={handleDetailsOpenChange}
+          url={selectedUrl}
+          isLoading={isDetailsLoading}
+          isUpdating={isUpdating}
+          isDeleting={isDeleting}
+          onStatusChange={handleStatusChange}
+          onDelete={handleDelete}
+        />
 
         {/* Pagination */}
         {!isLoading && urls.length > 0 && (
@@ -322,23 +432,25 @@ const AdminUrlsPage = () => {
             </p>
 
             <div className="flex gap-2">
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={handlePrevious}
                 disabled={pagination.page <= 1 || isLoading}
-                className="rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Previous
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={handleNext}
                 disabled={pagination.page >= pagination.totalPages || isLoading}
-                className="rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}
