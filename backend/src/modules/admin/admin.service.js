@@ -369,6 +369,44 @@ const deleteUrl = async (urlId) => {
   };
 };
 
+const getAuditLogs = async ({
+  page = 1,
+  limit = 10,
+  search = "",
+  action = "",
+  entityType = "",
+} = {}) => {
+  const parsedPage = Number(page);
+  const parsedLimit = Number(limit);
+
+  if (!Number.isInteger(parsedPage) || parsedPage < 1) {
+    throw new ApiError(400, "Invalid page");
+  }
+
+  if (!Number.isInteger(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
+    throw new ApiError(400, "Limit must be between 1 and 100");
+  }
+
+  const result = await repository.findAllAuditLogs({
+    page: parsedPage,
+    limit: parsedLimit,
+    search: search.trim(),
+    action: action.trim(),
+    entityType: entityType.trim(),
+  });
+
+  return {
+    logs: result.logs,
+
+    pagination: {
+      page: parsedPage,
+      limit: parsedLimit,
+      total: result.total,
+      totalPages: Math.ceil(result.total / parsedLimit),
+    },
+  };
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -384,4 +422,5 @@ module.exports = {
   getUrlDetails,
   updateUrlStatus,
   deleteUrl,
+  getAuditLogs,
 };

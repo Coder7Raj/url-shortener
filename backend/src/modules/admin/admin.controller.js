@@ -131,6 +131,14 @@ const deleteUrl = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, "URL deleted successfully", data));
 });
 
+const getAuditLogs = asyncHandler(async (req, res) => {
+  const data = await service.getAuditLogs(req.validated.query);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Audit logs fetched successfully", data));
+});
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -146,4 +154,5 @@ module.exports = {
   getUrlDetails,
   updateUrlStatus,
   deleteUrl,
+  getAuditLogs,
 };

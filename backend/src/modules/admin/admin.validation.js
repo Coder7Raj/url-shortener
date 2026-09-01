@@ -48,10 +48,23 @@ const updateUrlStatusSchema = z.object({
   }),
 });
 
+const getAuditLogsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).optional().default(1),
+
+  limit: z.coerce.number().int().min(1).max(100).optional().default(10),
+
+  search: z.string().optional().default(""),
+
+  action: z.string().optional().default(""),
+
+  entityType: z.string().optional().default(""),
+});
+
 module.exports = {
   updateUserStatusSchema,
   updateUserRoleSchema,
   sessionsQuerySchema,
   adminUrlsQuerySchema,
   updateUrlStatusSchema,
+  getAuditLogsQuerySchema,
 };

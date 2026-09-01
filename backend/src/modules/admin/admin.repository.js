@@ -714,6 +714,90 @@ const deleteUrl = async (urlId) => {
   });
 };
 
+const findAllAuditLogs = async ({
+  page = 1,
+  limit = 10,
+  search = "",
+  action = "",
+  entityType = "",
+}) => {
+  const skip = (page - 1) * limit;
+
+  const where = {};
+
+  if (search) {
+    where.OR = [
+      {
+        action: {
+          contains: search,
+        },
+      },
+      {
+        entity_type: {
+          contains: search,
+        },
+      },
+      {
+        ip_address: {
+          contains: search,
+        },
+      },
+      {
+        users: {
+          username: {
+            contains: search,
+          },
+        },
+      },
+      {
+        users: {
+          email: {
+            contains: search,
+          },
+        },
+      },
+    ];
+  }
+
+  if (action) {
+    where.action = action;
+  }
+
+  if (entityType) {
+    where.entity_type = entityType;
+  }
+
+  const [logs, total] = await Promise.all([
+    prisma.audit_logs.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: {
+        created_at: "desc",
+      },
+      include: {
+        users: {
+          select: {
+            user_id: true,
+            username: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    }),
+
+    prisma.audit_logs.count({
+      where,
+    }),
+  ]);
+
+  return {
+    logs,
+    total,
+  };
+};
+
 module.exports = {
   getDashboardStats,
   getRecentUsers,
@@ -734,4 +818,5 @@ module.exports = {
   findAllUrls,
   updateUrlStatus,
   deleteUrl,
+  findAllAuditLogs,
 };

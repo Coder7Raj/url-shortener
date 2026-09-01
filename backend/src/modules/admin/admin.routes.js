@@ -12,7 +12,9 @@ const {
   sessionsQuerySchema,
   adminUrlsQuerySchema,
   updateUrlStatusSchema,
+  getAuditLogsQuerySchema,
 } = require("./admin.validation.js");
+
 const controller = require("./admin.controller.js");
 
 router.use(authMiddleware, adminMiddleware);
@@ -60,5 +62,7 @@ router.patch(
 );
 
 router.delete("/urls/:id", controller.deleteUrl);
+
+router.get("/logs", validate(getAuditLogsQuerySchema), controller.getAuditLogs);
 
 module.exports = router;
