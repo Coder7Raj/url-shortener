@@ -49,15 +49,20 @@ const updateUrlStatusSchema = z.object({
 });
 
 const getAuditLogsQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).optional().default(1),
+  query: z.object({
+    page: z.coerce.number().int().min(1).optional(),
 
-  limit: z.coerce.number().int().min(1).max(100).optional().default(10),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
 
-  search: z.string().optional().default(""),
+    search: z.string().trim().optional(),
 
-  action: z.string().optional().default(""),
+    action: z
+      .enum(["LOGIN", "LOGOUT", "URL_CREATED"])
+      .or(z.literal(""))
+      .optional(),
 
-  entityType: z.string().optional().default(""),
+    entityType: z.enum(["USER", "URL"]).or(z.literal("")).optional(),
+  }),
 });
 
 module.exports = {

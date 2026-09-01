@@ -5,6 +5,7 @@ import DashboardLayout from "../layouts/DashboardLayout.jsx";
 import Home from "../pages/Home.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage.jsx";
+import AdminLogsPage from "../pages/admin/AdminLogsPage.jsx";
 import AdminSessionsPage from "../pages/admin/AdminSessionsPage.jsx";
 import AdminUrlsPage from "../pages/admin/AdminUrlsPage.jsx";
 import AdminUsersPage from "../pages/admin/AdminUsersPage.jsx";
@@ -107,6 +108,10 @@ const router = createBrowserRouter([
           {
             path: ROUTES.ADMIN_URLS,
             element: <AdminUrlsPage />,
+          },
+          {
+            path: ROUTES.ADMIN_AUDIT_LOGS,
+            element: <AdminLogsPage />,
           },
         ],
       },

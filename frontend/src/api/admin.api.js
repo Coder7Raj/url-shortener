@@ -83,10 +83,30 @@ const deleteUrl = async (urlId) => {
   return response.data;
 };
 
+const getAuditLogs = async ({
+  page = 1,
+  limit = 10,
+  search = "",
+  action = "",
+  entityType = "",
+} = {}) => {
+  const response = await apiClient.get("/admin/logs", {
+    params: {
+      page,
+      limit,
+      ...(search && { search }),
+      ...(action && { action }),
+      ...(entityType && { entityType }),
+    },
+  });
+
+  return response.data;
+};
+
 const adminApi = {
   getDashboard,
   getAnalytics,
-
+  getAuditLogs,
   getUsers,
 
   getAdminSessions,
