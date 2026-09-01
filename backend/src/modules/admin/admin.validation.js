@@ -27,8 +27,31 @@ const sessionsQuerySchema = z.object({
   }),
 });
 
+const adminUrlsQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().min(1).optional(),
+
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+
+    search: z.string().trim().optional(),
+
+    status: z
+      .enum(["ACTIVE", "INACTIVE", "EXPIRED", "DELETED"])
+      .or(z.literal(""))
+      .optional(),
+  }),
+});
+
+const updateUrlStatusSchema = z.object({
+  body: z.object({
+    status: z.enum(["ACTIVE", "INACTIVE", "EXPIRED"]),
+  }),
+});
+
 module.exports = {
   updateUserStatusSchema,
   updateUserRoleSchema,
   sessionsQuerySchema,
+  adminUrlsQuerySchema,
+  updateUrlStatusSchema,
 };

@@ -10,6 +10,8 @@ const {
   updateUserStatusSchema,
   updateUserRoleSchema,
   sessionsQuerySchema,
+  adminUrlsQuerySchema,
+  updateUrlStatusSchema,
 } = require("./admin.validation.js");
 const controller = require("./admin.controller.js");
 
@@ -46,5 +48,17 @@ router.get(
 router.patch("/sessions/:id/revoke", controller.revokeSession);
 
 router.post("/users/:id/revoke-sessions", controller.revokeAllUserSessions);
+
+router.get("/urls", validate(adminUrlsQuerySchema), controller.getUrls);
+
+router.get("/urls/:id", controller.getUrlDetails);
+
+router.patch(
+  "/urls/:id/status",
+  validate(updateUrlStatusSchema),
+  controller.updateUrlStatus,
+);
+
+router.delete("/urls/:id", controller.deleteUrl);
 
 module.exports = router;

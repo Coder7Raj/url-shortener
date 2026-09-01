@@ -559,6 +559,161 @@ const revokeAllUserSessions = async (userId) => {
   });
 };
 
+const findAllUrls = async ({ page, limit, search, status }) => {
+  const skip = (page - 1) * limit;
+
+  const where = {
+    ...(status ? { status } : {}),
+
+    ...(search
+      ? {
+          OR: [
+            {
+              short_code: {
+                contains: search,
+              },
+            },
+            {
+              title: {
+                contains: search,
+              },
+            },
+            {
+              original_url: {
+                contains: search,
+              },
+            },
+            {
+              users: {
+                username: {
+                  contains: search,
+                },
+              },
+            },
+            {
+              users: {
+                email: {
+                  contains: search,
+                },
+              },
+            },
+          ],
+        }
+      : {}),
+  };
+
+  const [urls, total] = await Promise.all([
+    prisma.urls.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: {
+        created_at: "desc",
+      },
+      select: {
+        url_id: true,
+        original_url: true,
+        short_code: true,
+        title: true,
+        description: true,
+        status: true,
+        total_clicks: true,
+        expires_at: true,
+        created_at: true,
+        updated_at: true,
+        deleted_at: true,
+        last_clicked_at: true,
+        max_clicks: true,
+
+        users: {
+          select: {
+            user_id: true,
+            username: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    }),
+
+    prisma.urls.count({
+      where,
+    }),
+  ]);
+
+  return {
+    urls,
+    total,
+  };
+};
+
+const findUrlById = async (urlId) => {
+  return prisma.urls.findUnique({
+    where: {
+      url_id: BigInt(urlId),
+    },
+
+    select: {
+      url_id: true,
+      original_url: true,
+      short_code: true,
+      title: true,
+      description: true,
+      status: true,
+      total_clicks: true,
+      expires_at: true,
+      created_at: true,
+      updated_at: true,
+      deleted_at: true,
+      last_clicked_at: true,
+      max_clicks: true,
+
+      users: {
+        select: {
+          user_id: true,
+          username: true,
+          name: true,
+          email: true,
+        },
+      },
+
+      _count: {
+        select: {
+          clicks: true,
+          qr_codes: true,
+          url_tags: true,
+        },
+      },
+    },
+  });
+};
+
+const updateUrlStatus = async (urlId, status) => {
+  return prisma.urls.update({
+    where: {
+      url_id: BigInt(urlId),
+    },
+
+    data: {
+      status,
+    },
+  });
+};
+
+const deleteUrl = async (urlId) => {
+  return prisma.urls.update({
+    where: {
+      url_id: BigInt(urlId),
+    },
+
+    data: {
+      status: "DELETED",
+      deleted_at: new Date(),
+      updated_at: new Date(),
+    },
+  });
+};
+
 module.exports = {
   getDashboardStats,
   getRecentUsers,
@@ -567,6 +722,7 @@ module.exports = {
   getAnalytics,
   getUsers,
   findUserById,
+  findUrlById,
   updateUserStatus,
   updateUserRole,
   countActiveAdmins,
@@ -575,4 +731,7 @@ module.exports = {
   findSessionById,
   revokeSession,
   revokeAllUserSessions,
+  findAllUrls,
+  updateUrlStatus,
+  deleteUrl,
 };

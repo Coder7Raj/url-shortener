@@ -284,6 +284,91 @@ const revokeAllUserSessions = async (targetUserId, adminUser) => {
   };
 };
 
+const getUrls = async ({ page = 1, limit = 10, search = "", status = "" }) => {
+  const parsedPage = Number(page);
+  const parsedLimit = Number(limit);
+
+  if (!Number.isInteger(parsedPage) || parsedPage < 1) {
+    throw new ApiError(400, "Invalid page");
+  }
+
+  if (!Number.isInteger(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
+    throw new ApiError(400, "Limit must be between 1 and 100");
+  }
+
+  const allowedStatuses = ["ACTIVE", "INACTIVE", "EXPIRED", "DELETED"];
+
+  if (status && !allowedStatuses.includes(status)) {
+    throw new ApiError(400, "Invalid URL status");
+  }
+
+  const result = await repository.findAllUrls({
+    page: parsedPage,
+    limit: parsedLimit,
+    search: search.trim(),
+    status,
+  });
+
+  return {
+    urls: result.urls,
+
+    pagination: {
+      page: parsedPage,
+      limit: parsedLimit,
+      total: result.total,
+      totalPages: Math.ceil(result.total / parsedLimit),
+    },
+  };
+};
+
+const getUrlDetails = async (urlId) => {
+  const url = await repository.findUrlById(urlId);
+
+  if (!url) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  return {
+    url,
+  };
+};
+
+const updateUrlStatus = async (urlId, status) => {
+  const url = await repository.findUrlById(urlId);
+
+  if (!url) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  if (url.status === "DELETED") {
+    throw new ApiError(400, "Deleted URL cannot be updated");
+  }
+
+  const updatedUrl = await repository.updateUrlStatus(urlId, status);
+
+  return {
+    url: updatedUrl,
+  };
+};
+
+const deleteUrl = async (urlId) => {
+  const url = await repository.findUrlById(urlId);
+
+  if (!url) {
+    throw new ApiError(404, "URL not found");
+  }
+
+  if (url.status === "DELETED") {
+    throw new ApiError(400, "URL is already deleted");
+  }
+
+  const deletedUrl = await repository.deleteUrl(urlId);
+
+  return {
+    url: deletedUrl,
+  };
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -295,4 +380,8 @@ module.exports = {
   getAllSessions,
   revokeSession,
   revokeAllUserSessions,
+  getUrls,
+  getUrlDetails,
+  updateUrlStatus,
+  deleteUrl,
 };

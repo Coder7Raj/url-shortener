@@ -101,6 +101,36 @@ const revokeAllUserSessions = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "All user sessions revoked successfully", data));
 });
 
+const getUrls = asyncHandler(async (req, res) => {
+  const data = await service.getUrls(req.validated.query);
+
+  res.status(200).json(new ApiResponse(200, "URLs fetched successfully", data));
+});
+
+const getUrlDetails = asyncHandler(async (req, res) => {
+  const data = await service.getUrlDetails(req.params.id);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "URL details fetched successfully", data));
+});
+
+const updateUrlStatus = asyncHandler(async (req, res) => {
+  const { status } = req.validated.body;
+
+  const data = await service.updateUrlStatus(req.params.id, status);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "URL status updated successfully", data));
+});
+
+const deleteUrl = asyncHandler(async (req, res) => {
+  const data = await service.deleteUrl(req.params.id);
+
+  res.status(200).json(new ApiResponse(200, "URL deleted successfully", data));
+});
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -112,4 +142,8 @@ module.exports = {
   getAllSessions,
   revokeSession,
   revokeAllUserSessions,
+  getUrls,
+  getUrlDetails,
+  updateUrlStatus,
+  deleteUrl,
 };
