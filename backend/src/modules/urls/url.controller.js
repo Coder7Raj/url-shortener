@@ -22,13 +22,31 @@ const createShortUrl = asyncHandler(async (req, res) => {
 });
 
 const redirect = asyncHandler(async (req, res) => {
-  const originalUrl = await service.redirectUrl(req.params.shortCode, {
-    ip: req.ip,
-    userAgent: req.get("user-agent"),
-    referrer: req.get("referer"),
-  });
+  try {
+    const originalUrl = await service.redirectUrl(req.params.shortCode, {
+      ip_address: req.ip,
+      user_agent: req.get("user-agent"),
+      referrer: req.get("referer"),
+    });
 
-  return res.redirect(302, originalUrl);
+    return res.redirect(302, originalUrl);
+  } catch (error) {
+    const clientUrl = process.env.CLIENT_URL;
+
+    if (error.statusCode === 404) {
+      return res.redirect(`${clientUrl}/link-unavailable?reason=not-found`);
+    }
+
+    if (error.statusCode === 403) {
+      return res.redirect(`${clientUrl}/link-unavailable?reason=inactive`);
+    }
+
+    if (error.statusCode === 410) {
+      return res.redirect(`${clientUrl}/link-unavailable?reason=expired`);
+    }
+
+    throw error;
+  }
 });
 
 const getMyUrls = asyncHandler(async (req, res) => {

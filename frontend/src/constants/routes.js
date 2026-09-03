@@ -9,6 +9,8 @@ export const ROUTES = {
   URLS: "/dashboard/urls",
   URL_DETAILS: "/dashboard/urls/:id",
 
+  LINK_UNAVAILABLE: "/link-unavailable",
+
   ANALYTICS: "/dashboard/analytics",
   QR: "/dashboard/qr",
   SESSIONS: "/dashboard/sessions",

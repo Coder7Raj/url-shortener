@@ -71,7 +71,7 @@ const RecentUrls = ({ urls = [], isLoading = false }) => {
         ) : (
           <div className="min-w-0 space-y-3">
             {urls.map((url) => {
-              const shortUrl = `${import.meta.env.VITE_API_URL}/${url.shortCode}`;
+              const shortUrl = `${import.meta.env.VITE_BASE_URL}/${url.shortCode}`;
 
               return (
                 <div
@@ -127,7 +127,7 @@ const RecentUrls = ({ urls = [], isLoading = false }) => {
                       </Button>
 
                       {/* Open */}
-                      <Link
+                      <a
                         href={shortUrl}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -136,7 +136,7 @@ const RecentUrls = ({ urls = [], isLoading = false }) => {
                       >
                         <ExternalLink className="h-4 w-4" />
                         <span className="sr-only">Open URL</span>
-                      </Link>
+                      </a>
 
                       {/* Details */}
                       <Button variant="ghost" size="icon" title="Details">

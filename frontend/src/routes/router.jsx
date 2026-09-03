@@ -4,6 +4,7 @@ import { ROUTES } from "../constants/routes.js";
 import AdminLayout from "../layouts/AdminLayout.jsx";
 import DashboardLayout from "../layouts/DashboardLayout.jsx";
 import Home from "../pages/Home.jsx";
+import LinkUnavailablePage from "../pages/LinkUnavailablePage.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage.jsx";
 import AdminLogsPage from "../pages/admin/AdminLogsPage.jsx";
@@ -41,6 +42,11 @@ const router = createBrowserRouter([
         element: <RegisterPage />,
       },
     ],
+  },
+
+  {
+    path: ROUTES.LINK_UNAVAILABLE,
+    element: <LinkUnavailablePage />,
   },
 
   {
