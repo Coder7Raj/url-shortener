@@ -83,6 +83,7 @@ const AdminSessionsPage = () => {
           />
         </div>
 
+        <Button onClick={handleSearch}>Search</Button>
         <select
           value={status}
           onChange={(event) => {
@@ -104,8 +105,6 @@ const AdminSessionsPage = () => {
           <option value="REVOKED">Revoked</option>
           <option value="EXPIRED">Expired</option>
         </select>
-
-        <Button onClick={handleSearch}>Search</Button>
       </div>
 
       {/* Error */}

@@ -197,6 +197,85 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  updateProfile: async (data) => {
+    set({
+      isLoading: true,
+      error: null,
+    });
+
+    try {
+      const result = await authApi.updateProfile(data);
+
+      const user = result.data?.user;
+
+      if (!user) {
+        throw new Error("Updated user data not found");
+      }
+
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+
+      return {
+        success: true,
+        data: user,
+        message: result.message,
+      };
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        "Failed to update profile. Please try again.";
+
+      set({
+        isLoading: false,
+        error: message,
+      });
+
+      return {
+        success: false,
+        message,
+      };
+    }
+  },
+
+  changePassword: async (data) => {
+    set({
+      isLoading: true,
+      error: null,
+    });
+
+    try {
+      const result = await authApi.changePassword(data);
+
+      set({
+        isLoading: false,
+        error: null,
+      });
+
+      return {
+        success: true,
+        message: result.message,
+      };
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        "Failed to change password. Please try again.";
+
+      set({
+        isLoading: false,
+        error: message,
+      });
+
+      return {
+        success: false,
+        message,
+      };
+    }
+  },
+
   clearError: () => {
     set({
       error: null,

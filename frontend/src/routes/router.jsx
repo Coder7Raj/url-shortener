@@ -1,3 +1,4 @@
+import AdminProfilePage from "@/pages/admin/AdminProfilePage";
 import { createBrowserRouter } from "react-router-dom";
 import { ROUTES } from "../constants/routes.js";
 import AdminLayout from "../layouts/AdminLayout.jsx";
@@ -112,6 +113,10 @@ const router = createBrowserRouter([
           {
             path: ROUTES.ADMIN_AUDIT_LOGS,
             element: <AdminLogsPage />,
+          },
+          {
+            path: ROUTES.ADMIN_PROFILE,
+            element: <AdminProfilePage />,
           },
         ],
       },
