@@ -173,7 +173,7 @@ const AdminLogsPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="text-foreground">
         <h1 className="text-2xl font-bold tracking-tight">Audit Logs</h1>
 
         <p className="text-sm text-muted-foreground">
@@ -184,7 +184,7 @@ const AdminLogsPage = () => {
       {/* Filters */}
       <div className="flex flex-col gap-3 lg:flex-row">
         {/* Search */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 text-foreground">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
           <Input
@@ -202,7 +202,7 @@ const AdminLogsPage = () => {
             handleActionChange(value === "ALL" ? "" : value)
           }
         >
-          <SelectTrigger className="w-full lg:w-48">
+          <SelectTrigger className="w-full lg:w-48 text-foreground">
             <SelectValue placeholder="All Actions" />
           </SelectTrigger>
 
@@ -225,7 +225,7 @@ const AdminLogsPage = () => {
             handleEntityChange(value === "ALL" ? "" : value)
           }
         >
-          <SelectTrigger className="w-full lg:w-48">
+          <SelectTrigger className="w-full lg:w-48 text-foreground">
             <SelectValue placeholder="All Entities" />
           </SelectTrigger>
 
@@ -253,7 +253,7 @@ const AdminLogsPage = () => {
       <div className="overflow-hidden rounded-lg border bg-card">
         <div className="overflow-x-auto">
           <table className="w-full min-w-225 text-sm">
-            <thead className="border-b bg-muted/40">
+            <thead className="border-b bg-muted/40 text-foreground">
               <tr>
                 <th className="px-4 py-3 text-left font-medium">User</th>
 
@@ -300,7 +300,7 @@ const AdminLogsPage = () => {
                     className="border-b last:border-0 hover:bg-muted/30"
                   >
                     {/* User */}
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4 text-foreground">
                       <div>
                         <p className="font-medium">
                           {log.users?.username || "Unknown"}
@@ -313,7 +313,7 @@ const AdminLogsPage = () => {
                     </td>
 
                     {/* Action */}
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4 text-foreground">
                       <span
                         className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${getActionClass(
                           log.action,
@@ -324,7 +324,7 @@ const AdminLogsPage = () => {
                     </td>
 
                     {/* Entity */}
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4 text-foreground">
                       <div className="flex items-center gap-2">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${getEntityClass(
@@ -343,7 +343,7 @@ const AdminLogsPage = () => {
                     </td>
 
                     {/* IP */}
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4 text-foreground">
                       <span className="font-mono text-xs">
                         {log.ip_address || "-"}
                       </span>
@@ -355,7 +355,7 @@ const AdminLogsPage = () => {
                     </td>
 
                     {/* Action */}
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-4 py-4 text-right text-foreground">
                       <Button
                         type="button"
                         variant="outline"
@@ -381,7 +381,7 @@ const AdminLogsPage = () => {
               {pagination.total} total logs
             </p>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 text-foreground">
               <button
                 type="button"
                 onClick={handlePrevious}

@@ -125,7 +125,7 @@ const AdminProfilePage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="text-foreground">
         <h1 className="text-2xl font-bold tracking-tight">Admin Profile</h1>
 
         <p className="text-muted-foreground">

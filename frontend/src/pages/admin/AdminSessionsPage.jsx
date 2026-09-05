@@ -57,7 +57,7 @@ const AdminSessionsPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="text-foreground">
         <h1 className="text-2xl font-bold tracking-tight">Sessions</h1>
 
         <p className="text-sm text-muted-foreground">
@@ -98,7 +98,7 @@ const AdminSessionsPage = () => {
               status: value,
             });
           }}
-          className="h-10 rounded-md border bg-background px-3 text-sm"
+          className="h-10 rounded-md border bg-background px-3 text-sm text-foreground"
         >
           <option value="">All Sessions</option>
           <option value="ACTIVE">Active</option>
@@ -118,7 +118,7 @@ const AdminSessionsPage = () => {
       <div className="rounded-lg border">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="border-b bg-muted/50">
+            <thead className="border-b bg-muted/50 text-foreground">
               <tr>
                 <th className="px-4 py-3 text-left font-medium">User</th>
 
@@ -171,7 +171,7 @@ const AdminSessionsPage = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between text-foreground">
         <p className="text-sm text-muted-foreground">
           {pagination.total} total sessions
         </p>
@@ -213,7 +213,7 @@ const SessionRow = ({ session, onRevoke, onRevokeAll }) => {
 
   return (
     <tr className="border-b last:border-0">
-      <td className="px-4 py-4">
+      <td className="px-4 py-4 text-foreground">
         <div>
           <p className="font-medium">{session.users?.username}</p>
 
@@ -223,17 +223,21 @@ const SessionRow = ({ session, onRevoke, onRevokeAll }) => {
         </div>
       </td>
 
-      <td className="px-4 py-4">{session.device_name || "Unknown"}</td>
+      <td className="px-4 py-4 text-foregrounds">
+        {session.device_name || "Unknown"}
+      </td>
 
-      <td className="px-4 py-4">{session.ip_address || "Unknown"}</td>
+      <td className="px-4 py-4 text-foreground">
+        {session.ip_address || "Unknown"}
+      </td>
 
-      <td className="px-4 py-4">
+      <td className="px-4 py-4 text-foreground">
         {session.last_used_at
           ? new Date(session.last_used_at).toLocaleString()
           : "Never"}
       </td>
 
-      <td className="px-4 py-4">
+      <td className="px-4 py-4 text-foreground">
         {new Date(session.expires_at).toLocaleString()}
       </td>
 
@@ -256,7 +260,7 @@ const SessionRow = ({ session, onRevoke, onRevokeAll }) => {
       </td>
 
       <td className="px-4 py-4">
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 text-foreground">
           {status === "ACTIVE" && (
             <>
               <Button

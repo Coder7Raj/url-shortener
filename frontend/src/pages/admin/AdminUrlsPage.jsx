@@ -233,7 +233,7 @@ const AdminUrlsPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="text-foreground">
         <h1 className="text-2xl font-bold tracking-tight">URL Management</h1>
 
         <p className="text-sm text-muted-foreground">
@@ -288,7 +288,7 @@ const AdminUrlsPage = () => {
       <div className="overflow-hidden rounded-lg border bg-card">
         <div className="overflow-x-auto">
           <table className="w-full min-w-225 text-sm">
-            <thead className="border-b bg-muted/40">
+            <thead className="border-b bg-muted/40 text-foreground">
               <tr>
                 <th className="px-4 py-3 text-left font-medium">URL</th>
 
@@ -338,7 +338,7 @@ const AdminUrlsPage = () => {
                     className="border-b last:border-0 hover:bg-muted/30"
                   >
                     {/* URL */}
-                    <td className="max-w-[320px] px-4 py-4">
+                    <td className="max-w-[320px] px-4 py-4 text-foreground">
                       <div className="flex items-start gap-3">
                         <div className="mt-0.5 rounded-md bg-primary/10 p-2">
                           <Link2 className="h-4 w-4 text-primary" />
@@ -358,7 +358,7 @@ const AdminUrlsPage = () => {
                     </td>
 
                     {/* Owner */}
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4 text-foreground">
                       <div>
                         <p className="font-medium">
                           {url.users?.username || "Unknown"}
@@ -382,7 +382,7 @@ const AdminUrlsPage = () => {
                     </td>
 
                     {/* Clicks */}
-                    <td className="px-4 py-4 font-medium">
+                    <td className="px-4 py-4 font-medium text-foreground">
                       {Number(url.total_clicks || 0).toLocaleString()}
                     </td>
 
@@ -392,7 +392,7 @@ const AdminUrlsPage = () => {
                     </td>
 
                     {/* Action */}
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-4 py-4 text-right text-foreground">
                       <Button
                         type="button"
                         variant="outline"
@@ -431,7 +431,7 @@ const AdminUrlsPage = () => {
               {pagination.total} total URLs
             </p>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 text-foreground">
               <Button
                 type="button"
                 variant="outline"
