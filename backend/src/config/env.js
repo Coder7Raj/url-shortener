@@ -11,12 +11,18 @@ for (const variable of requiredEnvVariables) {
   }
 }
 
+const clientUrls = process.env.CLIENT_URL.split(",")
+  .map((url) => url.trim())
+  .filter(Boolean);
+
 const env = {
   nodeEnv: process.env.NODE_ENV || "development",
 
   port: Number(process.env.PORT) || 3000,
 
-  clientUrl: process.env.CLIENT_URL,
+  clientUrl: clientUrls[0],
+
+  clientUrls,
 
   databaseUrl: process.env.DATABASE_URL,
 
