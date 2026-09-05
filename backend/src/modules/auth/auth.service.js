@@ -111,22 +111,24 @@ const logout = async (refreshToken, requestContext) => {
   }
 
   const session = await sessionRepository.findSessionByTokenId(payload.jti);
+
   if (!session) {
     throw new ApiError(401, "Session not found");
   }
 
-  await sessionRepository.deleteSession(session.session_id);
+  if (!session.revoked_at) {
+    await sessionRepository.revokeSession(session.session_id);
+  }
 
   await audit.auth.logout({
     userId: payload.sub,
     requestContext,
   });
-
-  return;
 };
 
 const logoutAll = async (userId, requestContext) => {
-  await sessionRepository.deleteUserSessions(userId);
+  await sessionRepository.revokeUserSessions(userId);
+
   await audit.auth.logoutAll({
     userId,
     requestContext,
@@ -145,9 +147,11 @@ const getCurrentUser = async (userId) => {
 
 const refreshAccessToken = async (refreshToken, requestContext) => {
   const payload = verifyRefreshToken(refreshToken);
+
   if (payload.type !== "refresh") {
     throw new ApiError(401, "Invalid token type");
   }
+
   const session = await sessionRepository.findSessionByTokenId(payload.jti);
 
   if (!session) {
@@ -155,10 +159,13 @@ const refreshAccessToken = async (refreshToken, requestContext) => {
   }
 
   if (session.revoked_at) {
-    throw new ApiError(401, "Session has been revoked");
+    throw new ApiError(401, "Refresh token has been revoked");
   }
+
   if (session.expires_at < new Date()) {
-    await sessionRepository.deleteSession(session.session_id);
+    await sessionRepository.updateSession(session.session_id, {
+      revoked_at: new Date(),
+    });
 
     throw new ApiError(401, "Session expired");
   }
@@ -180,23 +187,24 @@ const refreshAccessToken = async (refreshToken, requestContext) => {
   const { refreshToken: newRefreshToken, tokenId: newTokenId } =
     generateRefreshToken(user);
 
-  await sessionRepository.deleteSession(session.session_id);
-
-  await sessionRepository.createSession({
+  const newSessionData = {
     user_id: user.user_id,
-
     token_id: newTokenId,
-
     token_hash: await hashToken(newRefreshToken),
-
     expires_at: calculateRefreshTokenExpiry(),
-
     device_name: session.device_name,
-
     ip_address: session.ip_address,
-
     user_agent: session.user_agent,
-  });
+  };
+
+  const newSession = await sessionRepository.rotateSession(
+    session.session_id,
+    newSessionData,
+  );
+
+  if (!newSession) {
+    throw new ApiError(401, "Refresh token has already been used");
+  }
 
   await audit.auth.refreshToken({
     userId: user.user_id,
@@ -205,7 +213,6 @@ const refreshAccessToken = async (refreshToken, requestContext) => {
 
   return {
     accessToken,
-
     refreshToken: newRefreshToken,
   };
 };
