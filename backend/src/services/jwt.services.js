@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
+const env = require("../config/env.js");
 
 const generateAccessToken = (user) => {
   return jwt.sign(
@@ -8,9 +9,9 @@ const generateAccessToken = (user) => {
       role: user.role,
       type: "access",
     },
-    process.env.JWT_ACCESS_SECRET,
+    env.jwtAccessSecret,
     {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRES,
+      expiresIn: env.accessTokenExpires,
     },
   );
 };
@@ -24,9 +25,9 @@ const generateRefreshToken = (user) => {
       jti: tokenId,
       type: "refresh",
     },
-    process.env.JWT_REFRESH_SECRET,
+    env.jwtRefreshSecret,
     {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRES,
+      expiresIn: env.refreshTokenExpires,
     },
   );
 
@@ -37,11 +38,11 @@ const generateRefreshToken = (user) => {
 };
 
 const verifyAccessToken = (token) => {
-  return jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+  return jwt.verify(token, env.jwtAccessSecret);
 };
 
 const verifyRefreshToken = (token) => {
-  return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+  return jwt.verify(token, env.jwtRefreshSecret);
 };
 
 module.exports = {

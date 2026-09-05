@@ -1,4 +1,6 @@
-const isProduction = process.env.NODE_ENV === "production";
+const env = require("../config/env.js");
+
+const isProduction = env.nodeEnv === "production";
 
 const baseCookieOptions = {
   httpOnly: true,

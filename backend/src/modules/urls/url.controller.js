@@ -4,6 +4,7 @@ const service = require("./url.service.js");
 const {
   buildRequestContext,
 } = require("../../common/request/requestContext.js");
+const env = require("../../config/env.js");
 
 const createShortUrl = asyncHandler(async (req, res) => {
   const requestContext = buildRequestContext(req);
@@ -31,7 +32,7 @@ const redirect = asyncHandler(async (req, res) => {
 
     return res.redirect(302, originalUrl);
   } catch (error) {
-    const clientUrl = process.env.CLIENT_URL;
+    const clientUrl = env.clientUrl;
 
     if (error.statusCode === 404) {
       return res.redirect(`${clientUrl}/link-unavailable?reason=not-found`);
