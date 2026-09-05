@@ -1,7 +1,5 @@
 const express = require("express");
 
-const router = express.Router();
-
 const validate = require("../../middlewares/validate.middleware.js");
 const authMiddleware = require("../../middlewares/auth.middleware.js");
 const {
@@ -14,10 +12,21 @@ const {
 
 const controller = require("./auth.controller.js");
 
-router.post("/register", validate(registerSchema), controller.register);
-router.post("/login", validate(loginSchema), controller.login);
+const {
+  authRateLimiter,
+} = require("../../middlewares/rateLimiter.middleware.js");
+
+const router = express.Router();
+
+router.post(
+  "/register",
+  authRateLimiter,
+  validate(registerSchema),
+  controller.register,
+);
+router.post("/login", authRateLimiter, validate(loginSchema), controller.login);
 router.get("/me", authMiddleware, controller.getCurrentUser);
-router.post("/refresh-token", controller.refreshToken);
+router.post("/refresh-token", authRateLimiter, controller.refreshToken);
 router.post("/logout", controller.logout);
 router.post("/logout-all", authMiddleware, controller.logoutAll);
 router.get(

@@ -12,6 +12,9 @@ const {
   analyticsSchema,
 } = require("./url.validation.js");
 const qrRoutes = require("../qr/qr.routes.js");
+const {
+  redirectRateLimiter,
+} = require("../../middlewares/rateLimiter.middleware.js");
 
 const router = express.Router();
 
@@ -53,6 +56,11 @@ router.get(
 
 router.use("/:id/qr", qrRoutes);
 
-router.get("/:shortCode", validate(redirectSchema), controller.redirect);
+router.get(
+  "/:shortCode",
+  redirectRateLimiter,
+  validate(redirectSchema),
+  controller.redirect,
+);
 
 module.exports = router;

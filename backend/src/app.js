@@ -10,7 +10,9 @@ const routes = require("./routes/routes.js");
 const errorMiddleware = require("./middlewares/error.middleware.js");
 const notFound = require("./middlewares/notFound.middleware.js");
 const analyticsRoutes = require("./modules/analytics/analytics.routes.js");
-const urlController = require("./modules/urls/url.controller.js");
+const {
+  globalRateLimiter,
+} = require("./middlewares/rateLimiter.middleware.js");
 
 const app = express();
 
@@ -24,18 +26,20 @@ app.use(
 );
 
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
 app.use(compression());
+
 app.use(morgan("dev"));
+
+app.use(globalRateLimiter);
 
 app.use("/api/v1", routes);
 
 app.use("/api/v1/analytics", analyticsRoutes);
-
-app.get("/:shortCode", urlController.redirect);
 
 app.use(notFound);
 
