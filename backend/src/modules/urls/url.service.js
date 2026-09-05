@@ -1,3 +1,5 @@
+const { Prisma } = require("@prisma/client");
+
 const repository = require("./url.repository.js");
 const { generateShortCode } = require("./shortCode.generator.js");
 const { toUrlResponse } = require("./url.dto.js");
@@ -8,6 +10,7 @@ const prisma = require("../../config/prisma.js");
 const { getPagination } = require("../../utils/pagination.js");
 
 const audit = require("../../common/audit");
+const { isReservedAlias } = require("./reservedAliases.js");
 
 const generateUniqueShortCode = async () => {
   while (true) {
@@ -24,36 +27,62 @@ const generateUniqueShortCode = async () => {
 const createShortUrl = async (userId, payload, requestContext) => {
   let shortCode;
 
-  if (payload.customAlias) {
-    const exists = await repository.findUrlByShortCode(payload.customAlias);
+  const customAlias = payload.customAlias?.toLowerCase();
+
+  if (customAlias) {
+    // Check reserved aliases
+    if (isReservedAlias(customAlias)) {
+      throw new ApiError(400, "This custom alias is reserved");
+    }
+
+    // Check existing alias
+    const exists = await repository.findUrlByShortCode(customAlias);
 
     if (exists) {
       throw new ApiError(409, "Custom alias already exists");
     }
 
-    shortCode = payload.customAlias;
+    shortCode = customAlias;
   } else {
     shortCode = await generateUniqueShortCode();
   }
 
-  const url = await repository.createUrl({
-    user_id: BigInt(userId),
-    original_url: payload.originalUrl,
-    short_code: shortCode,
-    expires_at: payload.expiresAt ? new Date(payload.expiresAt) : null,
-    status: SHORT_URL_STATUS.ACTIVE,
-  });
+  try {
+    const url = await repository.createUrl({
+      user_id: BigInt(userId),
+      original_url: payload.originalUrl,
+      short_code: shortCode,
+      expires_at: payload.expiresAt ? new Date(payload.expiresAt) : null,
+      status: SHORT_URL_STATUS.ACTIVE,
+    });
 
-  await audit.url.created({
-    userId,
-    url,
-    requestContext,
-  });
+    await audit.url.created({
+      userId,
+      url,
+      requestContext,
+    });
 
-  return toUrlResponse(url);
+    return toUrlResponse(url);
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      if (customAlias) {
+        throw new ApiError(409, "Custom alias already exists");
+      }
+
+      throw new ApiError(
+        409,
+        "Short code collision occurred. Please try again.",
+      );
+    }
+
+    throw error;
+  }
 };
 
-const redirectUrl = async (shortCode, clickData, requestContext) => {
+const redirectUrl = async (shortCode, clickData) => {
   const url = await repository.findUrlByShortCode(shortCode);
 
   if (!url) {
@@ -103,7 +132,7 @@ const redirectUrl = async (shortCode, clickData, requestContext) => {
   return url.original_url;
 };
 
-const getMyUrls = async (userId, query, requestContext) => {
+const getMyUrls = async (userId, query) => {
   const page = query.page;
   const limit = query.limit;
 
@@ -170,7 +199,7 @@ const getMyUrls = async (userId, query, requestContext) => {
   };
 };
 
-const getUrlById = async (userId, urlId, requestContext) => {
+const getUrlById = async (userId, urlId) => {
   const url = await repository.findUrlById(urlId);
 
   if (!url) {
@@ -203,10 +232,16 @@ const updateUrl = async (userId, urlId, payload, requestContext) => {
     throw new ApiError(404, "URL not found");
   }
 
-  if (payload.customAlias && payload.customAlias !== url.short_code) {
-    const existingUrl = await repository.findUrlByShortCode(
-      payload.customAlias,
-    );
+  const customAlias = payload.customAlias?.toLowerCase();
+
+  if (customAlias && customAlias !== url.short_code.toLowerCase()) {
+    // Reserved alias check
+    if (isReservedAlias(customAlias)) {
+      throw new ApiError(400, "This custom alias is reserved");
+    }
+
+    // Existing alias check
+    const existingUrl = await repository.findUrlByShortCode(customAlias);
 
     if (existingUrl) {
       throw new ApiError(409, "Custom alias already exists");
@@ -219,12 +254,12 @@ const updateUrl = async (userId, urlId, payload, requestContext) => {
 
   const data = {};
 
-  if (payload.originalUrl) {
+  if (payload.originalUrl !== undefined) {
     data.original_url = payload.originalUrl;
   }
 
-  if (payload.customAlias) {
-    data.short_code = payload.customAlias;
+  if (customAlias) {
+    data.short_code = customAlias;
   }
 
   if (payload.title !== undefined) {
@@ -235,17 +270,30 @@ const updateUrl = async (userId, urlId, payload, requestContext) => {
     data.description = payload.description;
   }
 
-  if (payload.expiresAt) {
+  if (payload.expiresAt !== undefined) {
     data.expires_at = new Date(payload.expiresAt);
   }
 
-  if (payload.status) {
+  if (payload.status !== undefined) {
     data.status = payload.status;
   }
 
   data.updated_at = new Date();
 
-  const updatedUrl = await repository.updateUrl(urlId, data);
+  let updatedUrl;
+
+  try {
+    updatedUrl = await repository.updateUrl(urlId, data);
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new ApiError(409, "Custom alias already exists");
+    }
+
+    throw error;
+  }
 
   await audit.url.updated({
     userId,
@@ -281,7 +329,7 @@ const deleteUrl = async (userId, urlId, requestContext) => {
   });
 };
 
-const getAnalytics = async (userId, urlId, requestContext) => {
+const getAnalytics = async (userId, urlId) => {
   const url = await repository.findUrlById(urlId);
 
   if (!url) {
@@ -345,13 +393,9 @@ const getAnalytics = async (userId, urlId, requestContext) => {
 
     analytics: {
       totalClicks,
-
       todayClicks,
-
       weekClicks,
-
       monthClicks,
-
       lastClickedAt: url.last_clicked_at,
     },
   };

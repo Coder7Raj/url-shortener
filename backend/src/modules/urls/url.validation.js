@@ -24,7 +24,20 @@ const shortCodeSchema = z
   .trim()
   .min(3)
   .max(20)
-  .regex(/^[a-zA-Z0-9_-]+$/, "Only letters, numbers, _ and - are allowed");
+  .regex(/^[a-zA-Z0-9_-]+$/, "Only letters, numbers, _ and - are allowed")
+  .regex(/[a-zA-Z0-9]/, "Alias must contain at least one letter or number");
+
+const futureDateTimeSchema = z
+  .string()
+  .datetime()
+  .refine(
+    (value) => {
+      return new Date(value).getTime() > Date.now();
+    },
+    {
+      message: "Expiration date must be in the future",
+    },
+  );
 
 const createUrlSchema = z.object({
   body: z.object({
@@ -32,7 +45,7 @@ const createUrlSchema = z.object({
 
     customAlias: shortCodeSchema.optional(),
 
-    expiresAt: z.string().datetime().optional(),
+    expiresAt: futureDateTimeSchema.optional(),
   }),
 });
 
@@ -78,7 +91,7 @@ const updateUrlSchema = z.object({
 
     description: z.string().trim().max(2000).optional(),
 
-    expiresAt: z.string().datetime().optional(),
+    expiresAt: futureDateTimeSchema.optional(),
 
     status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
   }),
