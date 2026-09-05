@@ -1,5 +1,4 @@
 require("dotenv").config();
-const prisma = require("./config/prisma.js");
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
@@ -13,6 +12,7 @@ const analyticsRoutes = require("./modules/analytics/analytics.routes.js");
 const {
   globalRateLimiter,
 } = require("./middlewares/rateLimiter.middleware.js");
+const env = require("./config/env.js");
 
 const app = express();
 
@@ -20,14 +20,25 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: env.clientUrl,
     credentials: true,
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
-app.use(express.json());
+app.use(
+  express.json({
+    limit: "100kb",
+  }),
+);
 
-app.use(express.urlencoded({ extended: true }));
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: "100kb",
+  }),
+);
 
 app.use(cookieParser());
 
@@ -41,15 +52,15 @@ app.use("/api/v1", routes);
 
 app.use("/api/v1/analytics", analyticsRoutes);
 
-app.use(notFound);
-
-app.use(errorMiddleware);
-
 app.get("/", (req, res) => {
   res.json({
     success: true,
     message: "URL Shortener API Running 🚀",
   });
 });
+
+app.use(notFound);
+
+app.use(errorMiddleware);
 
 module.exports = app;
