@@ -1,15 +1,36 @@
 const { z } = require("zod");
 
+const httpUrlSchema = z
+  .string()
+  .trim()
+  .url("Please provide a valid URL")
+  .refine(
+    (value) => {
+      try {
+        const url = new URL(value);
+
+        return url.protocol === "http:" || url.protocol === "https:";
+      } catch {
+        return false;
+      }
+    },
+    {
+      message: "Only HTTP and HTTPS URLs are allowed",
+    },
+  );
+
+const shortCodeSchema = z
+  .string()
+  .trim()
+  .min(3)
+  .max(20)
+  .regex(/^[a-zA-Z0-9_-]+$/, "Only letters, numbers, _ and - are allowed");
+
 const createUrlSchema = z.object({
   body: z.object({
-    originalUrl: z.string().url("Please provide a valid URL"),
+    originalUrl: httpUrlSchema,
 
-    customAlias: z
-      .string()
-      .min(3)
-      .max(20)
-      .regex(/^[a-zA-Z0-9_-]+$/, "Only letters, numbers, _ and - are allowed")
-      .optional(),
+    customAlias: shortCodeSchema.optional(),
 
     expiresAt: z.string().datetime().optional(),
   }),
@@ -17,7 +38,7 @@ const createUrlSchema = z.object({
 
 const redirectSchema = z.object({
   params: z.object({
-    shortCode: z.string().min(1),
+    shortCode: shortCodeSchema,
   }),
 });
 
@@ -27,7 +48,7 @@ const listUrlsSchema = z.object({
 
     limit: z.coerce.number().int().min(1).max(100).default(10),
 
-    search: z.string().trim().optional(),
+    search: z.string().trim().max(100).optional(),
 
     status: z.enum(["ACTIVE", "INACTIVE", "EXPIRED", "DELETED"]).optional(),
 
@@ -49,18 +70,13 @@ const updateUrlSchema = z.object({
   }),
 
   body: z.object({
-    originalUrl: z.string().url().optional(),
+    originalUrl: httpUrlSchema.optional(),
 
-    customAlias: z
-      .string()
-      .min(3)
-      .max(20)
-      .regex(/^[a-zA-Z0-9_-]+$/)
-      .optional(),
+    customAlias: shortCodeSchema.optional(),
 
-    title: z.string().max(255).optional(),
+    title: z.string().trim().max(255).optional(),
 
-    description: z.string().optional(),
+    description: z.string().trim().max(2000).optional(),
 
     expiresAt: z.string().datetime().optional(),
 

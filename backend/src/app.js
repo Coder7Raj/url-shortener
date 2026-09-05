@@ -8,7 +8,7 @@ const morgan = require("morgan");
 const routes = require("./routes/routes.js");
 const errorMiddleware = require("./middlewares/error.middleware.js");
 const notFound = require("./middlewares/notFound.middleware.js");
-const analyticsRoutes = require("./modules/analytics/analytics.routes.js");
+// const analyticsRoutes = require("./modules/analytics/analytics.routes.js");
 const {
   globalRateLimiter,
 } = require("./middlewares/rateLimiter.middleware.js");
@@ -29,14 +29,14 @@ app.use(
 
 app.use(
   express.json({
-    limit: "100kb",
+    limit: "50kb",
   }),
 );
 
 app.use(
   express.urlencoded({
     extended: true,
-    limit: "100kb",
+    limit: "50kb",
   }),
 );
 
@@ -50,12 +50,12 @@ app.use(globalRateLimiter);
 
 app.use("/api/v1", routes);
 
-app.use("/api/v1/analytics", analyticsRoutes);
+// app.use("/api/v1/analytics", analyticsRoutes);
 
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "URL Shortener API Running 🚀",
+    message: "URL Shortener API Running",
   });
 });
 
