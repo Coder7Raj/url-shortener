@@ -16,6 +16,12 @@ const env = require("./config/env.js");
 
 const app = express();
 
+app.disable("x-powered-by");
+
+if (env.isProduction) {
+  app.set("trust proxy", 1);
+}
+
 app.use(helmet());
 
 app.use(
@@ -68,7 +74,7 @@ app.use("/api/v1", routes);
 // app.use("/api/v1/analytics", analyticsRoutes);
 
 app.get("/", (req, res) => {
-  res.json({
+  res.status(200).json({
     success: true,
     message: "URL Shortener API Running",
   });
