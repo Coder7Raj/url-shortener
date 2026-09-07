@@ -4,7 +4,6 @@ const authMiddleware = require("../../middlewares/auth.middleware.js");
 const controller = require("./url.controller.js");
 const {
   createUrlSchema,
-  redirectSchema,
   listUrlsSchema,
   getUrlSchema,
   updateUrlSchema,
@@ -12,9 +11,6 @@ const {
   analyticsSchema,
 } = require("./url.validation.js");
 const qrRoutes = require("../qr/qr.routes.js");
-const {
-  redirectRateLimiter,
-} = require("../../middlewares/rateLimiter.middleware.js");
 
 const router = express.Router();
 
@@ -55,12 +51,5 @@ router.get(
 );
 
 router.use("/:id/qr", qrRoutes);
-
-router.get(
-  "/:shortCode",
-  redirectRateLimiter,
-  validate(redirectSchema),
-  controller.redirect,
-);
 
 module.exports = router;

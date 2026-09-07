@@ -1,5 +1,4 @@
 import { ExternalLink, Link as LinkIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const AnalyticsUrlInfo = ({ url }) => {
   if (!url) {
@@ -25,7 +24,7 @@ const AnalyticsUrlInfo = ({ url }) => {
           </p>
         </div>
 
-        <Link
+        <a
           href={url.originalUrl}
           target="_blank"
           rel="noreferrer"
@@ -33,7 +32,7 @@ const AnalyticsUrlInfo = ({ url }) => {
         >
           Open URL
           <ExternalLink className="h-4 w-4" />
-        </Link>
+        </a>
       </div>
     </div>
   );

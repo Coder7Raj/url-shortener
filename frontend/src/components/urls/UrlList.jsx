@@ -153,14 +153,14 @@ const UrlList = ({ onUpdated, onDeleted }) => {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between md:flex-col lg:flex-row">
                 {/* URL INFO */}
                 <div className="min-w-0">
-                  <Link
+                  <a
                     href={url.shortUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="font-medium text-primary hover:underline"
                   >
                     {url.shortUrl}
-                  </Link>
+                  </a>
 
                   <p className="mt-1 truncate text-sm text-muted-foreground">
                     {url.originalUrl}

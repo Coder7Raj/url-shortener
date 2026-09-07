@@ -21,7 +21,6 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { Link } from "react-router-dom";
 import useQr from "../../hooks/useQr.js";
 import useUrls from "../../hooks/useUrls.js";
 
@@ -242,7 +241,7 @@ const QrPage = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Short URL</p>
 
-                <Link
+                <a
                   href={selectedUrl.shortUrl}
                   target="_blank"
                   rel="noreferrer"
@@ -251,7 +250,7 @@ const QrPage = () => {
                   {selectedUrl.shortUrl}
 
                   <ExternalLink className="h-3.5 w-3.5" />
-                </Link>
+                </a>
               </div>
 
               {/* Original URL */}

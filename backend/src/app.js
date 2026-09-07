@@ -8,7 +8,7 @@ const morgan = require("morgan");
 const routes = require("./routes/routes.js");
 const errorMiddleware = require("./middlewares/error.middleware.js");
 const notFound = require("./middlewares/notFound.middleware.js");
-// const analyticsRoutes = require("./modules/analytics/analytics.routes.js");
+const redirectRoutes = require("./routes/redirect.routes.js");
 const {
   globalRateLimiter,
 } = require("./middlewares/rateLimiter.middleware.js");
@@ -65,13 +65,17 @@ app.use(cookieParser());
 
 app.use(compression());
 
-app.use(morgan("dev"));
+if (env.isProduction) {
+  app.use(morgan("combined"));
+} else {
+  app.use(morgan("dev"));
+}
 
 app.use(globalRateLimiter);
 
 app.use("/api/v1", routes);
 
-// app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/", redirectRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({
