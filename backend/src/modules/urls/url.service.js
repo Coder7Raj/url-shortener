@@ -8,7 +8,6 @@ const ApiError = require("../../utils/apiError.js");
 const { SHORT_URL_STATUS } = require("./constants.js");
 const prisma = require("../../config/prisma.js");
 const { getPagination } = require("../../utils/pagination.js");
-
 const audit = require("../../common/audit");
 const { isReservedAlias } = require("./reservedAliases.js");
 
