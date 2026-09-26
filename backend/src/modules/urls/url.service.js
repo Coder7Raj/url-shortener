@@ -1,7 +1,6 @@
 const { Prisma } = require("@prisma/client");
-
 const repository = require("./url.repository.js");
-const { generateShortCode } = require("./shortCode.generator.js");
+const { generateShortCode } = require("./shortcode.generator.js");
 const { toUrlResponse } = require("./url.dto.js");
 const clickRepository = require("../click/click.repository.js");
 const ApiError = require("../../utils/apiError.js");
