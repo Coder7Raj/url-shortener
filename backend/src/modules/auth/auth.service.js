@@ -63,11 +63,16 @@ const registerUser = async (userData, deviceInfo, requestContext) => {
 const loginUser = async ({ email, password }, deviceInfo, requestContext) => {
   const user = await repository.findUserByEmail(email);
 
+  console.log("LOGIN DEBUG -- user found: ", !!user);
+  console.log("LOGIN DEBUG -- user email: ", email);
+
   if (!user) {
     throw new ApiError(401, "Invalid email or password");
   }
 
   const isMatch = await comparePassword(password, user.password_hash);
+
+  console.log("PASSWORD DEBUG -- isMatch pass: ", isMatch);
 
   if (!isMatch) {
     throw new ApiError(401, "Invalid email or password");
